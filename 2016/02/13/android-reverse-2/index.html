@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="2/18日增加对aidl和java编译的描述。 前言上一次我们反编译了手Q，并遇到了Apktool反编译直接crash的问题，虽然笔者很想在这次解决这个问题，但在解决途中，发现该保护依赖于很多知识，所以本次先插入一下，正所谓知其然知其所以然，授之鱼不如授之以渔，只有知道一些基本原理，才能让我们以后能自行解决更多问题。 那么，你知道么？从我们在Android Studio中，点击run，到app运行">
+<meta name="keywords" content="Android,Reverse Engineering">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向分析(2) APK的打包与安装">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="2/18日增加对aidl和java编译的描述。 前言上一次我们反编译了手Q，并遇到了Apktool反编译直接crash的问题，虽然笔者很想在这次解决这个问题，但在解决途中，发现该保护依赖于很多知识，所以本次先插入一下，正所谓知其然知其所以然，授之鱼不如授之以渔，只有知道一些基本原理，才能让我们以后能自行解决更多问题。 那么，你知道么？从我们在Android Studio中，点击run，到app运行">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img.blog.csdn.net/20160212233210732">
+<meta property="og:image" content="http://img.blog.csdn.net/20160212233741455">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-reverse-2-2.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-reverse-2-1.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-reverse-2-3.jpg">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-reverse-2-4.png">
+<meta property="og:updated_time" content="2016-02-19T09:45:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android逆向分析(2) APK的打包与安装">
+<meta name="twitter:description" content="2/18日增加对aidl和java编译的描述。 前言上一次我们反编译了手Q，并遇到了Apktool反编译直接crash的问题，虽然笔者很想在这次解决这个问题，但在解决途中，发现该保护依赖于很多知识，所以本次先插入一下，正所谓知其然知其所以然，授之鱼不如授之以渔，只有知道一些基本原理，才能让我们以后能自行解决更多问题。 那么，你知道么？从我们在Android Studio中，点击run，到app运行">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160212233210732">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Android逆向分析(2) APK的打包与安装 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android逆向分析(2) APK的打包与安装
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-13 16:13:55" itemprop="dateCreated datePublished" datetime="2016-02-13T16:13:55+08:00">2016-02-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-19 17:45:13" itemprop="dateModified" datetime="2016-02-19T17:45:13+08:00">2016-02-19</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Reverse-Engineering/" itemprop="url" rel="index"><span itemprop="name">Android Reverse Engineering</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>2/18日增加对aidl和java编译的描述。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上一次我们反编译了手Q，并遇到了Apktool反编译直接crash的问题，虽然笔者很想在这次解决这个问题，但在解决途中，发现该保护依赖于很多知识，所以本次先插入一下，正所谓知其然知其所以然，授之鱼不如授之以渔，只有知道一些基本原理，才能让我们以后能自行解决更多问题。</p>
+<p>那么，你知道么？从我们在Android Studio中，点击run，到app运行在手机上，之间究竟发生了什么，代码和资源是怎么变成APK的，而APK又是怎么安装上去，并能执行的呢。</p>
+<p><img src="http://img.blog.csdn.net/20160212233210732" alt="build-simple-overview"></p>
+<p>我们或许都能说出来像<a href="http://developer.android.com/tools/building/index.html" target="_blank" rel="noopener">上图</a>这样一个简单的过程：Android工程编译打包为APK，签名后通过ADB push到设备或者模拟器上安装。但是再深入就蒙了。</p>
+<p>希望看完下文，大家能对整个过程有一定了解。</p>
+<p>源码：资源部分为Android 4.4，后半段改为了6.0_r2</p>
+<h1 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h1><p>APK是Android Package的缩写，实际上APK就是一个zip压缩包，使用zip解压软件直接就能对其进行解压，解压后会发现就是由各种资源文件、一或多个dex文件（odex过的apk除外）、AndroidManifest.xml、resources.arsc以及其他一些文件组成的。</p>
+<p>我们先看看从Android在线文档找来的<a href="http://developer.android.com/sdk/installing/studio-build.html#detailed-build" target="_blank" rel="noopener">APK文件构建流程图</a>，如下（方形为对象，圆形为动作）。</p>
+<p><img src="http://img.blog.csdn.net/20160212233741455" alt="apk-build"></p>
+<p>从该图来看，整个打包过程可以分为以下七个步骤：</p>
+<h2 id="第1步：aapt"><a href="#第1步：aapt" class="headerlink" title="第1步：aapt"></a>第1步：aapt</h2><p>打包资源文件，生成R.java和编译后的资源。aapt的可执行文件位于sdk的build-tools下，而源码则在frameworks\base\tools\aapt目录下。打包过程主要是调用了<code>Resources.cpp</code>下的<code>buildResources()</code>。</p>
+<p>路径为<code>Main.cpp</code>下的<code>handleCommand(Bundle* bundle)</code>到<code>Command.cpp</code>下的<code>doPackage(Bundle* bundle)</code>，经过一些初始化和检查后调用了我们要深入看的<code>buildResources(Bundle* bundle, const sp&lt;AaptAssets&gt;&amp; assets)</code>。因为代码都比较长，这里不贴了，主要说一下大概的逻辑和流程。</p>
+<h3 id="检查AndroidManifest-xml"><a href="#检查AndroidManifest-xml" class="headerlink" title="检查AndroidManifest.xml"></a>检查AndroidManifest.xml</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// String8是android framework源码定义的数据格式，用来保存UTF-8字符的字符串，类似的还有一个String16，用来放UTF-16字符串的。</span></span><br><span class="line">sp&lt;AaptGroup&gt; androidManifestFile =</span><br><span class="line">        assets-&gt;getFiles().valueFor(String8(<span class="string">"AndroidManifest.xml"</span>));</span><br><span class="line"><span class="keyword">if</span> (androidManifestFile == NULL) &#123;</span><br><span class="line">    fprintf(stderr, <span class="string">"ERROR: No AndroidManifest.xml file found.\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> UNKNOWN_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">status_t err = parsePackage(bundle, assets, androidManifestFile);</span><br><span class="line"><span class="keyword">if</span> (err != NO_ERROR) &#123;</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NOISY(printf(<span class="string">"Creating resources for package %s\n"</span>,</span><br><span class="line">             assets-&gt;getPackage().string()));</span><br></pre></td></tr></table></figure>
+<p>主要做一些检查并使用<code>parsePackage</code>初始化并设置一些attribute，比如<code>package</code>, <code>minSdkVersion</code>, <code>uses-sdk</code>。</p>
+<h3 id="添加被引用资源包"><a href="#添加被引用资源包" class="headerlink" title="添加被引用资源包"></a>添加被引用资源包</h3><p>使用<code>table.addIncludedResources(bundle, assets)</code>添加被引用资源包，比如系统的那些android:命名空间下的资源。</p>
+<h3 id="收集资源文件"><a href="#收集资源文件" class="headerlink" title="收集资源文件"></a>收集资源文件</h3><p>收集资源文件:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">collect_files</span><span class="params">(<span class="keyword">const</span> sp&lt;AaptDir&gt;&amp; dir,</span></span></span><br><span class="line"><span class="function"><span class="params">        KeyedVector&lt;String8, sp&lt;ResourceTypeSet&gt; &gt;* resources)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>处理overlay（重叠包，如果指定的重叠包有和当前编译包重名的资源，则使用重叠包的）:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// apply the overlay files to the base set</span></span><br><span class="line"><span class="keyword">if</span> (!applyFileOverlay(bundle, assets, &amp;drawables, <span class="string">"drawable"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;layouts, <span class="string">"layout"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;anims, <span class="string">"anim"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;animators, <span class="string">"animator"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;interpolators, <span class="string">"interpolator"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;transitions, <span class="string">"transition"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;xmls, <span class="string">"xml"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;raws, <span class="string">"raw"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;colors, <span class="string">"color"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;menus, <span class="string">"menu"</span>) ||</span><br><span class="line">        !applyFileOverlay(bundle, assets, &amp;mipmaps, <span class="string">"mipmap"</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> UNKNOWN_ERROR;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="将收集到的资源文件加到资源表-ResourceTable"><a href="#将收集到的资源文件加到资源表-ResourceTable" class="headerlink" title="将收集到的资源文件加到资源表(ResourceTable)"></a>将收集到的资源文件加到资源表(<code>ResourceTable</code>)</h3><p>对res目录下的各个资源子目录进行处理，函数为<code>makeFileResources</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> status_t <span class="title">makeFileResources</span><span class="params">(Bundle* bundle, <span class="keyword">const</span> sp&lt;AaptAssets&gt;&amp; assets,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  ResourceTable* table,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> sp&lt;ResourceTypeSet&gt;&amp; <span class="built_in">set</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> <span class="keyword">char</span>* resType)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p><code>makeFileResources</code>会对资源文件名做合法性检查，并将其添加到ResourceTable内。</p>
+<h3 id="编译values资源并添加到资源表"><a href="#编译values资源并添加到资源表" class="headerlink" title="编译values资源并添加到资源表"></a>编译values资源并添加到资源表</h3><p>在上一步添加过程中，其实并没有对values资源进行处理，因为values比较特殊，需要经过编译之后，才能添加到资源表中。</p>
+<p>编译会调用<code>ResourceTable</code>的<code>compileResourceFile</code>进行:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">status_t</span> compileResourceFile(Bundle* bundle,</span><br><span class="line">                             <span class="keyword">const</span> sp&lt;AaptAssets&gt;&amp; assets,</span><br><span class="line">                             <span class="keyword">const</span> sp&lt;AaptFile&gt;&amp; in,</span><br><span class="line">                             <span class="keyword">const</span> ResTable_config&amp; defParams,</span><br><span class="line">                             <span class="keyword">const</span> <span class="keyword">bool</span> overwrite,</span><br><span class="line">                             ResourceTable* outTable);</span><br></pre></td></tr></table></figure></p>
+<h3 id="给bag资源分配id"><a href="#给bag资源分配id" class="headerlink" title="给bag资源分配id"></a>给bag资源分配id</h3><p>在继续编译其他资源之前，我们需要先给bag资源（attrs，比如orientation这种属性的取值范围定义的子元素）分配id，因为其他资源可能对它们有引用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">status_t</span> ResourceTable::assignResourceIds();</span><br></pre></td></tr></table></figure>
+<h3 id="编译xml资源文件"><a href="#编译xml资源文件" class="headerlink" title="编译xml资源文件"></a>编译xml资源文件</h3><p>最后我们终于可以编译xml文件了，因为我们已经为它准备好了一切可能引用到的东西（value, drawable等）。</p>
+<p>程序会对layouts, anims, animators等逐一调用<code>ResourceTable.cpp</code>的:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">status_t</span> compileXmlFile(<span class="keyword">const</span> sp&lt;AaptAssets&gt;&amp; assets,</span><br><span class="line">                        <span class="keyword">const</span> sp&lt;AaptFile&gt;&amp; target,</span><br><span class="line">                        ResourceTable* table,</span><br><span class="line">                        <span class="keyword">int</span> options);</span><br></pre></td></tr></table></figure></p>
+<p>进行编译，内部流程又可以分为：解析xml文件，赋予属性名称资源id，解析属性值，扁平化为二进制文件（调用<code>flatten(Bundle* bundle, const sp&lt;AaptFile&gt;&amp; dest)</code>）。</p>
+<h3 id="编译AndroidManifest-xml文件"><a href="#编译AndroidManifest-xml文件" class="headerlink" title="编译AndroidManifest.xml文件"></a>编译AndroidManifest.xml文件</h3><p>该步骤其实也可以归为上一步，但由于manifest文件的特殊，所以姑且抽了出来。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 拿到AndroidManifest.xml文件</span></span><br><span class="line"><span class="keyword">const</span> sp&lt;AaptFile&gt; manifestFile(androidManifestFile-&gt;getFiles().valueAt(<span class="number">0</span>));</span><br><span class="line"><span class="function">String8 <span class="title">manifestPath</span><span class="params">(manifestFile-&gt;getPrintableSource())</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成最终编译后的manifest文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 清空原来的数据，重新解析</span></span><br><span class="line">manifestFile-&gt;clearData();</span><br><span class="line">sp&lt;XMLNode&gt; manifestTree = XMLNode::parse(manifestFile);</span><br><span class="line"><span class="keyword">if</span> (manifestTree == <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> UNKNOWN_ERROR;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 马杀鸡manifest（从bundle读取必要的tag并写到manifestTree，</span></span><br><span class="line"><span class="comment">// 处理package name重载，把各种相对路径的名字改为绝对路径）</span></span><br><span class="line">err = massageManifest(bundle, manifestTree);</span><br><span class="line"><span class="keyword">if</span> (err &lt; NO_ERROR) &#123;</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 编译manifest xml文件</span></span><br><span class="line">err = compileXmlFile(assets, manifestTree, manifestFile, &amp;table);</span><br><span class="line"><span class="keyword">if</span> (err &lt; NO_ERROR) &#123;</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="生成最终资源表"><a href="#生成最终资源表" class="headerlink" title="生成最终资源表"></a>生成最终资源表</h3><p>生成我们解压后看到的那个<code>resources.arsc</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (table.hasResources()) &#123;</span><br><span class="line">    <span class="comment">// 生成资源符号表</span></span><br><span class="line">    sp&lt;AaptSymbols&gt; symbols = assets-&gt;getSymbolsFor(String8(<span class="string">"R"</span>));</span><br><span class="line">    err = table.addSymbols(symbols);</span><br><span class="line">    <span class="keyword">if</span> (err &lt; NO_ERROR) &#123;</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 生成资源索引表resources.arsc</span></span><br><span class="line">    resFile = getResourceFile(assets);</span><br><span class="line">    <span class="keyword">if</span> (resFile == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Error: unable to generate entry for resource data\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> UNKNOWN_ERROR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    err = table.flatten(bundle, resFile);</span><br><span class="line">    <span class="keyword">if</span> (err &lt; NO_ERROR) &#123;</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可能有一些同学用到过，这就是public.xml里定义的固定资源id</span></span><br><span class="line">    <span class="keyword">if</span> (bundle-&gt;getPublicOutputFile()) &#123;</span><br><span class="line">        FILE* fp = fopen(bundle-&gt;getPublicOutputFile(), <span class="string">"w+"</span>);</span><br><span class="line">        <span class="keyword">if</span> (fp == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"ERROR: Unable to open public definitions output file %s: %s\n"</span>,</span><br><span class="line">                    (<span class="keyword">const</span> <span class="keyword">char</span>*)bundle-&gt;getPublicOutputFile(), strerror(errno));</span><br><span class="line">            <span class="keyword">return</span> UNKNOWN_ERROR;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (bundle-&gt;getVerbose()) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"  Writing public definitions to %s.\n"</span>, bundle-&gt;getPublicOutputFile());</span><br><span class="line">        &#125;</span><br><span class="line">        table.writePublicDefinitions(String16(assets-&gt;getPackage()), fp);</span><br><span class="line">        fclose(fp);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 把资源读回来到最终资源表</span></span><br><span class="line">    finalResTable.add(resFile-&gt;getData(), resFile-&gt;getSize(), <span class="literal">NULL</span>);</span><br><span class="line">    <span class="comment">// 生成完毕</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>而具体的<strong>resources.arsc</strong>生成则在<code>ResourceTable.cpp</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一个400行的函数，具体的生成实现在这里</span></span><br><span class="line"><span class="keyword">status_t</span> ResourceTable::flatten(Bundle* bundle, <span class="keyword">const</span> sp&lt;AaptFile&gt;&amp; dest);</span><br></pre></td></tr></table></figure></p>
+<p>写入顺序为 索引资源表头部(ResourceTypes:ResTable_header) -&gt; 资源项的值字符串资源池 -&gt; Package数据块。</p>
+<h3 id="验证AndroidManifest-xml文件"><a href="#验证AndroidManifest-xml文件" class="headerlink" title="验证AndroidManifest.xml文件"></a>验证AndroidManifest.xml文件</h3><p>验证manifest各个属性对应值的合法性，即value中能出现的字符，完成后资源正式处理完毕，添加到<code>AaptAssets</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (resFile != <span class="literal">NULL</span>) &#123;</span><br><span class="line">    <span class="comment">// These resources are now considered to be a part of the included resources, for others to reference.</span></span><br><span class="line">    err = assets-&gt;addIncludedResources(resFile);</span><br><span class="line">    <span class="keyword">if</span> (err &lt; NO_ERROR) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"ERROR: Unable to parse generated resources, aborting.\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="生成R-java"><a href="#生成R-java" class="headerlink" title="生成R.java"></a>生成R.java</h3><p>终于，我们已经读取并处理好了需要的一切，是时候开始写文件了，于是又回到了<code>Command.cpp</code>的<code>doPackage</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 更新那些需要被作为Java符号的符号</span></span><br><span class="line">assets-&gt;applyJavaSymbols();</span><br><span class="line"><span class="keyword">if</span> (SourcePos::hasErrors()) &#123;</span><br><span class="line">    goto bail;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果需要则在这里生成.d依赖文件</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 写R.java常量</span></span><br><span class="line"><span class="keyword">if</span> (!assets-&gt;havePrivateSymbols()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (bundle-&gt;getCustomPackage() == NULL) &#123;</span><br><span class="line">        <span class="comment">// 将R.java文件写到恰当的目录下</span></span><br><span class="line">        <span class="comment">// 如 gen/com/foo/app/R.java</span></span><br><span class="line">        err = writeResourceSymbols(bundle, assets, assets-&gt;getPackage(), <span class="keyword">true</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="function"><span class="keyword">const</span> String8 <span class="title">customPkg</span><span class="params">(bundle-&gt;getCustomPackage()</span>)</span>;</span><br><span class="line">        err = writeResourceSymbols(bundle, assets, customPkg, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        goto bail;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果有library文件，则需要把R.java也写到那些libraries的对应class目录下</span></span><br><span class="line">    <span class="comment">// 如 gen/com/foo/app/lib/R.java</span></span><br><span class="line">    <span class="keyword">if</span> (bundle-&gt;getExtraPackages() != NULL) &#123;</span><br><span class="line">        <span class="comment">// 冒号分割</span></span><br><span class="line">        <span class="function">String8 <span class="title">libs</span><span class="params">(bundle-&gt;getExtraPackages()</span>)</span>;</span><br><span class="line">        <span class="keyword">char</span>* packageString = strtok(libs.lockBuffer(libs.length()), <span class="string">":"</span>);</span><br><span class="line">        <span class="keyword">while</span> (packageString != NULL) &#123;</span><br><span class="line">            err = writeResourceSymbols(bundle, assets, String8(packageString), <span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                goto bail;</span><br><span class="line">            &#125;</span><br><span class="line">            packageString = strtok(NULL, <span class="string">":"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        libs.unlockBuffer();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 有不对外开放的私有符号</span></span><br><span class="line">    err = writeResourceSymbols(bundle, assets, assets-&gt;getPackage(), <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        goto bail;</span><br><span class="line">    &#125;</span><br><span class="line">    err = writeResourceSymbols(bundle, assets, assets-&gt;getSymbolsPrivatePackage(), <span class="keyword">true</span>);</span><br><span class="line">    <span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        goto bail;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="生成ProGuard文件"><a href="#生成ProGuard文件" class="headerlink" title="生成ProGuard文件"></a>生成ProGuard文件</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">err = writeProguardFile(bundle, assets);</span><br><span class="line"><span class="keyword">if</span> (err &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">goto</span> bail;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而<code>writeProguardFile(bundle, assets)</code>则会调用</p>
+<ul>
+<li>writeProguardForAndroidManifest(&amp;keep, assets);</li>
+<li>writeProguardForLayouts(&amp;keep, assets);</li>
+</ul>
+<p>将规则更新到ProguardKeepSet中，然后打开proguard文件进行写入（proguard文件由-G命令指定）。</p>
+<h3 id="生成apk"><a href="#生成apk" class="headerlink" title="生成apk"></a>生成apk</h3><p>又是一个洋洋洒洒150多行的函数，浓缩一下看看删减版<code>Package.cpp</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">status_t</span> writeAPK(Bundle* bundle, <span class="keyword">const</span> sp&lt;AaptAssets&gt;&amp; assets, <span class="keyword">const</span> String8&amp; outputFile)</span><br><span class="line">&#123;</span><br><span class="line">    ... 计时，初始化状态变量</span><br><span class="line">    <span class="comment">// so，apk就是作为一个zip包创建的</span></span><br><span class="line">    ZipFile* zip = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 准备Zip文件，如果文件存在，则根据bundle设置的"update"或者"force"进行对应处理</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    FileType fileType = getFileType(outputFile.<span class="built_in">string</span>());</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 准备完毕，new ZipFile并打开准备开始写</span></span><br><span class="line">    <span class="keyword">status_t</span> status;</span><br><span class="line">    zip = <span class="keyword">new</span> ZipFile;</span><br><span class="line">    status = zip-&gt;open(outputFile.<span class="built_in">string</span>(), ZipFile::kOpenReadWrite | ZipFile::kOpenCreate);</span><br><span class="line">    <span class="keyword">if</span> (status != NO_ERROR) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"ERROR: unable to open '%s' as Zip file for writing\n"</span>,</span><br><span class="line">                outputFile.<span class="built_in">string</span>());</span><br><span class="line">        <span class="keyword">goto</span> bail;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 先把assets丢进去（即第10步我们准备好的东西，包括了assets目录, res目录下values以外的子目录 - 因为values已经被编译到资源索引表了, resources.arsc）</span></span><br><span class="line">    count = processAssets(bundle, zip, assets);</span><br><span class="line">    <span class="keyword">if</span> (count &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"ERROR: unable to process assets while packaging '%s'\n"</span>,</span><br><span class="line">                outputFile.<span class="built_in">string</span>());</span><br><span class="line">        result = count;</span><br><span class="line">        <span class="keyword">goto</span> bail;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再把用-j指定的包含classes的jar或者zip包给丢进去</span></span><br><span class="line">    count = processJarFiles(bundle, zip);</span><br><span class="line">    <span class="keyword">if</span> (count &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"ERROR: unable to process jar files while packaging '%s'\n"</span>,</span><br><span class="line">                outputFile.<span class="built_in">string</span>());</span><br><span class="line">        result = count;</span><br><span class="line">        <span class="keyword">goto</span> bail;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 走到这儿算是处理成功了</span></span><br><span class="line">    result = NO_ERROR;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 各种标记删除，然后flush zip</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 没东西要你何用，删 */</span></span><br><span class="line">    <span class="keyword">if</span> (zip-&gt;getNumEntries() == <span class="number">0</span>) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果被要求生成依赖文件，则在这里进行，最后写到指定apk输出目录下，如bin/resources.ap_.d</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    assert(result == NO_ERROR);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 上面任何一部出错则goto跑来这儿，删除文件</span></span><br><span class="line">bail:</span><br><span class="line">    <span class="keyword">delete</span> zip;        <span class="comment">// must close before remove in Win32</span></span><br><span class="line">    <span class="keyword">if</span> (result != NO_ERROR) &#123;</span><br><span class="line">        ...删除并unlink</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (result == NO_ERROR &amp;&amp; bundle-&gt;getVerbose())</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Done!\n"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="第2步：aidl"><a href="#第2步：aidl" class="headerlink" title="第2步：aidl"></a>第2步：aidl</h2><p>处理aidl文件，调用build-tools下的<strong>aidl</strong>可执行文件生成对应的Java文件。该工具的源码位于frameworks\base\tools\aidl。</p>
+<p>aidl，全名Android Interface Definition Language，即Android接口定义语言。</p>
+<p>输入：aidl后缀的文件。<br>输出：可用于进程通信的C/S端java代码，位于build/generated/source/aidl。</p>
+<p>对于这块，推荐Android开发艺术一书，其在跨进程一章对AIDL有比较详尽的描述。其实我们也完全可以自己去实现AIDL生成的那套，这里不进行赘述。</p>
+<h2 id="插入-RenderScript-amp-BuildConfig"><a href="#插入-RenderScript-amp-BuildConfig" class="headerlink" title="插入 - RenderScript &amp; BuildConfig"></a>插入 - RenderScript &amp; BuildConfig</h2><p>插入一下官网图里没说到的。</p>
+<p>编译RenderScript，生成BuildConfig。</p>
+<h2 id="第3步：Java源码编译"><a href="#第3步：Java源码编译" class="headerlink" title="第3步：Java源码编译"></a>第3步：Java源码编译</h2><p>我们有了R.java和aidl生成的Java文件，再加上工程的源代码，现在可以使用javac进行正常的java编译生成class文件了。</p>
+<p>输入：java source的文件夹（另外还包括了build/generated下的：R.java, aidl生成的java文件，以及BuildConfig.java）。<br>输出：对于gradle编译，可以在build/intermediates/classes里，看到输出的class文件。</p>
+<h2 id="第4步：dex"><a href="#第4步：dex" class="headerlink" title="第4步：dex"></a>第4步：dex</h2><p>调用dx.bat将所有的class文件（上一步生成的以及第三方库的）转化为classes.dex文件，实际调用的是build-tools\lib\dx.jar，其源码位于libcore\dex（描述Dex文件的格式）及dalvik\dx（包含dx及multidex打包）下。</p>
+<p>dx会将class转换为Dalvik字节码，生成常量池，消除冗余数据等。</p>
+<p>关于dex，我们下一篇会单独去细说。</p>
+<h2 id="第5步：apkbuilder"><a href="#第5步：apkbuilder" class="headerlink" title="第5步：apkbuilder"></a>第5步：apkbuilder</h2><p>打包生成APK文件。旧的apkbuilder脚本已经废弃，现在都已经通过<code>sdklib.jar</code>的<code>ApkBuilder</code>类进行打包了。输入为我们之前生成的包含resources.arcs的.ap_文件，上一步生成的dex文件，以及其他资源如jni、jar包内的资源。</p>
+<p>大致步骤为</p>
+<ol>
+<li>以包含resources.arcs的.ap_文件为基础，new一个ApkBuilder，设置debugMode</li>
+<li>apkBuilder.addZipFile(f);</li>
+<li>apkBuilder.addSourceFolder(f);</li>
+<li>apkBuilder.addResourcesFromJar(f);</li>
+<li>apkBuilder.addNativeLibraries(nativeFileList);</li>
+<li>apkBuilder.sealApk();    // 关闭apk文件</li>
+<li>generateDependencyFile(depFile, inputPaths, outputFile.getAbsolutePath());</li>
+</ol>
+<h2 id="第6步：Jarsigner"><a href="#第6步：Jarsigner" class="headerlink" title="第6步：Jarsigner"></a>第6步：Jarsigner</h2><p>对apk文件进行签名。APK需要签名才能在设备上进行安装，源码在build\tools\signapk下。</p>
+<p>很多时候我们在逆向改完后，会因为没有签名文件导致最后的apk无法正常使用，又细分为本地验证和服务器验证。</p>
+<h2 id="第7步：zipalign"><a href="#第7步：zipalign" class="headerlink" title="第7步：zipalign"></a>第7步：zipalign</h2><p>调用buildtools\zipalign，对签名后的apk文件进行对齐处理，使apk中所有资源文件距离文件起始偏移为4字节的整数倍，从而在通过内存映射访问apk文件时会更快。</p>
+<p>这样我们的最终apk就生成完毕了，对gradle是如何在输入gradle assembleDebug之后打包的，可以参见aosp下builder/src/main/java/com/android/builder目录，这样你可以更了解整个流程和每个gradle子任务做了什么（像是BuildConfig是怎么生成的）。</p>
+<h1 id="ADB"><a href="#ADB" class="headerlink" title="ADB"></a>ADB</h1><p>ADB, 全名 Android Debug Bridge，不仅仅是命令行我们输入的adb xxx命令，<a href="http://developer.android.com/tools/debugging/index.html" target="_blank" rel="noopener">Debug</a>, <a href="http://developer.android.com/tools/help/monitor.html" target="_blank" rel="noopener">Device Monitor</a>, <a href="http://developer.android.com/tools/debugging/ddms.html" target="_blank" rel="noopener">DDMS</a>也都是通过adb来完成设备与我们的开发机器的通信的。</p>
+<p>比如当我们在命令行输入<br><img src="http://blog.zhaiyifan.cn/images/android-reverse-2-2.png" alt="adb daemon start"></p>
+<p>实际上就会有2个进程被起起来（这就是下文提到的组件中的client和server了）<br><img src="http://blog.zhaiyifan.cn/images/android-reverse-2-1.png" alt="adb ps"></p>
+<h2 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h2><p>ADB扮演了2个角色</p>
+<ul>
+<li>传输。host和设备间的通信路径。可能是USB，也可能是TCP，但host不需要关心。</li>
+<li>服务。通过传输提供服务，在目标设备上执行指定命令。</li>
+</ul>
+<h2 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h2><p>ADB中有3个组件</p>
+<ul>
+<li>adb clients。其实就是那个子命令的可执行文件。比如起了3个adb shell，那就是3个clients。</li>
+<li>adb server（<strong>就是那个动不动卡死要restart的东西</strong>）。在开发机器的后台运行，扮演着adb clients和adbd之间的中介，让彼此可以通信。</li>
+<li>adb daemon(adbd)。在目标设备上运行的后台进程；由init启动，死掉后会由init重启。</li>
+</ul>
+<h2 id="server的启动"><a href="#server的启动" class="headerlink" title="server的启动"></a>server的启动</h2><p>当启动adb client的时候，client首先会检查是否有adb server进程在运行中，如果没有则启动进程。</p>
+<p>server启动后会绑定到TCP端口5037，并监听来自adb clients的命令。接着server会通过扫描5555到5585之间的奇数端口（被模拟器和物理设备所使用），建立到所有运行中设备实例的连接。一旦server找到adb daemon，就会建立到那个端口的连接（而未开启USB调试的设备则没有adb daemon运行）。</p>
+<p>每个设备实例都需要一对连续的端口（这就是为什么刚才只扫描奇数端口），一个偶数端口用于控制连接，一个奇数端口用于adb连接，例如：</p>
+<p>模拟器1，控制: 5554<br>模拟器2，adb: 5555<br>Nexus6，控制: 5556<br>Nexus6, adb: 5557<br>…</p>
+<p>如上，5554和5555其实都是被同一台设备所使用。</p>
+<h2 id="内部实现"><a href="#内部实现" class="headerlink" title="内部实现"></a>内部实现</h2><p>源码位于aosp的system/core/adb目录下，adb和adbd都是从这儿编译出来的。<br>有一部分文件是共用的：adb.c, fdevent.c, transort.c, transport_local.c, tansport_usb.c, service.c, sockets.c, util.c。</p>
+<p>举个例子<code>adb.c</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="function"><span class="built_in">string</span> <span class="title">get_trace_setting</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> ADB_HOST</span></span><br><span class="line">    <span class="keyword">return</span> get_trace_setting_from_env();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="keyword">return</span> get_trace_setting_from_prop();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过ADB_HOST这个宏编译不同的代码。其他大部分文件则由server和client后缀可以区分。</p>
+<p>跟我们的主题息息相关的主要就是install系列的命令了，先看看命令使用：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">adb install [-lrtsdg] &lt;file&gt;</span><br><span class="line">                             - 把安装包文件push到设备并安装</span><br><span class="line">                               (-l: forward lock application)</span><br><span class="line">                               (-r: replace existing application)</span><br><span class="line">                               (-t: allow <span class="built_in">test</span> packages)</span><br><span class="line">                               (-s: install application on sdcard)</span><br><span class="line">                               (-d: allow version code downgrade)</span><br><span class="line">                               (-g: grant all runtime permissions)</span><br><span class="line"></span><br><span class="line">adb install-multiple [-lrtsdpg] &lt;file...&gt;</span><br><span class="line">                             - 把安装包文件push到设备并安装</span><br><span class="line">                               (-l: forward lock application)</span><br><span class="line">                               (-r: replace existing application)</span><br><span class="line">                               (-t: allow <span class="built_in">test</span> packages)</span><br><span class="line">                               (-s: install application on sdcard)</span><br><span class="line">                               (-d: allow version code downgrade)</span><br><span class="line">                               (-p: partial application install)</span><br><span class="line">                               (-g: grant all runtime permissions)</span><br><span class="line"></span><br><span class="line">adb uninstall [-k] &lt;package&gt; - 从设备上卸载该app</span><br><span class="line">                               (<span class="string">'-k'</span> means keep the data and cache directories)</span><br></pre></td></tr></table></figure></p>
+<p>分别对应<code>commandline.cpp</code>下的三个方法:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">install_app</span><span class="params">(transport_type t, <span class="keyword">const</span> <span class="keyword">char</span>* serial, <span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">install_multiple_app</span><span class="params">(transport_type t, <span class="keyword">const</span> <span class="keyword">char</span>* serial, <span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">uninstall_app</span><span class="params">(transport_type t, <span class="keyword">const</span> <span class="keyword">char</span>* serial, <span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<h2 id="adb-install"><a href="#adb-install" class="headerlink" title="adb install"></a>adb install</h2><p>这里以install命令为例看看adb做了什么:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">install_app</span><span class="params">(transport_type transport, <span class="keyword">const</span> <span class="keyword">char</span>* serial, <span class="keyword">int</span> argc,</span></span></span><br><span class="line"><span class="function"><span class="params">                       <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> DATA_DEST = <span class="string">"/data/local/tmp/%s"</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">const</span> SD_DEST = <span class="string">"/sdcard/tmp/%s"</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* where = DATA_DEST;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 解析-s参数，有则把where改成SD_DEST</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 找到最后的APK参数，检查是否是APK，不是则提示"Invalid APK file"，然后直接退出</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* apk_file = argv[last_apk];</span><br><span class="line">    <span class="keyword">char</span> apk_dest[PATH_MAX];</span><br><span class="line">    <span class="comment">// apk_dest这样就是最终要拷贝过去的完整路径了，比如"/data/local/tmp/app.apk"</span></span><br><span class="line">    <span class="built_in">snprintf</span>(apk_dest, <span class="keyword">sizeof</span> apk_dest, where, get_basename(apk_file));</span><br><span class="line">    <span class="comment">// 把文件push上去</span></span><br><span class="line">    <span class="keyword">int</span> err = do_sync_push(apk_file, apk_dest, <span class="number">0</span> <span class="comment">/* no show progress */</span>);</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">goto</span> cleanup_apk;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        argv[last_apk] = apk_dest; <span class="comment">/* destination name, not source location */</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 通过pm安装</span></span><br><span class="line">    err = pm_command(transport, serial, argc, argv);</span><br><span class="line"></span><br><span class="line"><span class="comment">// push出错了就删了文件</span></span><br><span class="line">cleanup_apk:</span><br><span class="line">    delete_file(transport, serial, apk_dest);</span><br><span class="line">    <span class="keyword">return</span> err;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// pm命令</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">pm_command</span><span class="params">(transport_type transport, <span class="keyword">const</span> <span class="keyword">char</span>* serial,</span></span></span><br><span class="line"><span class="function"><span class="params">                      <span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> cmd = <span class="string">"shell:pm"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (argc-- &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        cmd += <span class="string">" "</span> + escape_arg(*argv++);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> send_shell_command(transport, serial, cmd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="彩蛋"><a href="#彩蛋" class="headerlink" title="彩蛋"></a>彩蛋</h2><p>还有几个有趣的命令<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 跟adb shell差不多，不过颜色很hell</span></span><br><span class="line">adb hell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 笑你妹</span></span><br><span class="line">adb lolcat</span><br></pre></td></tr></table></figure></p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>为什么有时候会安装不上apk呢？安装的界面是怎么弹出来的？抱着这些疑问，我们看下去。</p>
+<h2 id="安装方式"><a href="#安装方式" class="headerlink" title="安装方式"></a>安装方式</h2><p>大致上有四种</p>
+<ol>
+<li>系统程序安装，开机时安装，没有安装界面。<br>由开机时启动的<code>PackageManagerService</code>服务完成，会在启动时扫描<code>/system/app</code>, <code>vender/app</code>, <code>/data/app</code>, <code>/data/app-private</code>并安装。</li>
+<li>通过Android市场安装，Google Play可以直接安装，其他市场除非root，否则需要自己点击安装（除非定制rom），即和第4种一样。</li>
+<li>ADB安装，即上一节说的，也没有安装界面。shell:pm是<code>PackageManagerService</code>的Shell客户端，源码位于<br>/frameworks/base/cmds/pm</li>
+</ol>
+<p>执行路径大致是从main -&gt; run -&gt; runInstall，挑一段最后的核心代码<code>Pm.java</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">runInstall</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ....</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        VerificationParams verificationParams = <span class="keyword">new</span> VerificationParams(verificationURI,</span><br><span class="line">                originatingURI, referrerURI, VerificationParams.NO_UID, null);</span><br><span class="line">        <span class="comment">// 通过IPackageManager</span></span><br><span class="line">        mPm.installPackageAsUser(apkFilePath, obs.getBinder(), installFlags,</span><br><span class="line">                installerPackageName, verificationParams, abi, userId);</span><br><span class="line"></span><br><span class="line">        synchronized (obs) &#123;</span><br><span class="line">            <span class="keyword">while</span> (!obs.finished) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    obs.wait();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 我们看到的成功失败返回信息</span></span><br><span class="line">            <span class="keyword">if</span> (obs.result == PackageManager.INSTALL_SUCCEEDED) &#123;</span><br><span class="line">                System.out.println(<span class="string">"Success"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.err.println(<span class="string">"Failure ["</span></span><br><span class="line">                        + installFailureToString(obs)</span><br><span class="line">                        + <span class="string">"]"</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<ol start="4">
+<li>手机自行通过文件浏览器打开安装，有安装界面。</li>
+</ol>
+<h2 id="PackageInstaller"><a href="#PackageInstaller" class="headerlink" title="PackageInstaller"></a>PackageInstaller</h2><p>当我们在手机的文件管理器或者notification点击apk文件，就会出现如下图所示（Nexus6 Android 6.0.1）的界面，点击安装按钮即可开始安装，点击取消按钮返回。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/android-reverse-2-3.jpg" alt="安装界面"></p>
+<p>这个安装界面是Android系统程序PackageInstaller的PackageInstallerActivity，dump一下可以看到如下图信息</p>
+<p><img src="http://blog.zhaiyifan.cn/images/android-reverse-2-4.png" alt="PackageInstallerActivity"></p>
+<p>当Android系统请求安装apk程序时，会启动这个Activity，并通过Intent读取传来的apk信息，我们来简单看看该Activty onCreate的代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PackageInstallerActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> <span class="keyword">implements</span> <span class="title">OnCancelListener</span>, <span class="title">OnClickListener</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle icicle)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(icicle);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 拿到pm和installer</span></span><br><span class="line">        mPm = getPackageManager();</span><br><span class="line">        mInstaller = mPm.getPackageInstaller();</span><br><span class="line">        mUserManager = (UserManager) getSystemService(Context.USER_SERVICE);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> Intent intent = getIntent();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查permission，初始化读取mSessionId，mPackageURI，mOriginatingURI，mReferrerURI</span></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查是否允许未知来源</span></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 检查scheme是否支持，不支持则直接结束</span></span><br><span class="line">        <span class="keyword">final</span> String scheme = mPackageURI.getScheme();</span><br><span class="line">        <span class="keyword">if</span> (scheme != <span class="keyword">null</span> &amp;&amp; !<span class="string">"file"</span>.equals(scheme) &amp;&amp; !<span class="string">"package"</span>.equals(scheme)) &#123;</span><br><span class="line">            Log.w(TAG, <span class="string">"Unsupported scheme "</span> + scheme);</span><br><span class="line">            setPmResult(PackageManager.INSTALL_FAILED_INVALID_URI);</span><br><span class="line">            mInstallFlowAnalytics.setFlowFinished(</span><br><span class="line">                    InstallFlowAnalytics.RESULT_FAILED_UNSUPPORTED_SCHEME);</span><br><span class="line">            finish();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> PackageUtil.AppSnippet as;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"package"</span>.equals(mPackageURI.getScheme())) &#123;</span><br><span class="line">            <span class="comment">// package scheme</span></span><br><span class="line">            mInstallFlowAnalytics.setFileUri(<span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                mPkgInfo = mPm.getPackageInfo(mPackageURI.getSchemeSpecificPart(),</span><br><span class="line">                        PackageManager.GET_PERMISSIONS | PackageManager.GET_UNINSTALLED_PACKAGES);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (NameNotFoundException e) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 无法获得PackageInfo，直接退出</span></span><br><span class="line">            <span class="keyword">if</span> (mPkgInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">            as = <span class="keyword">new</span> PackageUtil.AppSnippet(mPm.getApplicationLabel(mPkgInfo.applicationInfo),</span><br><span class="line">                    mPm.getApplicationIcon(mPkgInfo.applicationInfo));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// file scheme</span></span><br><span class="line">            mInstallFlowAnalytics.setFileUri(<span class="keyword">true</span>);</span><br><span class="line">            <span class="keyword">final</span> File sourceFile = <span class="keyword">new</span> File(mPackageURI.getPath());</span><br><span class="line">            PackageParser.Package parsed = PackageUtil.getPackageInfo(sourceFile);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 检查解析错误，显示错误对话框，直接退出</span></span><br><span class="line">            <span class="keyword">if</span> (parsed == <span class="keyword">null</span>) &#123;</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 生成PackageInfo</span></span><br><span class="line">            mPkgInfo = PackageParser.generatePackageInfo(parsed, <span class="keyword">null</span>,</span><br><span class="line">                    PackageManager.GET_PERMISSIONS, <span class="number">0</span>, <span class="number">0</span>, <span class="keyword">null</span>,</span><br><span class="line">                    <span class="keyword">new</span> PackageUserState());</span><br><span class="line">            <span class="comment">// manifest校验</span></span><br><span class="line">            mPkgDigest = parsed.manifestDigest;</span><br><span class="line">            <span class="comment">// 设置apk的程序名和图标</span></span><br><span class="line">            as = PackageUtil.getAppSnippet(<span class="keyword">this</span>, mPkgInfo.applicationInfo, sourceFile);</span><br><span class="line">        &#125;</span><br><span class="line">        mInstallFlowAnalytics.setPackageInfoObtained();</span><br><span class="line"></span><br><span class="line">        setContentView(R.layout.install_start);</span><br><span class="line">        mInstallConfirm = findViewById(R.id.install_confirm_panel);</span><br><span class="line">        mInstallConfirm.setVisibility(View.INVISIBLE);</span><br><span class="line">        PackageUtil.initSnippetForNewApp(<span class="keyword">this</span>, as, R.id.app_snippet);</span><br><span class="line"></span><br><span class="line">        mOriginatingUid = getOriginatingUid(intent);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果必要则禁止来自未知来源的安装</span></span><br><span class="line">        <span class="keyword">if</span> (!requestFromUnknownSource) &#123;</span><br><span class="line">            <span class="comment">// 进行一些其他的初始化工作</span></span><br><span class="line">            initiateInstall();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 未知来源检查，如果admin禁止则直接提示错误退出。否则显示选项提示用户去设置里修改该设置。</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">boolean</span> isManagedProfile = mUserManager.isManagedProfile();</span><br><span class="line">        <span class="keyword">if</span> (!unknownSourcesAllowedByAdmin || (!unknownSourcesAllowedByUser &amp;&amp; isManagedProfile)) &#123;</span><br><span class="line">            showDialogInner(DLG_ADMIN_RESTRICTS_UNKNOWN_SOURCES);</span><br><span class="line">            mInstallFlowAnalytics.setFlowFinished(</span><br><span class="line">                    InstallFlowAnalytics.RESULT_BLOCKED_BY_UNKNOWN_SOURCES_SETTING);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!unknownSourcesAllowedByUser) &#123;</span><br><span class="line">            showDialogInner(DLG_UNKNOWN_SOURCES);</span><br><span class="line">            mInstallFlowAnalytics.setFlowFinished(</span><br><span class="line">                    InstallFlowAnalytics.RESULT_BLOCKED_BY_UNKNOWN_SOURCES_SETTING);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            initiateInstall();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>整个方法有2个重点函数。</p>
+<p>1)  <code>PackageUtil.getPackageInfo(sourceFile)</code></p>
+<p><code>getPackageInfo</code>会构造<code>PackageParser</code>，调用<code>Package parseMonolithicPackage(File apkFile, int flags)</code>去解析该apk程序包，然后记录下manifest的校验码。</p>
+<p><code>parseMonolithicPackage()</code>对于我们普通的app又会调用<code>parseBaseApk(File apkFile, AssetManager assets, int flags)</code>去做真正的解析并获得Package对象（该类里有很多给split apk用的方法和逻辑）。</p>
+<p>解析过程会首先读取AndroidManifest.xml获取程序包名以构建Package对象，然后再处理manifest的其他标签包括四大组件，并把信息全都存到Package对象里面。</p>
+<p>2) <code>initiateInstall()</code></p>
+<p>首先检测该程序是否已安装，是则弹框提示是否替换程序，否则直接调用<code>startInstallConfirm()</code>，做UI初始化和事件绑定，于是当我们点击安装的时候则会触发onClick下的OK按钮事件:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (mOkCanInstall || mScrollView == <span class="keyword">null</span>) &#123;</span><br><span class="line">    mInstallFlowAnalytics.setInstallButtonClicked();</span><br><span class="line">    <span class="keyword">if</span> (mSessionId != -<span class="number">1</span>) &#123;</span><br><span class="line">        mInstaller.setPermissionsResult(mSessionId, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// We're only confirming permissions, so we don't really know how the</span></span><br><span class="line">        <span class="comment">// story ends; assume success.</span></span><br><span class="line">        mInstallFlowAnalytics.setFlowFinishedWithPackageManagerResult(</span><br><span class="line">                PackageManager.INSTALL_SUCCEEDED);</span><br><span class="line">        finish();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        startInstall();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    mScrollView.pageScroll(View.FOCUS_DOWN);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于本地app则会继续走<code>startInstall</code>的逻辑，开启一个新的activity，InstallAppProgress，该activity判断scheme进行不同的安装:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="string">"package"</span>.equals(mPackageURI.getScheme())) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        pm.installExistingPackage(mAppInfo.packageName);</span><br><span class="line">        observer.packageInstalled(mAppInfo.packageName,</span><br><span class="line">                PackageManager.INSTALL_SUCCEEDED);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (PackageManager.NameNotFoundException e) &#123;</span><br><span class="line">        observer.packageInstalled(mAppInfo.packageName,</span><br><span class="line">                PackageManager.INSTALL_FAILED_INVALID_APK);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    pm.installPackageWithVerificationAndEncryption(mPackageURI, observer, installFlags,</span><br><span class="line">            installerPackageName, verificationParams, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>installPackageWithVerificationAndEncryption()</code>其实还是会调用<code>installPackage()</code>，结果和adb安装殊途同归，整个转的路径为<code>installPackage()</code> -&gt; <code>installPackageAsUser()</code>(这儿会先检查调用者是否有安装的权限) -&gt; processPendingInstall() -&gt; installPackageLI():<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">installPackageLI</span><span class="params">(InstallArgs args, PackageInstalledInfo res)</span> </span>&#123;</span><br><span class="line">    ....</span><br><span class="line">    <span class="keyword">if</span> (replace) &#123;</span><br><span class="line">        <span class="comment">// 替换已有程序</span></span><br><span class="line">        replacePackageLI(pkg, parseFlags, scanFlags | SCAN_REPLACING, args.user,</span><br><span class="line">                installerPackageName, volumeUuid, res);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 安装新程序</span></span><br><span class="line">        installNewPackageLI(pkg, parseFlags, scanFlags | SCAN_DELETE_DATA_ON_FAILURES,</span><br><span class="line">                args.user, installerPackageName, volumeUuid, res);</span><br><span class="line">    &#125;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>无论是替换还是新安装，都会调用<code>scanPackageLI()</code>，然后跑去<code>scanPackageDirtyLI</code>，它会判断是否为系统程序，解析apk程序包，检查依赖库，验证签名，检查sharedUser签名、权限冲突、ContentProvider冲突，更新native库目录文件（检测abi），进行dexopt，杀掉现有进程（仅对覆盖安装的场景）等等，最后调用createDataDirsLI()进行实际安装:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">createDataDirsLI</span><span class="params">(String volumeUuid, String packageName, <span class="keyword">int</span> uid, String seinfo)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] users = sUserManager.getUserIds();</span><br><span class="line">    <span class="keyword">int</span> res = mInstaller.install(volumeUuid, packageName, uid, uid, seinfo);</span><br><span class="line">    <span class="keyword">if</span> (res &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> user : users) &#123;</span><br><span class="line">        <span class="keyword">if</span> (user != <span class="number">0</span>) &#123;</span><br><span class="line">            res = mInstaller.createUserData(volumeUuid, packageName,</span><br><span class="line">                    UserHandle.getUid(user, uid), user, seinfo);</span><br><span class="line">            <span class="keyword">if</span> (res &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> res;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>mInstaller</code>为<code>Installer</code>类的实例，但实际安装并不是在java做的，而会通过<code>InstallerConnection</code>把命令使用socket通信发到/system/bin/installd。</p>
+<p>在这里第一次call的<code>install()</code>对应命令为<br><code>install uuid name uid gid seinfo</code><br>而第二次call的<code>createUserData</code>则会使用命令<br><code>mkuserdata uuid name uid userId seinfo</code></p>
+<p>installd是一个常驻进程，可以在adb shell通过<code>ps | grep installd</code>查看进程信息。源码位于frameworks/native/cmd/installd/installd.cpp下（dexopt也在这里哦），处理install命令的函数为do_install(), do_install调用了<code>Command.cpp</code>的<code>install()</code>:<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">install</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *uuid, <span class="keyword">const</span> <span class="keyword">char</span> *pkgname, <span class="keyword">uid_t</span> uid, <span class="keyword">gid_t</span> gid, <span class="keyword">const</span> <span class="keyword">char</span> *seinfo)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ((uid &lt; AID_SYSTEM) || (gid &lt; AID_SYSTEM)) &#123;</span><br><span class="line">        ALOGE(<span class="string">"invalid uid/gid: %d %d\n"</span>, uid, gid);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> _pkgdir(create_data_user_package_path(uuid, <span class="number">0</span>, pkgname));</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* pkgdir = _pkgdir.c_str();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mkdir(pkgdir, <span class="number">0751</span>) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot create dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (chmod(pkgdir, <span class="number">0751</span>) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot chmod dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (selinux_android_setfilecon(pkgdir, pkgname, seinfo, uid) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot setfilecon dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> -errno;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (chown(pkgdir, uid, gid) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot chown dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5.0支持多用户后把用户数据和app数据的创建分开了，完成install后，</span></span><br><span class="line"><span class="comment">// java层会调用这儿依次为所有用户创建用户数据，而过去这两个函数是合并的一个函数</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">make_user_data</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *uuid, <span class="keyword">const</span> <span class="keyword">char</span> *pkgname, <span class="keyword">uid_t</span> uid, <span class="keyword">userid_t</span> userid, <span class="keyword">const</span> <span class="keyword">char</span>* seinfo)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">string</span> _pkgdir(create_data_user_package_path(uuid, userid, pkgname));</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* pkgdir = _pkgdir.c_str();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (mkdir(pkgdir, <span class="number">0751</span>) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot create dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        <span class="keyword">return</span> -errno;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (chmod(pkgdir, <span class="number">0751</span>) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot chmod dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> -errno;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (selinux_android_setfilecon(pkgdir, pkgname, seinfo, uid) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot setfilecon dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> -errno;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (chown(pkgdir, uid, uid) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        ALOGE(<span class="string">"cannot chown dir '%s': %s\n"</span>, pkgdir, strerror(errno));</span><br><span class="line">        unlink(pkgdir);</span><br><span class="line">        <span class="keyword">return</span> -errno;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>执行完毕后，通过socket回传结果，而<code>PackageInstaller</code>根据返回结果做对应处理并显示给用户，至此为止，整个apk安装过程结束。</p>
+<h1 id="总结和下期预告"><a href="#总结和下期预告" class="headerlink" title="总结和下期预告"></a>总结和下期预告</h1><p>我们了解了一个android工程是怎么变成apk的，apk是怎么跑到设备上，而最后又是如何安装的。下一次我们来看看dex和odex，art上的elf和oat都是什么，而dexopt又做了什么优化。dex加壳技术大多就是在dex上面做了手脚。</p>
+<hr>
+<p>参考文献：</p>
+<ul>
+<li><a href="http://developer.android.com/tools/building/index.html" target="_blank" rel="noopener">http://developer.android.com/tools/building/index.html</a></li>
+<li><a href="http://developer.android.com/sdk/installing/studio-build.html" target="_blank" rel="noopener">http://developer.android.com/sdk/installing/studio-build.html</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/8744683" target="_blank" rel="noopener">http://blog.csdn.net/luoshengyang/article/details/8744683</a></li>
+<li>《Android软件安全与逆向分析》，作者：丰生强，人民邮电出版社</li>
+<li><a href="https://events.linuxfoundation.org/images/stories/pdf/lf_abs12_kobayashi.pdf" target="_blank" rel="noopener">https://events.linuxfoundation.org/images/stories/pdf/lf_abs12_kobayashi.pdf</a></li>
+<li><a href="http://developer.android.com/tools/help/adb.html" target="_blank" rel="noopener">http://developer.android.com/tools/help/adb.html</a></li>
+</ul>
+<p>原文：<a href="http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/">http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/</a></p>
+<p><em>写的途中还不慎看到csdn上某排名500多的百度大V声称自己看老罗的博客并结合参考资料写的整理，实则完全就是照抄书上的，连错误的地方都照抄了，也没有说是人家的，我也是呵呵哒。更有趣的是该作者还在新的文章里提到觉得网上的文章内容重复太多。恩恩，不愧是伟大的百度公司的开发。实在忍不住喷一下。果然还是太年轻。</em></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Reverse-Engineering/" rel="tag"># Reverse Engineering</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/09/android-reverse-1/" rel="next" title="Android逆向分析(1) 反编译看看手Q口令红包的实现原理">
+                <i class="fa fa-chevron-left"></i> Android逆向分析(1) 反编译看看手Q口令红包的实现原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/18/android-resource-overlay/" rel="prev" title="编译时替换资源 - Android重叠包与资源合并一见">
+                编译时替换资源 - Android重叠包与资源合并一见 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#打包"><span class="nav-number">2.</span> <span class="nav-text">打包</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第1步：aapt"><span class="nav-number">2.1.</span> <span class="nav-text">第1步：aapt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#检查AndroidManifest-xml"><span class="nav-number">2.1.1.</span> <span class="nav-text">检查AndroidManifest.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加被引用资源包"><span class="nav-number">2.1.2.</span> <span class="nav-text">添加被引用资源包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#收集资源文件"><span class="nav-number">2.1.3.</span> <span class="nav-text">收集资源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将收集到的资源文件加到资源表-ResourceTable"><span class="nav-number">2.1.4.</span> <span class="nav-text">将收集到的资源文件加到资源表(ResourceTable)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译values资源并添加到资源表"><span class="nav-number">2.1.5.</span> <span class="nav-text">编译values资源并添加到资源表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#给bag资源分配id"><span class="nav-number">2.1.6.</span> <span class="nav-text">给bag资源分配id</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译xml资源文件"><span class="nav-number">2.1.7.</span> <span class="nav-text">编译xml资源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译AndroidManifest-xml文件"><span class="nav-number">2.1.8.</span> <span class="nav-text">编译AndroidManifest.xml文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成最终资源表"><span class="nav-number">2.1.9.</span> <span class="nav-text">生成最终资源表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#验证AndroidManifest-xml文件"><span class="nav-number">2.1.10.</span> <span class="nav-text">验证AndroidManifest.xml文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成R-java"><span class="nav-number">2.1.11.</span> <span class="nav-text">生成R.java</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成ProGuard文件"><span class="nav-number">2.1.12.</span> <span class="nav-text">生成ProGuard文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成apk"><span class="nav-number">2.1.13.</span> <span class="nav-text">生成apk</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第2步：aidl"><span class="nav-number">2.2.</span> <span class="nav-text">第2步：aidl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插入-RenderScript-amp-BuildConfig"><span class="nav-number">2.3.</span> <span class="nav-text">插入 - RenderScript &amp; BuildConfig</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第3步：Java源码编译"><span class="nav-number">2.4.</span> <span class="nav-text">第3步：Java源码编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第4步：dex"><span class="nav-number">2.5.</span> <span class="nav-text">第4步：dex</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第5步：apkbuilder"><span class="nav-number">2.6.</span> <span class="nav-text">第5步：apkbuilder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第6步：Jarsigner"><span class="nav-number">2.7.</span> <span class="nav-text">第6步：Jarsigner</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第7步：zipalign"><span class="nav-number">2.8.</span> <span class="nav-text">第7步：zipalign</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ADB"><span class="nav-number">3.</span> <span class="nav-text">ADB</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#角色"><span class="nav-number">3.1.</span> <span class="nav-text">角色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#组件"><span class="nav-number">3.2.</span> <span class="nav-text">组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#server的启动"><span class="nav-number">3.3.</span> <span class="nav-text">server的启动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内部实现"><span class="nav-number">3.4.</span> <span class="nav-text">内部实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#adb-install"><span class="nav-number">3.5.</span> <span class="nav-text">adb install</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#彩蛋"><span class="nav-number">3.6.</span> <span class="nav-text">彩蛋</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装"><span class="nav-number">4.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装方式"><span class="nav-number">4.1.</span> <span class="nav-text">安装方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PackageInstaller"><span class="nav-number">4.2.</span> <span class="nav-text">PackageInstaller</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结和下期预告"><span class="nav-number">5.</span> <span class="nav-text">总结和下期预告</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

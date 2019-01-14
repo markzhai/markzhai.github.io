@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近因为在学习一些新的东西，所以Android的东西没有怎么更新。趁着有些闲工夫，简单说说技术上的学习，也算是自己对这几年工作来的一个小结和经验吧。 希望这篇东西可以给那些在校的，亦或是才踏入工作没多久的程序员同伴们一些帮助。毕竟我自己也曾经止步不前，不知所措迷茫过。 英语老实说，没有比英语性价比更高的，需要学习的东西了。靠着别人的翻译，或者机翻，终究不是办法的。笔者自己日语英语姑且算是熟练掌握的">
+<meta name="keywords" content="Work">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机从业者的技术成长学习之路">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/04/28/about-learning/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="最近因为在学习一些新的东西，所以Android的东西没有怎么更新。趁着有些闲工夫，简单说说技术上的学习，也算是自己对这几年工作来的一个小结和经验吧。 希望这篇东西可以给那些在校的，亦或是才踏入工作没多久的程序员同伴们一些帮助。毕竟我自己也曾经止步不前，不知所措迷茫过。 英语老实说，没有比英语性价比更高的，需要学习的东西了。靠着别人的翻译，或者机翻，终究不是办法的。笔者自己日语英语姑且算是熟练掌握的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-05-02T02:33:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计算机从业者的技术成长学习之路">
+<meta name="twitter:description" content="最近因为在学习一些新的东西，所以Android的东西没有怎么更新。趁着有些闲工夫，简单说说技术上的学习，也算是自己对这几年工作来的一个小结和经验吧。 希望这篇东西可以给那些在校的，亦或是才踏入工作没多久的程序员同伴们一些帮助。毕竟我自己也曾经止步不前，不知所措迷茫过。 英语老实说，没有比英语性价比更高的，需要学习的东西了。靠着别人的翻译，或者机翻，终究不是办法的。笔者自己日语英语姑且算是熟练掌握的">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/04/28/about-learning/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>计算机从业者的技术成长学习之路 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/04/28/about-learning/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">计算机从业者的技术成长学习之路
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-04-28 15:25:06" itemprop="dateCreated datePublished" datetime="2016-04-28T15:25:06+08:00">2016-04-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-05-02 10:33:01" itemprop="dateModified" datetime="2016-05-02T10:33:01+08:00">2016-05-02</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/闲言闲语/" itemprop="url" rel="index"><span itemprop="name">闲言闲语</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近因为在学习一些新的东西，所以Android的东西没有怎么更新。趁着有些闲工夫，简单说说技术上的学习，也算是自己对这几年工作来的一个小结和经验吧。</p>
+<p>希望这篇东西可以给那些在校的，亦或是才踏入工作没多久的程序员同伴们一些帮助。毕竟我自己也曾经止步不前，不知所措迷茫过。</p>
+<h1 id="英语"><a href="#英语" class="headerlink" title="英语"></a>英语</h1><p>老实说，没有比英语性价比更高的，需要学习的东西了。靠着别人的翻译，或者机翻，终究不是办法的。笔者自己日语英语姑且算是熟练掌握的地步，但在初期直接看那些全英文的书籍，仍然会觉得头痛（谢谢HKUST虐我），但坚持下来就会发现其实计算机的英语还是有一个范围的，多看看熟悉起来，就会觉得并没有什么难，甚至比起很多翻译来说更容易看懂。</p>
+<p>混迹GitHub就会发现国内的很多开发者英语上欠缺还是很大的，尤其是一些description和readme直接就上中文的。即便你英语渣，机翻也行啊。毕竟是计算机社区，英语才是通用语言。用中文去一些国外开发者的仓库里提issue或者回复也是一种很粗鲁的行为。</p>
+<p>如果让我说一种对技术帮助做大的语言，那必然就是英语。有了英语，才能真正地独立学习。</p>
+<h1 id="Google"><a href="#Google" class="headerlink" title="Google"></a>Google</h1><p>问小白问题之前，你Google过吗？如果让我看到一个开发动不动去搜百度，那我估计会武断地认定他很菜。其实Google是我们最好的老师，只要能正确把握问题的关键字，几乎没有找不到的答案，大部分会在StackOverflow上，其他散落在GitHub、博客等等地方。</p>
+<p>如果你要找的知识实在冷门，比如react native的一些深入用法，android上的视频so阉割这种，那恐怕只能找找做这块的朋友或者自己研究了，国内有一些好心的开发者或许会分享在自己的博客。</p>
+<p>至于科学上网，这个话题相关的技术太多了，请自行找方法，VPN也好，SS也好，都很简单，相对的投入和产出对程序员来说性价比是很高的。实在不想花钱的去用AWS的免费云服务器搭SS也行。</p>
+<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><p>看是没有用的。比如看一篇关于Hybrid App原理的文章，或许它写得很好，但其实就算看完了，让我自己去写一个，或者讲讲怎么去做一个我们应用的版本，Android/iOS端通用的方案，最后也是支支吾吾说的不知所以。最后还是要去实践做一些Hybrid页面才能真正掌握，能说清楚这里面的原理和应用场景。</p>
+<p>纸上谈兵终觉浅。</p>
+<h1 id="警惕体力劳动"><a href="#警惕体力劳动" class="headerlink" title="警惕体力劳动"></a>警惕体力劳动</h1><p>当你的工作成为一种体力劳动，而自己无法从中获得新的体验和知识的时候，需要警惕究竟发生了什么。</p>
+<h2 id="想得太少"><a href="#想得太少" class="headerlink" title="想得太少"></a>想得太少</h2><p>对做的内容停留在完成的阶段，而不对更好的方案，实现细节去思考更多，比如用了某个API，会不会去仔细看看其究竟是怎么做的。或许你知道Handler，Looper，那你知不知道主线程的一切，四大组件的生命周期，各种View的触摸事件都是消息驱动，在mainLooper里面进行处理的呢？</p>
+<h2 id="工作内容重复"><a href="#工作内容重复" class="headerlink" title="工作内容重复"></a>工作内容重复</h2><p>当Focus在一块上太久之后，难免会碰到这种瓶颈，这时候可以看看是不是能换一块做，比如做做缓存、Hybrid、启动优化、视频等等。可以做的领域很多，实在发现兴趣不在此，换着做后台或者前端也行。倘若因为个人原因，比如公司不让换或者可能工资会低很多，挤一挤时间在side project里面搞搞也可以，只是有没有心的问题罢了。</p>
+<p>我面试过一些做Android 5-6年的程序员，但大部分真的连一些优秀的2-3年经验的开发者都远远不如，问设计不懂设计，问流行的开源项目回答就是“好像听说过”。我不希望我认识的开发者以后变成这样的人。但你若是总是重复劳动，难免像这样1年的工作经验重复了5年。</p>
+<p>在额外学习的时候，更多关注的应该是不同的地方，而不是说这个学Python，下个月去学Go，想想语言的差异性在哪里，自己试试看做一些项目，培养全栈工程师的底子。还在念大学的时候，我学了C、C++、Java、Python、Ruby、PHP、HTML、Perl、SQL/Redis/HBase等等等等，但对每个的理解都不够深刻，现在想来那时候是做错了的。</p>
+<p>你应该有自己的专长，但也要能从全局的角度思考问题，一个不懂前端的后端老大会导致前端过重不灵活，反正只要自己这儿的模块清晰就好，一个不懂前端的前端老大也会让下面的人不要抱怨，做出来就好。</p>
+<h2 id="公司问题"><a href="#公司问题" class="headerlink" title="公司问题"></a>公司问题</h2><p>发生在一些项目经理逼得特别紧，老大又比较无能的地方。项目经理为了向上面交待，对工程师说“这个进度能不能再压一下呀”，或者干脆直接不听工程师的意见强行缩短工期，导致没有时间去深入学习。老大明知这种情况，却睁一只眼闭一只眼。这种公司，还是离开为妙。</p>
+<p>一个合格的leader，或者说mentor应该做些什么？至少从我的角度来看，尽管对公司他需要对项目负责，但对团队内的开发者，他更应该做的是观察和指导，看清楚那些团队毒瘤，营造团队氛围，而不是一味Push催进度和表现自己。</p>
+<h1 id="记录和总结"><a href="#记录和总结" class="headerlink" title="记录和总结"></a>记录和总结</h1><p>写博客是为了什么？</p>
+<p>至少对我来说，写下的东西更多是对自己的一个总结和交待。如果我能写下来，至少能证明我有信心自己确实是这么去理解的，没有去坑人。另外，姑且也算是一种成长的足迹吧，偶尔自己还会去看看笔记。</p>
+<p>分享也是目的之一，希望大家能互相进步，这样才能促进发展。</p>
+<p>写博客也好，写一些笔记也好，点点滴滴也是对自己的一种整理。</p>
+<h1 id="问自己"><a href="#问自己" class="headerlink" title="问自己"></a>问自己</h1><p>想清楚自己要的究竟是什么。</p>
+<p>做全还是钻？想做一个超强并发量的后台？想黑别人的系统？想做出精准有效的推荐算法？还是想做别人能实际用到的产品？</p>
+<p>笔者正是因为想要的是后者，所以成为了Android开发（为什么没有选iOS，大约是Android的开放性吸引了我）。而现在，因为发现自己欠缺的（对前端驾轻就熟，大部分的事情对我来说只是体力活，而自己想承担一个完整的项目却又不行），所以又重新拾起了Node.js，看起了ES6，思考设计和产品的问题。</p>
+<hr>
+<p>希望大家都能想清楚自己想做的，要成为的样子。能自主地去学习。毕竟师傅带进门，修行靠个人。我不想鸡汤，大家各自走好，望来日可并肩一起，彼此说一句“很高兴遇见你”。</p>
+<p>原文发布于：<a href="http://blog.zhaiyifan.cn/2016/04/28/about-learning/">http://blog.zhaiyifan.cn/2016/04/28/about-learning/</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Work/" rel="tag"># Work</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/25/node-web-server-build-1/" rel="next" title="在Centos7安装Node.js并搭建Server">
+                <i class="fa fa-chevron-left"></i> 在Centos7安装Node.js并搭建Server
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/30/android-new-project-from-0-p5/" rel="prev" title="从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装">
+                从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#英语"><span class="nav-number">1.</span> <span class="nav-text">英语</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Google"><span class="nav-number">2.</span> <span class="nav-text">Google</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实践"><span class="nav-number">3.</span> <span class="nav-text">实践</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#警惕体力劳动"><span class="nav-number">4.</span> <span class="nav-text">警惕体力劳动</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#想得太少"><span class="nav-number">4.1.</span> <span class="nav-text">想得太少</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工作内容重复"><span class="nav-number">4.2.</span> <span class="nav-text">工作内容重复</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#公司问题"><span class="nav-number">4.3.</span> <span class="nav-text">公司问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#记录和总结"><span class="nav-number">5.</span> <span class="nav-text">记录和总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#问自己"><span class="nav-number">6.</span> <span class="nav-text">问自己</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="相信大家的项目用上gradle都已经很久了，但用得如何呢？这里分享一下我的gradle脚本，大部分都是去年6月左右就开始用上的，有一部分比如签名的安全保存则是最近才自己动手，做了令自己觉得还不错的方案。 module类型的区分科普小结，可能有些同学不太明白Java library module和Android library module是怎么区分的，其实就是个plugin的区别，在module的">
+<meta name="keywords" content="New Android Project From 0,Gradle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目2 - Gradle篇">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/03/14/android-new-project-from-0-p2/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="相信大家的项目用上gradle都已经很久了，但用得如何呢？这里分享一下我的gradle脚本，大部分都是去年6月左右就开始用上的，有一部分比如签名的安全保存则是最近才自己动手，做了令自己觉得还不错的方案。 module类型的区分科普小结，可能有些同学不太明白Java library module和Android library module是怎么区分的，其实就是个plugin的区别，在module的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-03-14T09:16:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目2 - Gradle篇">
+<meta name="twitter:description" content="相信大家的项目用上gradle都已经很久了，但用得如何呢？这里分享一下我的gradle脚本，大部分都是去年6月左右就开始用上的，有一部分比如签名的安全保存则是最近才自己动手，做了令自己觉得还不错的方案。 module类型的区分科普小结，可能有些同学不太明白Java library module和Android library module是怎么区分的，其实就是个plugin的区别，在module的">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/03/14/android-new-project-from-0-p2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目2 - Gradle篇 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/03/14/android-new-project-from-0-p2/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目2 - Gradle篇
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-03-14 13:52:39 / Modified: 17:16:34" itemprop="dateCreated datePublished" datetime="2016-03-14T13:52:39+08:00">2016-03-14</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>相信大家的项目用上gradle都已经很久了，但用得如何呢？这里分享一下我的gradle脚本，大部分都是去年6月左右就开始用上的，有一部分比如签名的安全保存则是最近才自己动手，做了令自己觉得还不错的方案。</p>
+<h1 id="module类型的区分"><a href="#module类型的区分" class="headerlink" title="module类型的区分"></a>module类型的区分</h1><p>科普小结，可能有些同学不太明白Java library module和Android library module是怎么区分的，其实就是个plugin的区别，在module的build.gradle中:</p>
+<p>Android application module:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></span><br></pre></td></tr></table></figure></p>
+<p>Android library module:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.library'</span></span><br></pre></td></tr></table></figure></p>
+<p>Java library module:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'java'</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="版本号管理"><a href="#版本号管理" class="headerlink" title="版本号管理"></a>版本号管理</h1><p>如果只有一个application module还好，如果我们有多个module怎么办呢？每次改版本号累不累？</p>
+<p>解决方案就是在root里申明全局变量，可以在单独的gradle里（比如新建一个dependency.gradle）申明然后apply from引用进来，或者直接定义在root的build.gradle中。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">project.ext &#123;</span><br><span class="line">    applicationId = <span class="string">"com.xxx"</span></span><br><span class="line">    buildToolsVersion = <span class="string">"23.0.2"</span></span><br><span class="line">    compileSdkVersion = <span class="number">23</span></span><br><span class="line">    minSdkVersion = <span class="number">14</span></span><br><span class="line">    targetSdkVersion = <span class="number">23</span></span><br><span class="line">    versionCode = <span class="number">1</span></span><br><span class="line">    versionName = <span class="string">"1.0.0"</span></span><br><span class="line">    abortOnLintError = <span class="literal">false</span></span><br><span class="line">    checkLintRelease = <span class="literal">false</span></span><br><span class="line">    useJack = <span class="literal">false</span></span><br><span class="line">    abortOnLintError = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    javaVersion = JavaVersion.VERSION_1_8</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在子module里面则使用rootProject.ext去进行引用:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    compileSdkVersion rootProject.ext.compileSdkVersion</span><br><span class="line">    buildToolsVersion rootProject.ext.buildToolsVersion</span><br><span class="line"></span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        applicationId rootProject.ext.applicationId</span><br><span class="line">        minSdkVersion rootProject.ext.minSdkVersion</span><br><span class="line">        targetSdkVersion rootProject.ext.targetSdkVersion</span><br><span class="line">        versionCode rootProject.ext.versionCode</span><br><span class="line">        versionName rootProject.ext.versionName</span><br><span class="line">        multiDexEnabled <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    compileOptions &#123;</span><br><span class="line">        sourceCompatibility rootProject.ext.javaVersion</span><br><span class="line">        sourceCompatibility rootProject.ext.javaVersion</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    packagingOptions &#123;</span><br><span class="line">        exclude <span class="string">'LICENSE.txt'</span></span><br><span class="line">        exclude <span class="string">'META-INF/DEPENDENCIES'</span></span><br><span class="line">        exclude <span class="string">'META-INF/ASL2.0'</span></span><br><span class="line">        exclude <span class="string">'META-INF/NOTICE'</span></span><br><span class="line">        exclude <span class="string">'META-INF/LICENSE'</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    lintOptions &#123;</span><br><span class="line">        abortOnError rootProject.ext.abortOnLintError</span><br><span class="line">        checkReleaseBuilds rootProject.ext.checkLintRelease</span><br><span class="line">        quiet <span class="literal">true</span></span><br><span class="line">        ignoreWarnings <span class="literal">true</span></span><br><span class="line">        <span class="comment">// Some libraries have issues with this.</span></span><br><span class="line">        disable <span class="string">'InvalidPackage'</span></span><br><span class="line">        <span class="comment">// Lint gives this warning but SDK 20 would be Android L Beta.</span></span><br><span class="line">        disable <span class="string">'OldTargetApi'</span></span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="依赖管理"><a href="#依赖管理" class="headerlink" title="依赖管理"></a>依赖管理</h1><p>那么多第三方库的引用，在多个module里引用，修改起版本号来好辛苦，万一有一个漏改了（比如gson）结果导致了异常行为，搞不好查原因查个半天，结果摔键盘竟然是版本号导致的。</p>
+<p>so，和上节类似，我们需要统一定义依赖:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> daggerVersion = <span class="string">"2.0.2"</span></span><br><span class="line"><span class="keyword">def</span> retrofitVersion = <span class="string">"2.0.0-beta4"</span></span><br><span class="line"><span class="keyword">def</span> supportVersion = <span class="string">"23.2.1"</span></span><br><span class="line"><span class="keyword">def</span> rxBindingVersion = <span class="string">'0.4.0'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> leakCanaryVersion = <span class="string">"1.3.1"</span></span><br><span class="line"><span class="keyword">def</span> blockCanaryVersion = <span class="string">'1.1.4'</span></span><br><span class="line"></span><br><span class="line">project.ext &#123;</span><br><span class="line">    ...</span><br><span class="line">    libSupportAppcompat = <span class="string">"com.android.support:appcompat-v7:$&#123;supportVersion&#125;"</span></span><br><span class="line">    libSupportDesign = <span class="string">"com.android.support:design:$&#123;supportVersion&#125;"</span></span><br><span class="line">    libSupportRecyclerview = <span class="string">"com.android.support:recyclerview-v7:$&#123;supportVersion&#125;"</span></span><br><span class="line">    libSupportV4 = <span class="string">"com.android.support:support-v4:$&#123;supportVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    libRxAndroid = <span class="string">"io.reactivex:rxandroid:1.1.0"</span></span><br><span class="line">    libRxJava = <span class="string">"io.reactivex:rxjava:1.1.1"</span></span><br><span class="line">    libEventBus = <span class="string">"org.greenrobot:eventbus:3.0.0"</span></span><br><span class="line">    libJavaxAnnotation = <span class="string">"javax.annotation:jsr250-api:1.0"</span></span><br><span class="line"></span><br><span class="line">    libGson = <span class="string">"com.google.code.gson:gson:2.4"</span></span><br><span class="line">    libRetrofit = <span class="string">"com.squareup.retrofit2:retrofit:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libRetrofitConverterGson = <span class="string">"com.squareup.retrofit2:converter-gson:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libRetrofitAdapterRxJava = <span class="string">"com.squareup.retrofit2:adapter-rxjava:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libOkHttpLoggingInterceptor = <span class="string">"com.squareup.okhttp3:logging-interceptor:3.0.0-RC1"</span></span><br><span class="line"></span><br><span class="line">    libDagger = <span class="string">"com.google.dagger:dagger:$&#123;daggerVersion&#125;"</span></span><br><span class="line">    libDaggerCompiler = <span class="string">"com.google.dagger:dagger-compiler:$&#123;daggerVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    libGlide = <span class="string">"com.github.bumptech.glide:glide:3.7.0"</span></span><br><span class="line"></span><br><span class="line">    libRxBinding = <span class="string">"com.jakewharton.rxbinding:rxbinding:$&#123;rxBindingVersion&#125;"</span></span><br><span class="line">    libRxBindingSupportV4 = <span class="string">"com.jakewharton.rxbinding:rxbinding-support-v4:$&#123;rxBindingVersion&#125;"</span></span><br><span class="line">    libRxBindingAppcompatV7 = <span class="string">"com.jakewharton.rxbinding:rxbinding-appcompat-v7:$&#123;rxBindingVersion&#125;"</span></span><br><span class="line">    libRxBindingDesign = <span class="string">"com.jakewharton.rxbinding:rxbinding-design:$&#123;rxBindingVersion&#125;"</span></span><br><span class="line">    libRxBindingRecyclerview = <span class="string">"com.jakewharton.rxbinding:rxbinding-recyclerview-v7:$&#123;rxBindingVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    libRealm = <span class="string">"io.realm:realm-android:0.87.5"</span></span><br><span class="line"></span><br><span class="line">    debugDependencies = [</span><br><span class="line"><span class="symbol">            leakCanary:</span> <span class="string">"com.squareup.leakcanary:leakcanary-android:$&#123;leakCanaryVersion&#125;"</span>,</span><br><span class="line"><span class="symbol">            blockcanary:</span> <span class="string">"com.github.moduth:blockcanary-ui:$&#123;blockCanaryVersion&#125;"</span>,</span><br><span class="line">    ]</span><br><span class="line"></span><br><span class="line">    releaseDependencies = [</span><br><span class="line"><span class="symbol">            leakCanary:</span> <span class="string">"com.squareup.leakcanary:leakcanary-android-no-op:$&#123;leakCanaryVersion&#125;"</span>,</span><br><span class="line"><span class="symbol">            blockcanary:</span> <span class="string">"com.github.moduth:blockcanary-no-op:$&#123;blockCanaryVersion&#125;"</span>,</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里也可以根据个人喜好把版本号也全都抽出去，我个人的实践原则是除非引用超出1处，否则还是定义在一起。</p>
+<p>module中使用:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile fileTree(<span class="string">include:</span> [<span class="string">'*.jar'</span>], <span class="string">dir:</span> <span class="string">'libs'</span>)</span><br><span class="line">    ...</span><br><span class="line">    apt rootProject.ext.libDaggerCompiler</span><br><span class="line">    compile rootProject.ext.libDagger</span><br><span class="line">    compile rootProject.ext.libRxJava</span><br><span class="line">    compile rootProject.ext.libRxAndroid</span><br><span class="line">    compile rootProject.ext.libRxBinding</span><br><span class="line">    compile rootProject.ext.libGlide</span><br><span class="line">    provided rootProject.ext.libJavaxAnnotation</span><br><span class="line">    compile rootProject.ext.libSupportAppcompat</span><br><span class="line">    compile rootProject.ext.libSupportDesign</span><br><span class="line">    compile rootProject.ext.libSupportRecyclerview</span><br><span class="line">    compile rootProject.ext.libSupportV4</span><br><span class="line">    debugCompile rootProject.ext.debugDependencies.leakCanary</span><br><span class="line">    releaseCompile rootProject.ext.releaseDependencies.leakCanary</span><br><span class="line">    debugCompile rootProject.ext.debugDependencies.blockCanary</span><br><span class="line">    releaseCompile rootProject.ext.releaseDependencies.blockCanary</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里我还特地为一些debug和release compile不同包的定义了2个map，见leakCanary和blockCanary引用。</p>
+<h1 id="签名管理"><a href="#签名管理" class="headerlink" title="签名管理"></a>签名管理</h1><p>签名是一个很敏感的东西，只要有了签名文件和对应的密码信息，就能轻易反编译修改源码然后再签名进行发布，因此如何保存这些敏感信息是很重要的。</p>
+<p>在我的个人实践中，主要做了这么几点：</p>
+<p>local.properties定义keystore信息文件路径:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keystore.props.file=../keystore.properties</span><br></pre></td></tr></table></figure></p>
+<p>keystore.properties保存keystore信息:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">store=../buildsystem/release.jks</span><br><span class="line">alias=xxx</span><br><span class="line">storePass=xxx</span><br><span class="line">pass=xxx</span><br></pre></td></tr></table></figure></p>
+<p>buildsystem下保存了:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ls</span><br><span class="line">ci.gradle</span><br><span class="line">debug.keystore</span><br><span class="line">release.jks</span><br></pre></td></tr></table></figure></p>
+<p>application module的signingConfigs:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">signingConfigs &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> Properties localProps = <span class="keyword">new</span> Properties()</span><br><span class="line">    localProps.load(<span class="keyword">new</span> FileInputStream(file(<span class="string">'../local.properties'</span>)))</span><br><span class="line">    <span class="keyword">def</span> Properties keyProps = <span class="keyword">new</span> Properties()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果读取不到'keystore.props.file'属性，就使用debug keystore</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (localProps[<span class="string">'keystore.props.file'</span>]) &#123;</span><br><span class="line">        keyProps.load(<span class="keyword">new</span> FileInputStream(file(localProps[<span class="string">'keystore.props.file'</span>])))</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        keyProps[<span class="string">"store"</span>] = <span class="string">'../buildsystem/debug.keystore'</span></span><br><span class="line">        keyProps[<span class="string">"alias"</span>] = <span class="string">'android'</span></span><br><span class="line">        keyProps[<span class="string">"storePass"</span>] = <span class="string">'androiddebugkey'</span></span><br><span class="line">        keyProps[<span class="string">"pass"</span>] = <span class="string">'android'</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    debug &#123;</span><br><span class="line">        storeFile file(keyProps[<span class="string">"store"</span>])</span><br><span class="line">        keyAlias keyProps[<span class="string">"alias"</span>]</span><br><span class="line">        storePassword keyProps[<span class="string">"storePass"</span>]</span><br><span class="line">        keyPassword keyProps[<span class="string">"pass"</span>]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    release &#123;</span><br><span class="line">        <span class="comment">// release版本使用assert确保存在该属性否则报错，避免错误打包</span></span><br><span class="line">        <span class="keyword">assert</span> localProps[<span class="string">'keystore.props.file'</span>];</span><br><span class="line">        storeFile file(keyProps[<span class="string">"store"</span>])</span><br><span class="line">        keyAlias keyProps[<span class="string">"alias"</span>]</span><br><span class="line">        storePassword keyProps[<span class="string">"storePass"</span>]</span><br><span class="line">        keyPassword keyProps[<span class="string">"pass"</span>]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h1 id="Java8支持"><a href="#Java8支持" class="headerlink" title="Java8支持"></a>Java8支持</h1><p>对Android的module<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'me.tatarka.retrolambda'</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    compileOptions &#123;</span><br><span class="line">        sourceCompatibility rootProject.ext.javaVersion</span><br><span class="line">        sourceCompatibility rootProject.ext.javaVersion</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对Java的module:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sourceCompatibility = <span class="number">1.8</span></span><br><span class="line">targetCompatibility = <span class="number">1.8</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="Split-APK"><a href="#Split-APK" class="headerlink" title="Split APK"></a>Split APK</h1><p>详细的可以看看Google的官方文档<a href="http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits" target="_blank" rel="noopener">Apk Splits</a></p>
+<p>我的使用:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">splits &#123;</span><br><span class="line">    abi &#123;</span><br><span class="line">        enable <span class="literal">true</span></span><br><span class="line">        reset()</span><br><span class="line">        include <span class="string">'armeabi'</span>, <span class="string">'x86'</span> <span class="comment">//, 'x86', 'armeabi-v7a', 'mips'</span></span><br><span class="line">        universalApk <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>大致来说，就是可以根据脚本的配置，将apk以abi、density进行分包。再也不用为了缩小包的体积而专门去只留下一个arm的jni文件夹了，想怎么分怎么分，搞不定哪天就要传一个x86的包了，而且有的模拟器也只支持x86。</p>
+<p>当然如果市场能支持这些配置，那就更好了，用户下载apk的流量就小多了。</p>
+<h1 id="Module-aar依赖"><a href="#Module-aar依赖" class="headerlink" title="Module aar依赖"></a>Module aar依赖</h1><p>怎么能在使用aar依赖提升编译速度的同时，又能兼顾灵活性，随时可以修改源码呢？</p>
+<p>解决方案就是module式aar依赖。</p>
+<p>在你的library module目录下, 打开build/outputs/aar，是不是有aar文件（编译过后就会生成）？把它放到module目录下面，然后在build.gradle里面:</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">configurations.maybeCreate(<span class="string">"default"</span>)</span><br><span class="line">artifacts.add(<span class="string">"default"</span>, file(<span class="string">'lib_authorize-debug.aar'</span>))</span><br></pre></td></tr></table></figure>
+<p>再把原来那些脚本给注释了，就搞定了。是不是特别简单？如果想再使用源码依赖，反注释一下就好了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本篇主要讲了开发阶段gradle的各种实践，下一篇是什么暂时我也没有想法，哈哈。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Gradle/" rel="tag"># Gradle</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/14/android-new-project-from-0-p1/" rel="next" title="从零开始的Android新项目1 - 架构搭建篇">
+                <i class="fa fa-chevron-left"></i> 从零开始的Android新项目1 - 架构搭建篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/16/android-new-project-from-0-p3/" rel="prev" title="从零开始的Android新项目3 - MVPVM in Action, 谁告诉你MVP和MVVM是互斥的">
+                从零开始的Android新项目3 - MVPVM in Action, 谁告诉你MVP和MVVM是互斥的 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#module类型的区分"><span class="nav-number">1.</span> <span class="nav-text">module类型的区分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#版本号管理"><span class="nav-number">2.</span> <span class="nav-text">版本号管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#依赖管理"><span class="nav-number">3.</span> <span class="nav-text">依赖管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#签名管理"><span class="nav-number">4.</span> <span class="nav-text">签名管理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Java8支持"><span class="nav-number">5.</span> <span class="nav-text">Java8支持</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Split-APK"><span class="nav-number">6.</span> <span class="nav-text">Split APK</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Module-aar依赖"><span class="nav-number">7.</span> <span class="nav-text">Module aar依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

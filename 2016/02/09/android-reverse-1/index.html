@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="本系列文章是《Android软件安全与逆向分析》的实践笔记（一些工具的版本和用法已经不同了），同时笔者希望系统性地记录一下逆向方面的文字和想法。犹记得在大学的时候，曾经学过一段时间的逆向工程，现在只记得那时候用OD跳来跳去看汇编代码，找到破解处时兴奋的感觉了。  逆向工程（又称反向工程），是一种技术过程，即对一项目标产品进行逆向分析及研究，从而演绎并得出该产品的处理流程、组织结构、功能性能规格等设">
+<meta name="keywords" content="Android,Reverse Engineering">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向分析(1) 反编译看看手Q口令红包的实现原理">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/09/android-reverse-1/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="本系列文章是《Android软件安全与逆向分析》的实践笔记（一些工具的版本和用法已经不同了），同时笔者希望系统性地记录一下逆向方面的文字和想法。犹记得在大学的时候，曾经学过一段时间的逆向工程，现在只记得那时候用OD跳来跳去看汇编代码，找到破解处时兴奋的感觉了。  逆向工程（又称反向工程），是一种技术过程，即对一项目标产品进行逆向分析及研究，从而演绎并得出该产品的处理流程、组织结构、功能性能规格等设">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img.blog.csdn.net/20160209202814031">
+<meta property="og:image" content="http://img.blog.csdn.net/20160209205945134">
+<meta property="og:image" content="http://img.blog.csdn.net/20160209224453176">
+<meta property="og:updated_time" content="2016-02-10T03:10:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android逆向分析(1) 反编译看看手Q口令红包的实现原理">
+<meta name="twitter:description" content="本系列文章是《Android软件安全与逆向分析》的实践笔记（一些工具的版本和用法已经不同了），同时笔者希望系统性地记录一下逆向方面的文字和想法。犹记得在大学的时候，曾经学过一段时间的逆向工程，现在只记得那时候用OD跳来跳去看汇编代码，找到破解处时兴奋的感觉了。  逆向工程（又称反向工程），是一种技术过程，即对一项目标产品进行逆向分析及研究，从而演绎并得出该产品的处理流程、组织结构、功能性能规格等设">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160209202814031">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/09/android-reverse-1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Android逆向分析(1) 反编译看看手Q口令红包的实现原理 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/09/android-reverse-1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android逆向分析(1) 反编译看看手Q口令红包的实现原理
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-09 23:33:30" itemprop="dateCreated datePublished" datetime="2016-02-09T23:33:30+08:00">2016-02-09</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-10 11:10:18" itemprop="dateModified" datetime="2016-02-10T11:10:18+08:00">2016-02-10</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Reverse-Engineering/" itemprop="url" rel="index"><span itemprop="name">Android Reverse Engineering</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本系列文章是《Android软件安全与逆向分析》的实践笔记（一些工具的版本和用法已经不同了），同时笔者希望系统性地记录一下逆向方面的文字和想法。犹记得在大学的时候，曾经学过一段时间的逆向工程，现在只记得那时候用OD跳来跳去看汇编代码，找到破解处时兴奋的感觉了。</p>
+<blockquote>
+<p>逆向工程（又称反向工程），是一种技术过程，即对一项目标产品进行逆向分析及研究，从而演绎并得出该产品的处理流程、组织结构、功能性能规格等设计要素，以制作出功能相近，但又不完全一样的产品。逆向工程源于商业及军事领域中的硬件分析。其主要目的是，在不能轻易获得必要的生产信息下，直接从成品的分析，推导出产品的设计原理。</p>
+</blockquote>
+<blockquote>
+<p>逆向工程可能会被误认为是对知识产权的严重侵害，但是在实际应用上，反而可能会保护知识产权所有者。例如在集成电路领域，如果怀疑某公司侵犯知识产权，可以用逆向工程技术来寻找证据。    —— <a href="https://zh.wikipedia.org/wiki/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B" target="_blank"> [ 维基百科 ]</a></p>
+</blockquote>
+<p>首篇作为开始，先讲讲简单的反编译。反编译通常有几种目的：互相学习、借来用用、嘿嘿（干你，又分为小干干类似微信红包，和大干干改别人的apk帮他上架）。</p>
+<p>因为没带kvm回来，mbpr屏幕太小，所以下文环境为windows。</p>
+<h1 id="反编译"><a href="#反编译" class="headerlink" title="反编译"></a>反编译</h1><p>让我们从实战开始，先实践一下怎么去反编译一个apk，看看某些功能的实现。毕竟没有实践的原理都是耍流氓。<br>这里我们保留互相学习的心态，所以是友善的第一种目的，嘻嘻。</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>工具</p>
+<ul>
+<li><a href="http://ibotpeaches.github.io/Apktool/" target="_blank" rel="noopener">Apktool</a></li>
+<li><a href="https://github.com/skylot/jadx" target="_blank" rel="noopener">jadx</a>（新一代反编译大杀器）</li>
+</ul>
+<p>安装包</p>
+<ul>
+<li><a href="https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk" target="_blank" rel="noopener">手机QQ 6.2.3</a> (目标就设定为看看口令红包是怎么做的吧)</li>
+</ul>
+<h3 id="Apktool的使用"><a href="#Apktool的使用" class="headerlink" title="Apktool的使用"></a>Apktool的使用</h3><p>首先确保你安装了java 7或以上，并能直接在命令行调用<code>java</code>。</p>
+<ol>
+<li>下载 <a href="https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/windows/apktool.bat" target="_blank" rel="noopener">windows用wrapper脚本</a> (<a href="https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/osx/apktool" target="_blank" rel="noopener">mac使用这个</a>)。</li>
+<li>下载最新的<a href="https://bitbucket.org/iBotPeaches/apktool/downloads" target="_blank" rel="noopener">apktool</a>。</li>
+<li>重命名上面下载的apktool jar文件为<code>apktool.jar</code>。</li>
+<li>把apktool.bat和apktool.jar放在同一个目录下，并加入PATH环境变量。</li>
+<li>现在你可以直接通过命令行调用<code>apktool</code>并查看使用方式了。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Apktool v2.0.3 - a tool <span class="keyword">for</span> reengineering Android apk files</span><br><span class="line">with smali v2.1.0 and baksmali v2.1.0</span><br><span class="line"></span><br><span class="line">usage: apktool</span><br><span class="line"> -advance,--advanced   prints advance information.</span><br><span class="line"> -version,--version    prints the version <span class="keyword">then</span> exits</span><br><span class="line"></span><br><span class="line">usage: apktool <span class="keyword">if</span>|install-framework [options] &lt;framework.apk&gt;</span><br><span class="line"> -p,--frame-path &lt;dir&gt;   Stores framework files into &lt;dir&gt;.</span><br><span class="line"> -t,--tag &lt;tag&gt;          Tag frameworks using &lt;tag&gt;.</span><br><span class="line"></span><br><span class="line">usage: apktool d[ecode] [options] &lt;file_apk&gt;</span><br><span class="line"> -f,--force              Force delete destination directory.</span><br><span class="line"> -o,--output &lt;dir&gt;       The name of folder that gets written. Default is apk.out</span><br><span class="line"> -p,--frame-path &lt;dir&gt;   Uses framework files located <span class="keyword">in</span> &lt;dir&gt;.</span><br><span class="line"> -r,--no-res             Do not decode resources.</span><br><span class="line"> -s,--no-src             Do not decode sources.</span><br><span class="line"> -t,--frame-tag &lt;tag&gt;    Uses framework files tagged by &lt;tag&gt;.</span><br><span class="line"></span><br><span class="line">usage: apktool b[uild] [options] &lt;app_path&gt;</span><br><span class="line"> -f,--force-all          Skip changes detection and build all files.</span><br><span class="line"> -o,--output &lt;dir&gt;       The name of apk that gets written. Default is dist/name.apk</span><br><span class="line"> -p,--frame-path &lt;dir&gt;   Uses framework files located <span class="keyword">in</span> &lt;dir&gt;.</span><br></pre></td></tr></table></figure>
+<h3 id="jadx的使用"><a href="#jadx的使用" class="headerlink" title="jadx的使用"></a>jadx的使用</h3><ol>
+<li>下载<a href="https://github.com/skylot/jadx/releases" target="_blank" rel="noopener">jadx</a>。</li>
+<li>运行gradlew dist编译。</li>
+<li><code>jadx\jadx-gui\build\install\jadx-gui\bin</code>下有可运行的gui</li>
+<li><code>jadx\jadx-cli\build\install\jadx\bin</code>是命令行程序</li>
+<li>可以都加入PATH环境变量，以便直接命令行调用。</li>
+</ol>
+<h2 id="分析APK文件"><a href="#分析APK文件" class="headerlink" title="分析APK文件"></a>分析APK文件</h2><h3 id="First-Try"><a href="#First-Try" class="headerlink" title="First Try"></a>First Try</h3><p>虽然我们可以用jadx直接打开apk傻瓜式地去查看源代码，但是为了更理解反编译的过程和工作原理，以便以后在碰到一些问题（比如加壳）的时候可以自己解决，这里我们先装逼一下，使用Apktool去进行分析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">D:\dev\reverse&gt;apktool d -o qq mobileqq_android_6.2.3.apk</span><br><span class="line">I: Using Apktool 2.0.3 on mobileqq_android_6.2.3.apk</span><br><span class="line">I: Loading resource table...</span><br><span class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> brut.androlib.AndrolibException: Multiple res specs: attr/name</span><br><span class="line">        at brut.androlib.res.data.ResTypeSpec.addResSpec(ResTypeSpec.java:78)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.readEntry(ARSCDecoder.java:248)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.readTableType(ARSCDecoder.java:212)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.readTableTypeSpec(ARSCDecoder.java:154)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.readTablePackage(ARSCDecoder.java:116)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.readTableHeader(ARSCDecoder.java:78)</span><br><span class="line">        at brut.androlib.res.decoder.ARSCDecoder.decode(ARSCDecoder.java:47)</span><br><span class="line">        at brut.androlib.res.AndrolibResources.getResPackagesFromApk(AndrolibResources.java:544)</span><br><span class="line">        at brut.androlib.res.AndrolibResources.loadMainPkg(AndrolibResources.java:63)</span><br><span class="line">        at brut.androlib.res.AndrolibResources.getResTable(AndrolibResources.java:55)</span><br><span class="line">        at brut.androlib.Androlib.getResTable(Androlib.java:66)</span><br><span class="line">        at brut.androlib.ApkDecoder.setTargetSdkVersion(ApkDecoder.java:198)</span><br><span class="line">        at brut.androlib.ApkDecoder.decode(ApkDecoder.java:96)</span><br><span class="line">        at brut.apktool.Main.cmdDecode(Main.java:165)</span><br><span class="line">        at brut.apktool.Main.main(Main.java:81)</span><br></pre></td></tr></table></figure>
+<p>竟然报错了，Multiple res specs: attr/name，在网上找了找资料，应该是腾讯利用Apktool的bug去进行了加壳，除了添加同名id外还做了若干加固，好，你狠，我们下篇文章针对腾讯的壳来分析并修改Apktool，这次先用jadx来试试。</p>
+<h3 id="Second-Try"><a href="#Second-Try" class="headerlink" title="Second Try"></a>Second Try</h3><p>如果直接用jadx-gui打开QQ的apk，你会发现，卡死了。不错，就是卡死了，因为太大了…</p>
+<p>我们打开jadx-gui文件（其实就是个启动的script），加上：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> JAVA_OPTS=-server -Xms1024m -Xmx8192m -XX:PermSize=256m -XX:MaxPermSize=1024m</span><br></pre></td></tr></table></figure></p>
+<p>就跟我们加速as/idea的原理差不多，多给点内存，这样就能顺利地打开了（可能会需要比较久的时间）。</p>
+<p><img src="http://img.blog.csdn.net/20160209202814031" alt="jadx干完手Q后"></p>
+<h3 id="字符串大法"><a href="#字符串大法" class="headerlink" title="字符串大法"></a>字符串大法</h3><p>为了找到我们的目标，红包，我们首先尝试用字符串搜索大法：在Resources -&gt; resources.arsc -&gt; res -&gt; values -&gt; strings.xml找到口令红包对应的<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">string</span> <span class="attr">name</span>=<span class="string">"qb_hbdetail_command_word"</span>&gt;</span>口令红包<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>然后Crtl+Shift+F进行Text Search，结果…没找到。</p>
+<p>我们再使用资源id大法，直接在resources.arsc找到<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0x7f0a0e5a (2131365466) = string.qb_hbdetail_command_word: 口令红包</span><br></pre></td></tr></table></figure></p>
+<p>再搜，好，你狠。。。还是没有。是在下输了。</p>
+<h3 id="类-函数名大法"><a href="#类-函数名大法" class="headerlink" title="类/函数名大法"></a>类/函数名大法</h3><p>我们再祭出第二大杀器，类/函数/变量名大法搜索大法。</p>
+<p>通常类名符合的范围更小，所以先只使用Class。<br>试试看红包的英语：RedPacket（类名命名所以R和P大写）<br><img src="http://img.blog.csdn.net/20160209205945134" alt="RedPacket Search"><br>OK，我们找到了十几条，开始逐一排查，第一条<code>RedPacketInfo</code>点进去一看就是个包含了各种field的ui用的vo类，跳过，再看下一个，从包名<code>com.tencent.mobileqq.data</code>看上去，似乎有戏，<code>QQWalletRedPacketMsg</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.tencent.mobileqq.data;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.text.TextUtils;</span><br><span class="line"><span class="keyword">import</span> com.tencent.mobileqq.hotpatch.NotVerifyClass;</span><br><span class="line"><span class="keyword">import</span> cooperation.qzone.util.WiFiDash;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInput;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutput;</span><br><span class="line"><span class="keyword">import</span> tencent.im.msg.im_msg_body.QQWalletAioBody;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* compiled from: ProGuard */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QQWalletRedPacketMsg</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String authkey;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> channelId;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> conftype;</span><br><span class="line">    <span class="keyword">public</span> QQWalletTransferMsgElem elem;</span><br><span class="line">    <span class="keyword">public</span> String envelopeName;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> envelopeid;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">boolean</span> isOpened;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> msgFrom;</span><br><span class="line">    <span class="keyword">public</span> String redPacketId;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> redtype;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> resend;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> templateId;</span><br><span class="line"></span><br><span class="line">	...串行化、读写、构建方法等，可以无视。</span><br></pre></td></tr></table></figure></p>
+<p>从field名来看，这里还是比较可疑的，猜测<code>redtype</code>是不是描述红包类型的。</p>
+<p>我们再次使用关键词<code>redtype</code>进行搜索，这次选择Code，只进行代码内搜索，结果却发现貌似不对，找到相关的字符串是”查看详情”，貌似是描述红包领取状态的。</p>
+<p>不放弃，继续抓住<code>QQWalletRedPacketMsg</code>这个类进行搜索，看看是不是有外面包着这个类的Class，搜索QQWalletRedPacketMsg，范围使用Field，排除掉类本身外，只有唯一的结果：<code>MessageForQQWalletMsg</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessageForQQWalletMsg</span> <span class="keyword">extends</span> <span class="title">ChatMessage</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 哦哦？COMMAND_REDPACKET？口令红包</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_COMMAND_REDPACKET = <span class="number">6</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_COMMON_REDPACKET = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_COMMON_THEME_REDPACKET = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_INDIVIDUAL_REDPACKET = <span class="number">2001</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_LUCY_REDPACKET = <span class="number">3</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_LUCY_THEME_REDPACKET = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_PUBLIC_ACCOUNT_REDPACKET = <span class="number">2002</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MSG_TYPE_TRANSFER = <span class="number">1</span>;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>我们找到了一个常量字段，目测就是这个描述了是否是口令红包了。在该类搜索此字段还找到<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isCommandRedPacketMsg</span><span class="params">(MessageRecord messageRecord)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (messageRecord != <span class="keyword">null</span> &amp;&amp; (messageRecord <span class="keyword">instanceof</span> MessageForQQWalletMsg) &amp;&amp; ((MessageForQQWalletMsg) messageRecord).messageType == MSG_TYPE_COMMAND_REDPACKET) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>果然，我们再接着分别查找<code>MSG_TYPE_COMMAND_REDPACKET</code>和<code>isCommandRedPacketMsg</code>，结果只在<code>TroopMessageManager</code>里面找到了一段没成功反编译的代码中对方法<code>isCommandRedPacketMsg</code>的引用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">L_0x0100:</span><br><span class="line">    r2 = com.tencent.mobileqq.data.MessageForQQWalletMsg.isCommandRedPacketMsg(r25);</span><br><span class="line">    if (r2 == 0) goto L_0x011e;</span><br></pre></td></tr></table></figure></p>
+<p>这里如果是口令红包会继续走下去，而如果不是则会跳到L_0x011e。</p>
+<p>而从类的名字来看，<code>TroopMessageManager</code>应该是指<code>群消息管理者</code>，应该没错，毕竟红包也是群消息的一种。</p>
+<p>于是我们只能耐心地看下去这段神奇的充满goto的代码。晕着看完后大概看到就是各种逻辑判断和调用<code>MsgProxyUtils.java</code>去处理消息处理逻辑和缓存。然后就没了…好，你屌，是在下输了。我再试试别的。</p>
+<h3 id="常量大法"><a href="#常量大法" class="headerlink" title="常量大法"></a>常量大法</h3><p>常量大法其实也可以算是字符串搜索的一种，只是不去搜索xml里的，而是使用中文转化为unicode后的字符串去进行查找。自行搜索Unicode编码转化可以找到online convertor。</p>
+<p>口令红包对应的是”\u53e3\u4ee4\u7ea2\u5305”：</p>
+<p><img src="http://img.blog.csdn.net/20160209224453176" alt="\u53e3\u4ee4\u7ea2\u5305搜索"></p>
+<p>找到2个类共3处代码引用。</p>
+<p>最后那个类的起名有点耐人寻味，<code>PasswdRedBagManager</code>，密码红包管理器，有点意思：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">b</span><span class="params">(String str)</span> </span>&#123;</span><br><span class="line">    ((TroopTipsMsgMgr) <span class="keyword">this</span>.f2203a.getManager(<span class="number">80</span>)).a(str, <span class="string">"\u533f\u540d\u4e0d\u80fd\u62a2\u53e3\u4ee4\u7ea2\u5305\u54e6"</span>, NetConnInfoCenter.getServerTime(), BaseConstants.DEFAULT_QUICK_HEARTBEAT_TIMEOUT, f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这串Unicode转换成中文后是”匿名不能抢口令红包哦”，原来还有这种逻辑，产品经理你真是够了。</p>
+<p>这里我们重新从该类的上面看下来，大致扫一扫，发现onDestroy下面有一个方法打的log很神奇:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">long</span>[] m883a(SessionInfo sessionInfo, String str) &#123;</span><br><span class="line">    <span class="keyword">if</span> (QLog.isColorLevel()) &#123;</span><br><span class="line">        QLog.d(f2197a, (<span class="keyword">int</span>) h, <span class="string">"openPasswdRedBagByPassword, passwd = "</span> + str);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">long</span>[] jArr = <span class="keyword">new</span> <span class="keyword">long</span>[]&#123;<span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">if</span> (sessionInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> jArr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (TextUtils.isEmpty(str)) &#123;</span><br><span class="line">        <span class="keyword">return</span> jArr;</span><br><span class="line">    &#125;</span><br><span class="line">    c();</span><br><span class="line">    List&lt;String&gt; list = (List) <span class="keyword">this</span>.f2206a.get(str);</span><br><span class="line">    <span class="keyword">if</span> (list == <span class="keyword">null</span> || list.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">return</span> jArr;</span><br><span class="line">    &#125;</span><br><span class="line">    PasswdRedBagInfo passwdRedBagInfo;</span><br><span class="line">    String str2 = a(sessionInfo.a) + <span class="string">"_"</span> + sessionInfo.f1757a;</span><br><span class="line">    <span class="keyword">for</span> (String str3 : list) &#123;</span><br><span class="line">        HashMap hashMap = (HashMap) <span class="keyword">this</span>.f2209b.get(str3);</span><br><span class="line">        <span class="keyword">if</span> (hashMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">            passwdRedBagInfo = (PasswdRedBagInfo) hashMap.get(str2);</span><br><span class="line">            <span class="keyword">if</span> (!(passwdRedBagInfo == <span class="keyword">null</span> || a(str3))) &#123;</span><br><span class="line">                jArr[g] = passwdRedBagInfo.a.uint64_creator_uin.get();</span><br><span class="line">                <span class="keyword">if</span> (!b(str3)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (!c(str3)) &#123;</span><br><span class="line">                        hashMap.put(str2, passwdRedBagInfo);</span><br><span class="line">                        jArr[f] = <span class="number">1</span>;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    jArr[f] = <span class="number">3</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    jArr[f] = <span class="number">2</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    passwdRedBagInfo = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">if</span> (passwdRedBagInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> jArr;</span><br><span class="line">    &#125;</span><br><span class="line">    b(sessionInfo.a, sessionInfo.f1757a, passwdRedBagInfo.a.string_redbag_id.get().toStringUtf8());</span><br><span class="line">    a(sessionInfo, passwdRedBagInfo);</span><br><span class="line">    <span class="keyword">return</span> jArr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>isColorLevel目测是某种debug用的tag，可能某些环境下部分用户会打开，而从log结合我们平时打log习惯来看，这个方法应该就叫<code>openPasswdRedBagByPassword</code>了，第二个参数就是<code>password</code>。终于找到了。看一下逻辑大致是从外面load进来所有红包信息到本类的各种hashmap和list（有一个tag，只会加载第一次，本类多个方法都会调用这个方法），然后根据password从里面找到对应<code>passwdRedBagInfo</code>，设置result tag，然后调用了<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b(sessionInfo.a, sessionInfo.f1757a, passwdRedBagInfo.a.string_redbag_id.get().toStringUtf8());</span><br><span class="line">a(sessionInfo, passwdRedBagInfo);</span><br></pre></td></tr></table></figure></p>
+<p>我们先不急看这两个方法是做什么的。再往下看下一个方法，直接就有:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">long</span>[] b(SessionInfo sessionInfo, String str) &#123;</span><br><span class="line">    <span class="keyword">if</span> (QLog.isColorLevel()) &#123;</span><br><span class="line">        QLog.d(f2197a, (<span class="keyword">int</span>) h, <span class="string">"openPasswdRedBagById, id = "</span> + str);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>openPasswdRedBagById</code>用id打开红包，猜测该id就是我们最早看到的结构里的<code>redPacketId</code>字段。</p>
+<p>而该方法同样调用了<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b(sessionInfo.a, sessionInfo.f1757a, str);</span><br><span class="line">a(sessionInfo, passwdRedBagInfo);</span><br></pre></td></tr></table></figure></p>
+<p>看看这两个方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">a</span><span class="params">(SessionInfo sessionInfo, PasswdRedBagInfo passwdRedBagInfo)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (sessionInfo != <span class="keyword">null</span> &amp;&amp; passwdRedBagInfo != <span class="keyword">null</span>) &#123;</span><br><span class="line">        Object obj = (sessionInfo.a == <span class="number">0</span> || sessionInfo.a == h || sessionInfo.a == Action.ACTION_REGISTNEWACCOUNT_COMMITSMS || sessionInfo.a == Action.ACTION_LOGIN) ? g : <span class="keyword">null</span>;</span><br><span class="line">        String str = sessionInfo.f1757a;</span><br><span class="line">        String valueOf = String.valueOf(passwdRedBagInfo.a.uint64_creator_uin.get());</span><br><span class="line">        <span class="keyword">if</span> (obj != <span class="keyword">null</span>) &#123;</span><br><span class="line">            str = valueOf.equals(<span class="keyword">this</span>.f2213d) ? sessionInfo.f1757a : <span class="keyword">this</span>.f2213d;</span><br><span class="line">        &#125;</span><br><span class="line">        JSONObject a = QQWalletMsgItemBuilder.a(<span class="keyword">this</span>.f2203a, sessionInfo, passwdRedBagInfo.a.string_redbag_id.get().toStringUtf8(), passwdRedBagInfo.a.string_authkey.get().toStringUtf8(), str, <span class="string">"appid#1344242394|bargainor_id#1000030201|channel#msg"</span>, <span class="string">"graphb"</span>, <span class="keyword">null</span>);</span><br><span class="line">        Bundle bundle = <span class="keyword">new</span> Bundle();</span><br><span class="line">        bundle.putString(<span class="string">"json"</span>, a.toString());</span><br><span class="line">        bundle.putString(<span class="string">"callbackSn"</span>, jbi.a);</span><br><span class="line">        Intent intent = <span class="keyword">new</span> Intent(<span class="keyword">this</span>.f2200a, PayBridgeActivity.class);</span><br><span class="line">        intent.putExtras(bundle);</span><br><span class="line">        intent.addFlags(<span class="number">268435456</span>);</span><br><span class="line">        intent.putExtra(<span class="string">"pay_requestcode"</span>, <span class="number">5</span>);</span><br><span class="line">        <span class="keyword">this</span>.f2200a.startActivity(intent);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">b</span><span class="params">(<span class="keyword">int</span> i, String str, String str2)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!TextUtils.isEmpty(str2)) &#123;</span><br><span class="line">        HashMap hashMap = (HashMap) <span class="keyword">this</span>.f2209b.get(str2);</span><br><span class="line">        <span class="keyword">if</span> (hashMap != <span class="keyword">null</span>) &#123;</span><br><span class="line">            PasswdRedBagInfo passwdRedBagInfo = (PasswdRedBagInfo) hashMap.get(a(i) + <span class="string">"_"</span> + str);</span><br><span class="line">            <span class="keyword">if</span> (passwdRedBagInfo != <span class="keyword">null</span> &amp;&amp; !passwdRedBagInfo.f4810a) &#123;</span><br><span class="line">                passwdRedBagInfo.f4810a = <span class="keyword">true</span>;</span><br><span class="line">                ThreadManager.a(<span class="keyword">new</span> kmr(<span class="keyword">this</span>, str2), h, <span class="keyword">null</span>, <span class="keyword">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>发现第一个方法似乎就直接发请求了，看来只要调用到这里，就是可以领红包了。那最初又是如何来这里的呢？我们搜索对<code>PasswdRedBagManager</code>内这两个方法的引用找到<code>BaseChatPie.java</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">public</span> PasswdRedBagManager f25190a;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EnterForSend</span> <span class="keyword">implements</span> <span class="title">OnKeyListener</span>, <span class="title">OnEditorActionListener</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">// 这里从方法名判断是每次输入点击发送后调用</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onEditorAction</span><span class="params">(TextView textView, <span class="keyword">int</span> i, KeyEvent keyEvent)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i != BaseChatPie.dr) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        String obj = <span class="keyword">this</span>.a.f25220a.getText().toString();</span><br><span class="line">        <span class="keyword">if</span> (obj.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 调用了外部类的下述方法</span></span><br><span class="line">            <span class="keyword">long</span>[] a = <span class="keyword">this</span>.a.a(obj);</span><br><span class="line">            <span class="comment">// 再进行消息发送</span></span><br><span class="line">            SendMsgParams sendMsgParams = <span class="keyword">new</span> SendMsgParams();</span><br><span class="line">            sendMsgParams.b = <span class="keyword">this</span>.a.dL;</span><br><span class="line">            sendMsgParams.a = <span class="keyword">this</span>.a.dJ;</span><br><span class="line">            sendMsgParams.c = <span class="keyword">this</span>.a.dN;</span><br><span class="line">            sendMsgParams.f26863c = <span class="keyword">this</span>.a.dL;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这里调用了那2个openPasswdRedBagxxx方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">long</span>[] m5613a(String str) &#123;</span><br><span class="line">    <span class="keyword">long</span>[] jArr = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 非匿名模式才会继续尝试匹配口令红包，原来里里外外都做了判断</span></span><br><span class="line">    <span class="keyword">if</span> (!AnonymousChatHelper.a().a(<span class="keyword">this</span>.f25174a.a)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (TextUtils.isEmpty(<span class="keyword">this</span>.f25269d) || !str.equals(<span class="keyword">this</span>.f25278e)) &#123;</span><br><span class="line">            <span class="comment">// 使用密码打开</span></span><br><span class="line">            jArr = <span class="keyword">this</span>.f25190a.a(<span class="keyword">this</span>.f25174a, str);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 使用redPacketId直接打开</span></span><br><span class="line">            jArr = <span class="keyword">this</span>.f25190a.b(<span class="keyword">this</span>.f25174a, <span class="keyword">this</span>.f25269d);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 无意义的打log打点啥的，华丽丽地无视吧</span></span><br><span class="line">        <span class="keyword">if</span> (jArr != <span class="keyword">null</span> &amp;&amp; jArr[s] == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">this</span>.f25269d = QunUppUploadTask.QunUppAppId;</span><br><span class="line">            <span class="keyword">this</span>.f25278e = QunUppUploadTask.QunUppAppId;</span><br><span class="line">            <span class="keyword">this</span>.f25228a.sendEmptyMessage(dz);</span><br><span class="line">            <span class="keyword">if</span> (QLog.isColorLevel()) &#123;</span><br><span class="line">                QLog.d(PasswdRedBagManager.a, u, <span class="string">"passwdredbags result[0]="</span> + jArr[s] + <span class="string">",result[1]="</span> + jArr[t] + <span class="string">",send str="</span> + str);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (QLog.isColorLevel()) &#123;</span><br><span class="line">        QLog.d(PasswdRedBagManager.a, u, <span class="string">"current is in Anonymous, dont search passwdredbags"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> jArr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可见每次我们输入消息发送时，都发生了判断，会去查询是不是红包口令，如果是则直接发请求拿红包然后继续，否则直接当做普通消息继续发送。所以如果想要做自动抢红包的话，其实只要直接在收到消息时，调用<code>PasswdRedBagManager</code>的open方法即可，连模拟UI、生成请求、发送消息都不用了，我们再也不用昧着良心说口令了。顺便我们还看到了手机QQ确实喜欢用Activity，这里的红包弹框也是一个单独的Activity，而且请求是发送到手Q红包那边去的，看来还分业务线。</p>
+<p>到此为止我们的目的告一段落，其实继续下去，还可以尝试dump当前Activity，用Activity名字去查找，或者用hierarchy view看看view id试试。</p>
+<h1 id="总结和下期预告"><a href="#总结和下期预告" class="headerlink" title="总结和下期预告"></a>总结和下期预告</h1><p>经过上文的折腾，我们成功反编译了手机QQ，并追溯到手机QQ红包的数据结构和判断流程。期间经历过数次无用功，但逆向工程正是这么一回事，尤其是静态分析，如果不及时找其他的路，而一路钻牛角尖从一个线索一路去看，很可能会越陷越深，本文的跟踪流程正是不断在坑还小的时候钻出来，然后去找其他的路径，最后才快速地找到了想看的东西。</p>
+<p>至于下一期，可能是smali，可能是怎么修改Apktool，也可能是jadx的源码分析，看心情吧，哈哈。</p>
+<hr>
+<p>参考资料：<br><a href="http://www.mak-blog.com/tencent-shell-crack.html" target="_blank" rel="noopener">http://www.mak-blog.com/tencent-shell-crack.html</a><br><a href="http://www.kanxue.com/bbs/showthread.php?p=1390763&amp;langid=3" target="_blank" rel="noopener">http://www.kanxue.com/bbs/showthread.php?p=1390763&amp;langid=3</a></p>
+<p>原文：<a href="http://blog.zhaiyifan.cn/2016/02/09/android-reverse-1/">http://blog.zhaiyifan.cn/2016/02/09/android-reverse-1/</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Reverse-Engineering/" rel="tag"># Reverse Engineering</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/08/android-security-1/" rel="next" title="Android安全学习(1) - Android的安全设计">
+                <i class="fa fa-chevron-left"></i> Android安全学习(1) - Android的安全设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/13/android-reverse-2/" rel="prev" title="Android逆向分析(2) APK的打包与安装">
+                Android逆向分析(2) APK的打包与安装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#反编译"><span class="nav-number">1.</span> <span class="nav-text">反编译</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#准备"><span class="nav-number">1.1.</span> <span class="nav-text">准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Apktool的使用"><span class="nav-number">1.1.1.</span> <span class="nav-text">Apktool的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jadx的使用"><span class="nav-number">1.1.2.</span> <span class="nav-text">jadx的使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析APK文件"><span class="nav-number">1.2.</span> <span class="nav-text">分析APK文件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#First-Try"><span class="nav-number">1.2.1.</span> <span class="nav-text">First Try</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Second-Try"><span class="nav-number">1.2.2.</span> <span class="nav-text">Second Try</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串大法"><span class="nav-number">1.2.3.</span> <span class="nav-text">字符串大法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#类-函数名大法"><span class="nav-number">1.2.4.</span> <span class="nav-text">类/函数名大法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常量大法"><span class="nav-number">1.2.5.</span> <span class="nav-text">常量大法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结和下期预告"><span class="nav-number">2.</span> <span class="nav-text">总结和下期预告</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="WORKING - 未完 前言米娜桑，是时候揭开DEX的面纱了！我们都知道multidex，都知道65535方法数超标，那DEX到底是个什么东西呢？或许又有些同学知道DEX会优化为ODEX，那ODEX又是什么鬼，优化了什么呢？为什么ClassLoader热补丁方案插入构造函数导致CLASS_ISPREVERIFIED为false后，会对性能造成影响，和ODEX又有什么关系呢？ 我们又知道5.0以上">
+<meta name="keywords" content="Android,Reverse Engineering">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android逆向分析(3) Android可执行文件之谜 - DEX与ODEX, OAT与ELF">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/24/android-reverse-3/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="WORKING - 未完 前言米娜桑，是时候揭开DEX的面纱了！我们都知道multidex，都知道65535方法数超标，那DEX到底是个什么东西呢？或许又有些同学知道DEX会优化为ODEX，那ODEX又是什么鬼，优化了什么呢？为什么ClassLoader热补丁方案插入构造函数导致CLASS_ISPREVERIFIED为false后，会对性能造成影响，和ODEX又有什么关系呢？ 我们又知道5.0以上">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-reverse-3-1.png">
+<meta property="og:updated_time" content="2016-02-24T06:47:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android逆向分析(3) Android可执行文件之谜 - DEX与ODEX, OAT与ELF">
+<meta name="twitter:description" content="WORKING - 未完 前言米娜桑，是时候揭开DEX的面纱了！我们都知道multidex，都知道65535方法数超标，那DEX到底是个什么东西呢？或许又有些同学知道DEX会优化为ODEX，那ODEX又是什么鬼，优化了什么呢？为什么ClassLoader热补丁方案插入构造函数导致CLASS_ISPREVERIFIED为false后，会对性能造成影响，和ODEX又有什么关系呢？ 我们又知道5.0以上">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/android-reverse-3-1.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/24/android-reverse-3/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Android逆向分析(3) Android可执行文件之谜 - DEX与ODEX, OAT与ELF | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/24/android-reverse-3/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android逆向分析(3) Android可执行文件之谜 - DEX与ODEX, OAT与ELF
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-24 23:09:12 / Modified: 14:47:05" itemprop="dateCreated datePublished" datetime="2016-02-24T23:09:12+08:00">2016-02-24</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Reverse-Engineering/" itemprop="url" rel="index"><span itemprop="name">Android Reverse Engineering</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>WORKING - 未完</strong></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>米娜桑，是时候揭开DEX的面纱了！我们都知道multidex，都知道65535方法数超标，那DEX到底是个什么东西呢？或许又有些同学知道DEX会优化为ODEX，那ODEX又是什么鬼，优化了什么呢？为什么ClassLoader热补丁方案插入构造函数导致CLASS_ISPREVERIFIED为false后，会对性能造成影响，和ODEX又有什么关系呢？</p>
+<p>我们又知道5.0以上Android虚拟机变成了Art，那DEX在art上变成了什么呢？为什么安装特别耗时间？有时候我看着我的Nexus6安装一个应用在那进度条读啊读的好像卡住了，有一种想砸了它的想法，所以当我拿到Nexus 5测试机的时候，第一件事就是刷到4.4，不然每次安装的效率实在不能忍（捂脸）。</p>
+<h1 id="DEX是什么"><a href="#DEX是什么" class="headerlink" title="DEX是什么"></a>DEX是什么</h1><p>直接把apk当成zip打开后，第一级目录你就会看见有classes.dex，这就是我们要揭开面纱的东西了。</p>
+<h2 id="Why-DEX"><a href="#Why-DEX" class="headerlink" title="Why DEX"></a>Why DEX</h2><p>为什么需要DEX，jar不行吗？相应地，为什么需要Dalvik虚拟机，JVM不行吗？</p>
+<p>Dalvik虚拟机是专门为了Android移动平台设计的。目标系统的RAM有限，数据存储在缓慢的内部闪存上，而且性能和上个世纪的周免系统相当。它们运行Linux，来提供虚拟内存，进程和线程，以及基于UID的安全机制。</p>
+<p>这些特征和限制使我们聚焦在这些目标上：</p>
+<ul>
+<li>类数据，尤其是字节码，必须被多个进程共享，以最小化系统内存使用。</li>
+<li>启动一个新app的开销必须最小化，来保证设备的可响应。</li>
+<li>在独立的文件存储类数据可能导致很多冗余，尤其是字符串。为了保证磁盘空间，我们需要把这些因子提出来。</li>
+<li>解析类数据的fields在类加载的时候增加了很多不必要的开销。把数据值直接当成C类型（比如整数或字符串）使用会更好。</li>
+<li>字节码验证是必要的，却也是缓慢的。所以我们想在app执行外尽量验证更多，以便不要影响app本身体验。</li>
+<li>字节码优化（加速指令，精简方法）对速度和电池生命很重要。</li>
+<li>为了安全原因，进程不能编辑共享代码。</li>
+</ul>
+<p>典型的虚拟机执行从压缩文件解压独立的类，然后把它们存到heap上。这就导致了每个类可能在每个进程有独立的拷贝，从而使得应用启动变慢，因为代码必须被解压（或者至少需要从磁盘的很多小片段去读取）。另一方面，在本地heap放置字节码简化了首次使用时的指令重写，从而可能导致一些不同的优化。</p>
+<p>这些目标指引了一些基本决定：</p>
+<ul>
+<li>多个类被聚集到一个单个的DEX文件。</li>
+<li>DEX文件被映射为只读，并且在进程间共享。</li>
+<li>针对本地系统调整字节码顺序和词对齐。</li>
+<li>字节码验证对所有类都是强制的，但我们想要对一切可能的进行”预验证(pre-verify)”。</li>
+<li>需要重写字节码的优化必须提前执行。</li>
+</ul>
+<p>而Dalvik虚拟机和DEX也就应运而生。</p>
+<h2 id="Hello-DEX"><a href="#Hello-DEX" class="headerlink" title="Hello DEX"></a>Hello DEX</h2><p>让我们手动来生成一个java，编译成javac，然后转换为dex看看:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">'class Foo &#123;'</span>\</span><br><span class="line"><span class="string">'public static void main(String[] args) &#123;'</span>\</span><br><span class="line"><span class="string">'System.out.println("Hello, world"); &#125;&#125;'</span> &gt; Foo.java</span><br><span class="line">javac Foo.java</span><br><span class="line">dx --dex --output=foo.jar Foo.class</span><br><span class="line">adb push foo.jar /sdcard/</span><br><span class="line">adb shell dalvikvm -cp /sdcard/foo.jar Foo</span><br></pre></td></tr></table></figure></p>
+<p>当我们在dx命令的output中指定输出文件后缀为.jar，.zip，或者.apk，名为classes.dex的文件就会被创建并保存在压缩包内。解开Foo.jar你就会看到classes.dex和META-INF文件夹（里面只有一个MANIFEST.MF文件）。</p>
+<p>我们创建完该jar后直接push到设备上，并通过shell直接让dalvik虚拟机去运行它，如果操作无误，会看到命令行的反馈 - Hello, world。</p>
+<h2 id="DEX-in-file-system"><a href="#DEX-in-file-system" class="headerlink" title="DEX in file system"></a>DEX in file system</h2><p>这次我打算多画点图，所以看图说话吧:<br><img src="http://blog.zhaiyifan.cn/images/android-reverse-3-1.png" alt="DEX in file system"></p>
+<h2 id="DEX-in-memory"><a href="#DEX-in-memory" class="headerlink" title="DEX in memory"></a>DEX in memory</h2><p>为什么DEX不能被内存映射，或者说，不能直接从zip去执行呢？因为数据是压缩的，文件头也不保证是词对齐的。这些问题可以通过不压缩直接保存为classes.dex和填充zip文件来解决，但会导致数据网络间传输的包体积变大。</p>
+<p>我们需要在使用前把zip包里的classes.dex解压。当我们拿到文件的时候，我们可能还会做些之前提到的其他操作（对齐、优化、验证）。这又引出了另一个问题：谁去负责做这些，我们又该把输出放在哪儿？</p>
+<h1 id="ODEX是什么"><a href="#ODEX是什么" class="headerlink" title="ODEX是什么"></a>ODEX是什么</h1><p>ODEX，全名Optimized DEX，即优化过的DEX。</p>
+<p>有至少3种方法去创建一个“准备好的”DEX文件，即ODEX：</p>
+<ol>
+<li>虚拟机“即时(just in time)”执行。输出会跑到一个特殊的dalvik-cache目录。这只在一些特殊的桌面和工程机的设备上使用（这些机器的build中，dalvik-cache目录的权限不是严格的）。在生产机器上这是不被允许的。</li>
+<li>系统的安装器在程序首次安装时候执行，它有写dalvik-cache的权限。</li>
+<li>构建(build)系统预先执行。相关的 jar / apk 文件还在，但classes.dex被剥离出来了。ODEX和原来的zip包保存在一起，不在dalvik-cache，而是系统镜像的一部分。</li>
+</ol>
+<p>dalvik-cache目录更准确地说是$ANDROID_DATA/data/dalvik-cache。里面的文件的名字来源于源DEX的完整路径。在设备上该目录被system所拥有，而system拥有0771权限，保存在那里的ODEX被系统和应用的组所拥有，权限为0644。数字权限保护的应用会使用640权限来防止其他应用去检测它们。底线是你可以读取自己的与其他大部分应用的DEX文件，但你不能创建、修改，或删除它们。</p>
+<p>前两种方法的执行分为以下三个步骤：</p>
+<p>首先，dalvik-cache文件被创建。这必须在一个有恰当权限的进程进行，所以在“系统安装器”的场景，是在运行为root的installd进程执行的。</p>
+<p>接着，classes.dex从zip包中解压出来。文件头部留出一小块空间给ODEX header。</p>
+<p>最后，文件被内存映射以便访问，并被为当前系统使用进行调整。这包括了字节交换（byte-swapping），结构重新排列（structure realigning），但并没有对DEX文件做有意义的改变。还做了一些其他的基本结构检查，比如确保文件偏移量和数据索引落在有效范围内。</p>
+<p>构建系统不在桌面上运行工具，而宁愿去启动模拟器，强制所有相关DEX文件的即时优化，然后从dalvik-cache把结果提取出来。这样做的原因，在解释完优化后会变得更显而易见。</p>
+<p>一旦代码被字节替换和对齐，我们就可以继续了。我们添加了一些预计算的数据，在文件头填写ODEX header，然后开始执行。然而，如果我们对验证和优化有兴趣，就需要在初始准备后再插入一个步骤。</p>
+<h1 id="dexopt的魔法"><a href="#dexopt的魔法" class="headerlink" title="dexopt的魔法"></a>dexopt的魔法</h1><p>在Android 2.3版本以前，系统源码中提供了生成odex的工具dexopt-wrapper，位于Android 2.2系统源码的 build/tools/dexpreopt/dexopt-wrapper/ 目录下，查看<code>DexOptWrapper.cpp</code>文件会发现实际调用的是 /system/bin/dexopt 程序。在5.0及以上版本的设备上，你可能已经再也找不到dexopt了，取而代之的是dex2oat。</p>
+<p>我们想要验证和优化DEX文件里的所有类。最简单和安全的方法就是把所有类加载到虚拟机，然后跑一遍。任何加载失败的就是验证/优化失败的。不幸的是，这可能导致一些资源的分配难以释放（比如native共享库的加载），所以我们不想执行在应用运行的虚拟机里。</p>
+<p>解决方案就是起一个叫做dexopt的程序（事实上就是虚拟机的后门）。它会执行一个简短的虚拟机初始化，从引导的类路径加载0个或多个DEX文件，然后开始做一切从目标DEX可以做的验证和优化。结束后，进程退出，释放所有资源。</p>
+<p>因为多个虚拟机可能同时需求同一个DEX文件，文件锁被用来确保dexopt仅被执行一次。</p>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>字节码验证过程包含了扫描DEX文件中每一个类每个方法的指令。目的是为了识别非法指令序列以便不会在运行时才发现它们。涉及到的很多运算对“准确的”GC也是必要的。更多信息见<a href="http://crypto.nknu.edu.tw/AOSP/AOSP/dalvik/docs/verifier.html" target="_blank" rel="noopener">Dalvik字节码验证器笔记</a>。</p>
+<p>为了性能原因，（下节描述的）优化器假设验证器已经运行成功，还会做一些其他可能不安全的假设。默认地，Dalvik会坚持验证所有类，并只优化那些被验证过的类。可以使用命令行flags去禁用验证器。怎么在Android应用框架中控制这些功能的指令见<a href="http://security.nknu.edu.tw/AOSP/AOSP/dalvik/docs/embedded-vm-control.html" target="_blank" rel="noopener">控制嵌入式虚拟机</a>。</p>
+<p>验证失败的报告是一个复杂的问题。例如，在不同的package中，调用一个package内可见的方法是非法的，会被验证器捕捉到。但我们未必想要在验证期报告它 —— 事实上我们想要在试图调用方法的时候抛出异常。在每个方法调用上检查这些访问flags也是很昂贵的，<a href="http://crypto.nknu.edu.tw/AOSP/AOSP/dalvik/docs/verifier.html" target="_blank" rel="noopener">Dalvik字节码验证器笔记</a>提到了这个问题。</p>
+<p>成功被验证的类在ODEX有一个flag被设置了，在加载的时候就不会被重新验证。ODEX文件有一个32位的checksum，但那是主要是用来快速检查数据损坏的。</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>虚拟机解释器通常会在一段代码被首次使用的时候执行某些优化。常量池引用被指向内部数据结构的指针所替代，总是成功的操作或是那些总会以某种方式工作的，会被更简单的形式所替代。这些的一部分需要仅在运行时可用的信息，另一部分在某些特定假设下可以被静态推论出。</p>
+<p>Dalvik优化器做了这些：</p>
+<ul>
+<li>对于虚方法调用，把方法索引替换为vtable索引。</li>
+<li>对于实例变量（field）的get/put，把变量索引替换为字节偏移。另外，把 boolean / byte / char / short 基本变量（variants）合并到单个的32位形式（解释器里更少的代码意味着CPU I-cache里更少的空间）。</li>
+<li>替换一些高频次调用，比如把 String.length() 替换成”内联“的。这可以跳过一些常见的方法调用消耗，直接从解释器切换到native实现。</li>
+<li>删除空方法。最简单的例子就是Object.<init>，啥都没干，但却必须在任何对象被分配的时候执行。指令会被替换为一个新版本的空指令（no-op）形式，除非调试器被attach上去了。</init></li>
+<li>附加预计算数据。例如，虚拟机想要一个类名的哈希表以便查找。不同于在加载DEX文件时候去计算这个，我们可以先计算，以节省堆（heap）空间和所有加载该DEX文件的虚拟机的计算时间。</li>
+</ul>
+<p>大部分的优化显然都会更好。</p>
+<h2 id="Hello-ODEX"><a href="#Hello-ODEX" class="headerlink" title="Hello ODEX"></a>Hello ODEX</h2><p>我们继续玩耍之前生成的dex，来做一个odex:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">adb push dexopt-wrapper /sdcard/</span><br><span class="line"></span><br><span class="line">adb shell</span><br><span class="line"><span class="comment"># 不然没权限去/data/local</span></span><br><span class="line">su</span><br><span class="line">chmod 777 dexopt-wrapper</span><br><span class="line"><span class="comment"># 直接在sdcard执行会提示权限错误</span></span><br><span class="line">cp dexopt-wrapper /data/<span class="built_in">local</span>/</span><br><span class="line">cp foo.jar /data/<span class="built_in">local</span>/</span><br><span class="line"><span class="built_in">cd</span> /data/<span class="built_in">local</span></span><br><span class="line">/dexopt-wrapper foo.jar foo.odex                        </span><br><span class="line">--- BEGIN <span class="string">'foo.jar'</span> (bootstrap=0) ---</span><br><span class="line">--- waiting <span class="keyword">for</span> verify+opt, pid=5220</span><br><span class="line">--- would reduce privs here</span><br><span class="line">--- END <span class="string">'foo.jar'</span> (success) ---</span><br><span class="line">cp foo.odex /sdcard</span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line">adb pull /sdcard/foo.odex .</span><br></pre></td></tr></table></figure></p>
+<p>这样子就拿到了优化后的odex，赶紧把手机还给同事。</p>
+<h1 id="oat与elf"><a href="#oat与elf" class="headerlink" title="oat与elf"></a>oat与elf</h1><h1 id="下期预告"><a href="#下期预告" class="headerlink" title="下期预告"></a>下期预告</h1><p>下一次让我们利用本次讲到的这些知识，来改一改apktool，让它能重返19岁，反编译腾讯的apk。最后代码会丢到GitHub上。</p>
+<hr>
+<p>参考资料</p>
+<ul>
+<li><a href="https://zh.wikipedia.org/wiki/Android_Runtime" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/Android_Runtime</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/18006645" target="_blank" rel="noopener">http://blog.csdn.net/luoshengyang/article/details/18006645</a></li>
+<li>AOSP: dalvik/docs</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Reverse-Engineering/" rel="tag"># Reverse Engineering</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/23/world-class-testing-development-pipeline-for-android-part-2/" rel="next" title="世界级的Android测试开发流程（二）">
+                <i class="fa fa-chevron-left"></i> 世界级的Android测试开发流程（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/14/android-new-project-from-0-p1/" rel="prev" title="从零开始的Android新项目1 - 架构搭建篇">
+                从零开始的Android新项目1 - 架构搭建篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DEX是什么"><span class="nav-number">2.</span> <span class="nav-text">DEX是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-DEX"><span class="nav-number">2.1.</span> <span class="nav-text">Why DEX</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-DEX"><span class="nav-number">2.2.</span> <span class="nav-text">Hello DEX</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEX-in-file-system"><span class="nav-number">2.3.</span> <span class="nav-text">DEX in file system</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEX-in-memory"><span class="nav-number">2.4.</span> <span class="nav-text">DEX in memory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ODEX是什么"><span class="nav-number">3.</span> <span class="nav-text">ODEX是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dexopt的魔法"><span class="nav-number">4.</span> <span class="nav-text">dexopt的魔法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#验证"><span class="nav-number">4.1.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优化"><span class="nav-number">4.2.</span> <span class="nav-text">优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hello-ODEX"><span class="nav-number">4.3.</span> <span class="nav-text">Hello ODEX</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#oat与elf"><span class="nav-number">5.</span> <span class="nav-text">oat与elf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下期预告"><span class="nav-number">6.</span> <span class="nav-text">下期预告</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

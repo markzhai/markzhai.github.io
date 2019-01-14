@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="承接上篇 从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装，本文继续介绍Realm、缓存，以及统一的异常处理设计。 RealmRealm在移动端数据库中也算是比较有名的一款了，以其跨平台和惊人的速度而闻名。啊，对了，还有文档多。 这里要黑的就是文档问题，Realm虽然乍一看文档很多，但是老实说，写的挺乱的。不过总体来说，实践和应用中感觉">
+<meta name="keywords" content="New Android Project From 0,Repository,Realm,异常处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/05/15/android-new-project-from-0-p6/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="承接上篇 从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装，本文继续介绍Realm、缓存，以及统一的异常处理设计。 RealmRealm在移动端数据库中也算是比较有名的一款了，以其跨平台和惊人的速度而闻名。啊，对了，还有文档多。 这里要黑的就是文档问题，Realm虽然乍一看文档很多，但是老实说，写的挺乱的。不过总体来说，实践和应用中感觉">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-05-19T02:35:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理">
+<meta name="twitter:description" content="承接上篇 从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装，本文继续介绍Realm、缓存，以及统一的异常处理设计。 RealmRealm在移动端数据库中也算是比较有名的一款了，以其跨平台和惊人的速度而闻名。啊，对了，还有文档多。 这里要黑的就是文档问题，Realm虽然乍一看文档很多，但是老实说，写的挺乱的。不过总体来说，实践和应用中感觉">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/05/15/android-new-project-from-0-p6/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/05/15/android-new-project-from-0-p6/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-05-15 15:32:55" itemprop="dateCreated datePublished" datetime="2016-05-15T15:32:55+08:00">2016-05-15</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-05-19 10:35:42" itemprop="dateModified" datetime="2016-05-19T10:35:42+08:00">2016-05-19</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>承接上篇 <a href="http://blog.zhaiyifan.cn/2016/04/30/android-new-project-from-0-p5/">从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装</a>，本文继续介绍Realm、缓存，以及统一的异常处理设计。</p>
+<h1 id="Realm"><a href="#Realm" class="headerlink" title="Realm"></a>Realm</h1><p><a href="https://realm.io/" target="_blank" rel="noopener">Realm</a>在移动端数据库中也算是比较有名的一款了，以其跨平台和惊人的速度而闻名。啊，对了，还有文档多。</p>
+<p>这里要黑的就是文档问题，Realm虽然乍一看文档很多，但是老实说，写的挺乱的。不过总体来说，实践和应用中感觉还不错，性能好，也比较方便，比起不稳定的DBFlow和麻烦至极的GreenDao来好了太多了，唯一的美中不足就是so比较大，会增大包的体积1MB。</p>
+<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>从Realm 0.90开始，用法与之前有了改变：</p>
+<p>在root的build.gralde中:<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">buildscript</span> &#123;</span><br><span class="line">    <span class="keyword">repositories</span> &#123;</span><br><span class="line">        jcenter()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">dependencies</span> &#123;</span><br><span class="line">        <span class="keyword">classpath</span> <span class="string">"io.realm:realm-gradle-plugin:0.90.1"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后在对应需要应用到Realm的，比如data module的build.gradle:<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply plugin: <span class="string">'realm-android'</span></span><br></pre></td></tr></table></figure></p>
+<p>即可使用Realm。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>使用起来也很方便，比如我们想要缓存用户的信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserPo</span> <span class="keyword">extends</span> <span class="title">RealmObject</span> </span>&#123;</span><br><span class="line">    <span class="meta">@PrimaryKey</span></span><br><span class="line">    <span class="keyword">public</span> String id;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> String headerUrl;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">long</span> updateTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就对应了一个表，其主键为id，另外有3列name, headerUrl, 以及updateTime。</p>
+<p>如果想要查询，只需要：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">UserPo user = getRealm().where(UserPo.class)</span><br><span class="line">        .equalTo(<span class="string">"id"</span>, userId)</span><br><span class="line">        .findFirst();</span><br></pre></td></tr></table></figure>
+<p>如果要写入一条记录：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">User user = <span class="keyword">new</span> UserPo();</span><br><span class="line">user.setName(userInfoEntity.getNickName());</span><br><span class="line">user.setId(userInfoEntity.getUserId());</span><br><span class="line">user.setHeaderUrl(userInfoEntity.getHeaderImageUrl());</span><br><span class="line">user.setUpdateTime(System.currentTimeMillis());</span><br><span class="line"></span><br><span class="line">getRealm().beginTransaction();</span><br><span class="line">getRealm().copyToRealmOrUpdate(user);</span><br><span class="line">getRealm().commitTransaction();</span><br></pre></td></tr></table></figure></p>
+<p>就是这么简单。</p>
+<p>如果想要直接和Retrofit一起应用，去进行串行化，可以参考该<a href="https://gist.github.com/cmelchior/ddac8efd018123a1e53a" target="_blank" rel="noopener">Gist</a>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 结合 Realm, Retrofit 和 RxJava (使用了Retrolambda以简化符号)的例子。</span></span><br><span class="line"><span class="comment">// 读取所有Person，然后与从GitHub获取的最新状态merge到一起</span></span><br><span class="line">Realm realm = Realm.getDefaultInstance();</span><br><span class="line">GitHubService api = retrofit.create(GitHubService.class);</span><br><span class="line">realm.where(Person.class).isNotNull(<span class="string">"username"</span>).findAllAsync().asObservable()</span><br><span class="line">    .filter(persons.isLoaded)</span><br><span class="line">    .flatMap(persons -&gt; Observable.from(persons))</span><br><span class="line">    .flatMap(person -&gt; api.user(person.getGithubUserName())</span><br><span class="line">    .observeOn(AndroidSchedulers.mainThread())</span><br><span class="line">    .subscribe(user -&gt; showUser(user));</span><br></pre></td></tr></table></figure>
+<p>更多详情可以去<a href="https://realm.io/docs/java/latest/" target="_blank" rel="noopener">官网</a>看，migration/relationship等等支持应有尽有，我只能说，文档实在太长太长了。</p>
+<h1 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h1><p>内存，也就是直接使用变量存储在对应repository中，如果非空则优先直接返回内存中的变量。</p>
+<h2 id="LruCache"><a href="#LruCache" class="headerlink" title="LruCache"></a>LruCache</h2><p>LruCache限定了最大的entry数量，近期最少使用算法保证了淘汰机制的合理性。使用场景如用户信息缓存，会淘汰那些最近没有访问过的用户的信息缓存。使用可参考Google官网：<a href="https://developer.android.com/reference/android/util/LruCache.html" target="_blank" rel="noopener">LruCache</a>。</p>
+<h2 id="变量存储"><a href="#变量存储" class="headerlink" title="变量存储"></a>变量存储</h2><p>变量存储很简单，直接在Repository实现类中直接变量存储上一次的返回结果，在下一次请求的时候优先使用内存缓存。使用场景如请求后直接刷新本地的变量，下次调用repository方法使用啊concat先返回内存里的变量，然后再使用网络数据进行刷新。</p>
+<h1 id="统一异常处理"><a href="#统一异常处理" class="headerlink" title="统一异常处理"></a>统一异常处理</h1><p>作为Repository层，本身不会，也不应该去处理任何异常和错误（比如请求的错误码），一切都将作为Exception异常抛给上层去做统一处理，而RxJava的onError机制也帮助我们能优雅地去做这件事。</p>
+<h2 id="Observable-error"><a href="#Observable-error" class="headerlink" title="Observable.error"></a>Observable.error</h2><p>类似在上一篇中提到的方法，我们可以使用Observable.error返回异常，供上层根据该异常做对应处理。无论是网络异常，数据库异常，亦或是服务器response异常等等，都可以进行分类创建对应的Exception类，抛给上层。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">Observable&lt;T&gt; <span class="title">extractData</span><span class="params">(Observable&lt;MrResponse&gt; observable, Class&lt;T&gt; clazz)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> observable.flatMap(response -&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (response == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> Observable.error(<span class="keyword">new</span> NetworkConnectionException());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (response.getStatusCode() == ResponseException.STATUS_CODE_SUCCESS) &#123;</span><br><span class="line">            <span class="keyword">return</span> Observable.just(mGson.fromJson(mGson.toJson(response.data), clazz));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Logger.e(TAG, response.data);</span><br><span class="line">            <span class="keyword">return</span> Observable.error(<span class="keyword">new</span> ResponseException(response));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Subscriber-onError"><a href="#Subscriber-onError" class="headerlink" title="Subscriber.onError"></a>Subscriber.onError</h2><p>我们使用Subscriber的基类来处理通用错误，其他所有Subscriber继承它:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MrSubscriber</span>&lt;<span class="title">T</span>&gt; <span class="keyword">extends</span> <span class="title">DefaultSubscriber</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">super</span>.onError(e);</span><br><span class="line">       <span class="keyword">if</span> (!handleCommonResponseError((Exception) e)) &#123;</span><br><span class="line">           <span class="keyword">if</span> (e != <span class="keyword">null</span> &amp;&amp; e.getMessage() != <span class="keyword">null</span>) &#123;</span><br><span class="line">               Logger.w(TAG, e.getMessage());</span><br><span class="line">           &#125;</span><br><span class="line">           showErrorMessage(<span class="keyword">new</span> DefaultErrorBundle((Exception) e));</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">showErrorMessage</span><span class="params">(ErrorBundle errorBundle)</span> </span>&#123;</span><br><span class="line">    String errorMessage = ErrorMessageFactory.create(<span class="keyword">this</span>, errorBundle.getException());</span><br><span class="line">    showErrorMessage(errorMessage);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">showErrorMessage</span><span class="params">(String errorMessage)</span> </span>&#123;</span><br><span class="line">    ToastUtils.show(<span class="keyword">this</span>, errorMessage);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>DefaultErrorBundle</code>是exception的wrapper，管理了其错误。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultErrorBundle</span> <span class="keyword">implements</span> <span class="title">ErrorBundle</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEFAULT_ERROR_MSG = <span class="string">"Unknown error"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Exception exception;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DefaultErrorBundle</span><span class="params">(Exception exception)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.exception = exception;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Exception <span class="title">getException</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> exception;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getErrorMessage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> (exception != <span class="keyword">null</span>) ? <span class="keyword">this</span>.exception.getMessage() : DEFAULT_ERROR_MSG;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ErrorMessageFactory</code>是错误消息工厂，根据exception创建对应的错误消息提示，让用户不至于碰到错误莫名其妙。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Factory used to create error messages from an Exception as a condition.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ErrorMessageFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"ErrorMessageFactory"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">ErrorMessageFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//empty</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Creates a String representing an error message.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> context   Context needed to retrieve string resources.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> exception An exception used as a condition to retrieve the correct error message.</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@link</span> String&#125; an error message.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">create</span><span class="params">(Context context, Exception exception)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotEmpty(exception.getMessage())) &#123;</span><br><span class="line">            Logger.e(TAG, exception.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String message = context.getString(R.string.exception_message_generic);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> NetworkConnectionException) &#123;</span><br><span class="line">            message = context.getString(R.string.exception_message_no_connection);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> NotFoundException) &#123;</span><br><span class="line">            message = context.getString(R.string.exception_message_not_found);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> ResponseException) &#123;</span><br><span class="line">            message = exception.getMessage();</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> HttpException) &#123;</span><br><span class="line">            message = exception.getMessage();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> message;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="handleCommonResponseError"><a href="#handleCommonResponseError" class="headerlink" title="handleCommonResponseError"></a>handleCommonResponseError</h3><p>通常，服务器会返回错误信息，我们需要根据一些code进行对应处理，MrSubscriber的onError就调用了<code>handleCommonResponseError</code>来处理这些通用错误：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">handleCommonResponseError</span><span class="params">(Exception exception)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> handled = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (exception <span class="keyword">instanceof</span> ResponseException) &#123;</span><br><span class="line">        ResponseException responseException = (ResponseException) exception;</span><br><span class="line">        <span class="keyword">switch</span> (responseException.getStatusCode()) &#123;</span><br><span class="line">            <span class="keyword">case</span> ResponseException.ERROR_CODE_NEED_LOGIN:</span><br><span class="line">                handled = <span class="keyword">true</span>;</span><br><span class="line">                getUserSystem().setVuser(<span class="string">""</span>);</span><br><span class="line">                getNavigator().navigateToLoginPage(<span class="keyword">this</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ResponseException.ERROR_CODE_NEED_PERFECT_PROFILE:</span><br><span class="line">                handled = <span class="keyword">true</span>;</span><br><span class="line">                <span class="keyword">if</span> (responseException.getVuser() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    getUserSystem().setVuser(responseException.getVuser().getVuser());</span><br><span class="line">                &#125;</span><br><span class="line">                getNavigator().navigateToPerfectProfile(<span class="keyword">this</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> ResponseException.ERROR_CODE_NEED_THIRD_PARTY_BIND:</span><br><span class="line">                handled = <span class="keyword">true</span>;</span><br><span class="line">                getNavigator().navigateToThirdPartyBind(<span class="keyword">this</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> handled;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Log-amp-上报"><a href="#Log-amp-上报" class="headerlink" title="Log &amp; 上报"></a>Log &amp; 上报</h3><p>出错了当然要上报啦，bugly、友盟，本地写文件打zip包上传，Logger做的就是写文件log了，这些常见的app都会去做，这里就不赘述了。</p>
+<h1 id="总结和下集预告"><a href="#总结和下集预告" class="headerlink" title="总结和下集预告"></a>总结和下集预告</h1><p>本系列两篇文章描述了Android项目中，Repository层的设计与实现，也可以理解它为data或者model层。一个好的Repository层和上层相对独立，内聚完成业务逻辑的数据部分，即便内部有修改，比如添加了缓存，对外仍然保持一致。而好的异常处理设计一方面让代码中不会充斥着杂七杂八的 try &amp; catch，另一方，恰当的错误展示也让用户知道究竟出了什么错，不至于莫名其妙。</p>
+<p>下一次不知是何时相见，希望能为大家带来我们项目中使用React Native进行混合开发的苦与甜。</p>
+<p><strong>另外，打个小广告，本司的新产品Crew已经在各大Android应用市场上线，专注于职场垂直社交。一搜和兴趣相投的人聊天。iOS版本正在审核中。</strong></p>
+<p><em>2个字找到志趣相投的职场伙伴，秒搜陌生人同类，智能自动破冰。多关键字叠加，高效率锁定职场同僚。精准匹配兴趣对象，超轻聊天，更能一键组建群聊，加入一群人的狂欢。</em></p>
+<p>demo没空写了，反正我也没混淆，直接反编译来黑我吧。哈哈。有bug或者功能上的意见建议欢迎直接反馈给我。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Repository/" rel="tag"># Repository</a>
+          
+            <a href="/tags/Realm/" rel="tag"># Realm</a>
+          
+            <a href="/tags/异常处理/" rel="tag"># 异常处理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/30/android-new-project-from-0-p5/" rel="next" title="从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装">
+                <i class="fa fa-chevron-left"></i> 从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/16/android-new-project-from-0-p7/" rel="prev" title="从零开始的Android新项目7 - Data Binding入门篇">
+                从零开始的Android新项目7 - Data Binding入门篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Realm"><span class="nav-number">1.</span> <span class="nav-text">Realm</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#引入"><span class="nav-number">1.1.</span> <span class="nav-text">引入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#内存"><span class="nav-number">2.</span> <span class="nav-text">内存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LruCache"><span class="nav-number">2.1.</span> <span class="nav-text">LruCache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#变量存储"><span class="nav-number">2.2.</span> <span class="nav-text">变量存储</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#统一异常处理"><span class="nav-number">3.</span> <span class="nav-text">统一异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Observable-error"><span class="nav-number">3.1.</span> <span class="nav-text">Observable.error</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Subscriber-onError"><span class="nav-number">3.2.</span> <span class="nav-text">Subscriber.onError</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#handleCommonResponseError"><span class="nav-number">3.2.1.</span> <span class="nav-text">handleCommonResponseError</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Log-amp-上报"><span class="nav-number">3.2.2.</span> <span class="nav-text">Log &amp; 上报</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结和下集预告"><span class="nav-number">4.</span> <span class="nav-text">总结和下集预告</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

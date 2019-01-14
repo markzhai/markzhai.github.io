@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="来自译者 markzhai：大家也知道最近 Web 越来越火了，如果你还以为 Web 就是 jQuery、Ajax、CSS 什么的，那你就 out 了。给大家几个链接看一看吧：  https://shop.polymer-project.org/ https://housing.com/ https://www.flipkart.com/ https://react-hn.appspot.com/">
+<meta name="keywords" content="JavaScript,前端,PWA,React.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/11/14/pwa-react-p1/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="来自译者 markzhai：大家也知道最近 Web 越来越火了，如果你还以为 Web 就是 jQuery、Ajax、CSS 什么的，那你就 out 了。给大家几个链接看一看吧：  https://shop.polymer-project.org/ https://housing.com/ https://www.flipkart.com/ https://react-hn.appspot.com/">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/1*Ms2muRzG4DHE36YU4kX_ag@2x.png">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*EI9JfoDRizcpZolA.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/1*Qx7aFIAKWbn11heD--nxwg.png">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*5tmODLoFjo8A_nnW.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1200/1*xRLobGG8a41wGypF9mKI-A.jpeg">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*OzD-JvnlDlwVS8d-.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*00LlyQjpgTUPOh0g.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1200/1*xdyHSM4RdSkeN3-U8O1JKg.png">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*-UCHfo1lxUdWUKAD.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*sQHn9k-t--cNcijL.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*bgAmcKHWLB_DxiRC.">
+<meta property="og:updated_time" content="2016-11-15T03:06:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍">
+<meta name="twitter:description" content="来自译者 markzhai：大家也知道最近 Web 越来越火了，如果你还以为 Web 就是 jQuery、Ajax、CSS 什么的，那你就 out 了。给大家几个链接看一看吧：  https://shop.polymer-project.org/ https://housing.com/ https://www.flipkart.com/ https://react-hn.appspot.com/">
+<meta name="twitter:image" content="https://cdn-images-1.medium.com/max/1600/1*Ms2muRzG4DHE36YU4kX_ag@2x.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/11/14/pwa-react-p1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/11/14/pwa-react-p1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-11-14 21:52:20" itemprop="dateCreated datePublished" datetime="2016-11-14T21:52:20+08:00">2016-11-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-11-15 11:06:13" itemprop="dateModified" datetime="2016-11-15T11:06:13+08:00">2016-11-15</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Frontend/" itemprop="url" rel="index"><span itemprop="name">Frontend</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>来自译者 markzhai：大家也知道最近 Web 越来越火了，如果你还以为 Web 就是 jQuery、Ajax、CSS 什么的，那你就 out 了。给大家几个链接看一看吧：</p>
+<ul>
+<li><a href="https://shop.polymer-project.org/" target="_blank" rel="noopener">https://shop.polymer-project.org/</a></li>
+<li><a href="https://housing.com/" target="_blank" rel="noopener">https://housing.com/</a></li>
+<li><a href="https://www.flipkart.com/" target="_blank" rel="noopener">https://www.flipkart.com/</a></li>
+<li><a href="https://react-hn.appspot.com/" target="_blank" rel="noopener">https://react-hn.appspot.com/</a></li>
+<li><a href="https://mobile.twitter.com/" target="_blank" rel="noopener">https://mobile.twitter.com/</a></li>
+</ul>
+<p>部分可能需要自备梯子，另外建议在 Chrome 下查看，毕竟该死的 X5，大家都懂得。</p>
+<blockquote>
+<ul>
+<li>原文地址：<a href="https://medium.com/@addyosmani/progressive-web-apps-with-react-js-part-i-introduction-50679aef2b12#.g5r0gv9j5" target="_blank" rel="noopener">Progressive Web Apps with React.js: Part I — Introduction</a></li>
+<li>原文作者：<a href="https://medium.com/@addyosmani" target="_blank" rel="noopener">Addy Osmani</a></li>
+<li>译文出自：<a href="https://github.com/xitu/gold-miner" target="_blank" rel="noopener">掘金翻译计划</a></li>
+<li>译者 : <a href="https://github.com/markzhai" target="_blank" rel="noopener">markzhai</a></li>
+<li>校对者：<a href="https://github.com/Tina92" target="_blank" rel="noopener">Tina92</a>, <a href="https://github.com/DeadLion" target="_blank" rel="noopener">DeadLion</a></li>
+</ul>
+</blockquote>
+<h1 id="使用-React-js-的渐进式-Web-应用程序：第-1-部分-介绍"><a href="#使用-React-js-的渐进式-Web-应用程序：第-1-部分-介绍" class="headerlink" title="使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍"></a>使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍</h1><h3 id="渐进式-Web-应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。"><a href="#渐进式-Web-应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。" class="headerlink" title="渐进式 Web 应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。"></a>渐进式 Web 应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。</h3><p><img src="https://cdn-images-1.medium.com/max/1600/1*Ms2muRzG4DHE36YU4kX_ag@2x.png" alt=""></p>
+<p>在 <a href="https://infrequently.org/2015/06/progressive-apps-escaping-tabs-without-losing-our-soul/" target="_blank" rel="noopener">渐进式 Web 应用程序</a> (PWAs) 的世界中有很多新东西，你可能会想知道它们和现有架构是如何兼容的 —— 比如 <a href="https://facebook.github.io/react/" target="_blank" rel="noopener">React</a> 和 JS 模块化打包工具如 <a href="https://webpack.github.io/" target="_blank" rel="noopener">Webpack</a> 之间的兼容性如何。PWA 是否需要大量的重写？你需要关注哪个 Web 性能度量工具？在这系列的文章中，我将会分享将基于 React 的 web apps 转化为 PWAs 的经验。我们还将包括为什么<strong>仅</strong>加载用户路由所需要的，并抛开其他所有脚本是提高性能的好方式。</p>
+<h3 id="Lighthouse"><a href="#Lighthouse" class="headerlink" title="Lighthouse"></a>Lighthouse</h3><p>让我们从一个 PWA manifest 开始。为此我们会使用 <a href="https://github.com/GoogleChrome/lighthouse" target="_blank" rel="noopener"><strong>Lighthouse</strong></a> — 一个评审 <a href="https://infrequently.org/2016/09/what-exactly-makes-something-a-progressive-web-app/" target="_blank" rel="noopener">app 面向 PWA 特性</a> 的工具，并且检查你的 app 在模拟移动场景下是否做的足够好。Lighthouse 可以通过 <a href="https://chrome.google.com/webstore/detail/lighthouse/blipmdconlkpinefehnmjammfjpmpbjk" target="_blank" rel="noopener">Chrome 插件</a> (我大部分时候都用这个) 以及 <a href="https://github.com/GoogleChrome/lighthouse#install-cli" target="_blank" rel="noopener">CLI</a> 来使用，两者都会展示一个类似这样的报告：</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*EI9JfoDRizcpZolA." alt=""></p>
+<p>来自 Lighthouse Chrome 插件的结果</p>
+<p>顶级评审工具 Lighthouse 会高效地运行一系列为移动世界精炼的现代 web 最佳实践：</p>
+<ul>
+<li><strong>网络连接是安全的</strong></li>
+<li><strong>用户会被提醒将 app 添加到 Homescreen</strong></li>
+<li><strong>安装了的 web app 启动时会带自定义的闪屏画面</strong></li>
+<li><strong>App 可以在离线/断断续续的连接下加载</strong></li>
+<li><strong>页面加载性能快速</strong></li>
+<li><strong>设计是移动友好的</strong></li>
+<li><strong>网页是渐进式增强的</strong></li>
+<li><strong>地址栏符合品牌颜色</strong></li>
+</ul>
+<p>顺便一提，有一个 Lighthouse 的 <a href="https://developers.google.com/web/tools/lighthouse/" target="_blank" rel="noopener">快速入门指南</a>，而且它还能通过 <a href="https://github.com/GoogleChrome/lighthouse#lighthouse-w-mobile-devices" target="_blank" rel="noopener">远程调试</a> 工作。超级酷炫。</p>
+<p>无论在你的技术栈中使用了什么库，我想要强调的是在上面列出的一切，在今天都只需要一点小小的工作量就能完成。然而也有一些警告。</p>
+<p><strong>我们知道移动 web 是 <a href="https://www.doubleclickbygoogle.com/articles/mobile-speed-matters/" target="_blank" rel="noopener">慢的</a></strong>。</p>
+<p>web 从一个以文档为中心的平台演变为了头等的应用平台。同时我们主要的计算能力也从强大的，拥有快速可靠的网络连接的强大桌面机器移动到了相对不给力的，连接通常<strong>慢，断断续续或者两者都存在</strong>的移动设备上。这在下一个 10 亿用户即将上网的世界尤其真实。为了解锁更快的移动 web：</p>
+<ul>
+<li><strong>我们需要全体转移到在真实移动设备，现实的网络连接下进行测试</strong> (e.g <a href="https://developers.google.com/web/tools/chrome-devtools/profile/network-performance/network-conditions?hl=en" target="_blank" rel="noopener">在 DevTools 的常规 3G</a>)。 <a href="https://developers.google.com/web/tools/chrome-devtools/debug/remote-debugging/remote-debugging?hl=en" target="_blank" rel="noopener">chrome://inspect</a> 和 <a href="https://www.webpagetest.org/" target="_blank" rel="noopener">WebPageTest</a> (<a href="https://www.youtube.com/watch?v=pOynMwTyRgQ&amp;feature=youtu.be" target="_blank" rel="noopener">视频</a>) 是你的好帮手。Lighthouse 模拟一台有触摸事件的 Nexus 5X 设备，以及 viewport 仿真 和 被限制的网络连接 （150毫秒延迟，1.6Mbps 吞吐量)。</li>
+<li><strong>如果你使用的是设计开发时没有考虑移动设备的 JS 库，你可能会为了可交互性能打一场硬仗</strong>。我们的理想化目标是在一台响应式设备上 5 秒内变得可交互，所以我们应用代码的预算会更多是 ❤</li>
+</ul>
+<p><img src="https://cdn-images-1.medium.com/max/1600/1*Qx7aFIAKWbn11heD--nxwg.png" alt=""></p>
+<p>通过一些工作，可以写出 <a href="https://twitter.com/samccone/status/771786445015035904" target="_blank" rel="noopener">如 Housing.com 所展示的</a> 在有限网络环境下，真机上依然表现良好的使用 React 开发的 PWAs。我们在接下来的系列中讨论如何实现的详尽 <strong>细节</strong>。</p>
+<p>话虽如此，这是一个很多库都在尽力提高的领域，你可能需要知道他们是否会继续提高在物理设备上的性能。只需要看看 <a href="https://github.com/developit/preact" target="_blank" rel="noopener">Preact</a> 所做的超级棒的 <a href="https://twitter.com/slightlylate/status/770652362985836544" target="_blank" rel="noopener">真实世界设备的性能</a>。</p>
+<p><strong>开源 React 渐进式 Web App 示例</strong></p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*5tmODLoFjo8A_nnW." alt=""></p>
+<p><strong>如果你想要看更复杂的使用 React 开发，并使用 Lighthouse 优化的 PWAs 例子，你可能会感兴趣于：</strong> <a href="https://github.com/insin/react-hn" target="_blank" rel="noopener"><em>ReactHN</em></a><strong>— 一个使用服务端渲染并支持离线的 HackerNews 客户端 或者 <a href="https://github.com/GoogleChrome/sw-precache/tree/master/app-shell-demo" target="_blank" rel="noopener"><em>iFixit</em></a> — 一个使用 React 开发，但使用了 Redux 进行状态管理的硬件修复指南 app。</strong></p>
+<p>现在让我们梳理一遍在 Lighthouse 报告中需要清点的每一项，并在系列中继续 React.js 专用的小贴士。</p>
+<h3 id="网络连接是安全的"><a href="#网络连接是安全的" class="headerlink" title="网络连接是安全的"></a>网络连接是安全的</h3><h4 id="HTTPS-的工具和建议"><a href="#HTTPS-的工具和建议" class="headerlink" title="HTTPS 的工具和建议"></a>HTTPS 的工具和建议</h4><p><img src="https://cdn-images-1.medium.com/max/1200/1*xRLobGG8a41wGypF9mKI-A.jpeg" alt=""></p>
+<p><a href="https://support.google.com/webmasters/answer/6073543?hl=en" target="_blank" rel="noopener">HTTPS</a> 防止坏人篡改你的 app 和你的用户使用的浏览器之间的通信，你可能读过 Google 正在推动 <a href="http://motherboard.vice.com/read/google-will-soon-shame-all-websites-that-are-unencrypted-chrome-https" target="_blank" rel="noopener">羞辱</a> 那些没有加密的网站。强大的新型 web 平台 APIs，像 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API" target="_blank" rel="noopener">Service Worker</a>，<a href="https://www.chromium.org/Home/chromium-security/prefer-secure-origins-for-powerful-new-features" target="_blank" rel="noopener">require</a> 通过 HTTPS 保护来源，但是好消息是像是 <a href="https://letsencrypt.org/" target="_blank" rel="noopener">LetsEncrypt</a> 这样的服务商提供了免费的 <a href="https://www.globalsign.com/en/ssl-information-center/what-is-an-ssl-certificate/" target="_blank" rel="noopener">SSL 证书</a>，便宜的选择像是 <a href="https://www.cloudflare.com/" target="_blank" rel="noopener">Cloudflare</a> 可以使端到端流量 <a href="https://www.cloudflare.com/ssl/" target="_blank" rel="noopener">完全</a> 加密，从来没有如此简单直接地能做到现在这样。</p>
+<p>作为我的个人项目，我通常会部署到 <a href="https://cloud.google.com/appengine/" target="_blank" rel="noopener">Google App Engine</a>，它支持通过 appspot.com 域名的 SSL 通信服务，只需要你加上 <a href="https://cloud.google.com/appengine/docs/python/config/appref" target="_blank" rel="noopener">‘secure’</a> 参数到你的 app.yaml 文件。对于需要 Node.js 支持 Universal 渲染的 React apps，我使用 <a href="https://cloudplatform.googleblog.com/2016/03/Node.js-on-Google-App-Engine-goes-beta.html" target="_blank" rel="noopener">Node on App Engine</a>。<a href="https://github.com/blog/2186-https-for-github-pages" target="_blank" rel="noopener">Github Pages</a> 和 <a href="https://zeit.co/blog/now-alias" target="_blank" rel="noopener">Zeit.co</a> 现在也支持 HTTPS。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*OzD-JvnlDlwVS8d-." alt=""></p>
+<p><strong>这个</strong> <a href="https://developers.google.com/web/updates/2015/12/security-panel?hl=en" target="_blank" rel="noopener"><strong>Chrome DevTools Security 面板</strong></a> <strong>允许你印证安全证书和混合内容错误的问题。</strong></p>
+<p>一些更多的小贴士可以使你的网站更加安全：</p>
+<ul>
+<li>根据需要重定向用户，升级非安全请求（“HTTP” 连接）到 “HTTPS”。可以一看 <a href="https://content-security-policy.com/" target="_blank" rel="noopener">内容安全策略</a> 和 <a href="https://googlechrome.github.io/samples/csp-upgrade-insecure-requests/" target="_blank" rel="noopener">升级非安全请求</a>。</li>
+<li>更新所有引用 “http://” 的链接到 “https://”。如果你依赖第三方的脚本或者内容，跟他们商量一下让他们也支持一下 HTTPS 资源。</li>
+<li>提供页面的时候，使用 <a href="https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security" target="_blank" rel="noopener">HTTP 严格传输安全</a> (HSTS) 头。这是一个强制浏览器只通过 HTTPS 和你的网站交流的指令。</li>
+</ul>
+<p>我建议去看看 <a href="https://developers.google.com/web/shows/cds/2015/deploying-https-the-green-lock-and-beyond-chrome-dev-summit-2015?hl=en" target="_blank" rel="noopener">Deploying HTTPS: The Green Lock and Beyond</a> 和 <a href="https://developers.google.com/web/shows/google-io/2016/mythbusting-https-squashing-securitys-urban-legends-google-io-2016?hl=en" target="_blank" rel="noopener">Mythbusting HTTPS: Squashing security’s urban legends</a> 来了解更多。</p>
+<h3 id="用户会被提醒将-app-添加到-Homescreen"><a href="#用户会被提醒将-app-添加到-Homescreen" class="headerlink" title="用户会被提醒将 app 添加到 Homescreen"></a>用户会被提醒将 app 添加到 Homescreen</h3><p>下一个要讲的是自定义你的 app 的 “<a href="https://developer.chrome.com/multidevice/android/installtohomescreen" target="_blank" rel="noopener">添加到主屏幕</a>” 体验（favicons，显示的应用名字，方向和更多）。这是通过添加一个 <a href="https://developer.mozilla.org/en-US/docs/Web/Manifest" target="_blank" rel="noopener">Web 应用 manifest</a> 来做的。我经常会找定制的跨浏览器（以及系统）的图标来完成这部分工作，但是像是 <a href="http://realfavicongenerator.net/" target="_blank" rel="noopener">realfavicongenerator.net</a> 这样的工具能解决不少麻烦的事情。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*00LlyQjpgTUPOh0g." alt=""></p>
+<p>有很多关于一个网站只需要在大部分场合能工作的 “最少” favicons 的讨论。Lighthouse <a href="https://github.com/GoogleChrome/lighthouse/issues/291" target="_blank" rel="noopener">提议</a> 提供一个 192px 的图标给主屏幕，一个 512px 的图标给你的闪屏。我个人坚持从 realfavicongenerator 得到的输出，除了它包含更多的 metatags, 我也更倾向于它能涵盖我的所有基数。</p>
+<p>一些网站可能更倾向于为每个平台提供高度定制化的 favicon。我推荐去看看 <a href="https://medium.com/dev-channel/designing-a-progressive-web-app-icon-b55f63f9ff6e#.voxq5imjg" target="_blank" rel="noopener">设计一个渐进式 Web App 图标</a> 以获得更多关于这个主题的指导。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1200/1*xdyHSM4RdSkeN3-U8O1JKg.png" alt=""></p>
+<p>通过 Web App manifest 安装，你还能获得 <a href="https://developers.google.com/web/fundamentals/engage-and-retain/app-install-banners/?hl=en" target="_blank" rel="noopener">app 安装器横幅</a>，让你有方法可以原生地提示用户来安装你的 PWA，如果他们觉得会经常使用它的话。还可以 <a href="https://developers.google.com/web/fundamentals/engage-and-retain/app-install-banners/?hl=en#deferring_or_cancelling_the_prompt" target="_blank" rel="noopener">延迟</a> 提示，直到用户和你的 app 进行了有意义的交互。Flipkart <a href="https://twitter.com/adityapunjani/status/782426188702633984" target="_blank" rel="noopener">找到</a> 最佳时间来显示这个提示是在他们的订单确认页。</p>
+<p><a href="https://developers.google.com/web/tools/chrome-devtools/progressive-web-apps" target="_blank" rel="noopener"><strong>Chrome DevTools Application 面板</strong></a> 支持通过 Application &gt; Manifest 来查看你的 Web App manifest：</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*-UCHfo1lxUdWUKAD." alt=""></p>
+<p>它会解析出列在你的 manifest 清单文件的 favicons（网站头像），还能预览像是 start URL 和 theme colors 这样的属性。顺带一提，如果感兴趣的话，这里有一个完整的关于 Web App Manfests 的工具小贴士 <a href="https://www.youtube.com/watch?v=yQhFmPExcbs&amp;index=11&amp;list=PLNYkxOF6rcIB3ci6nwNyLYNU6RDOU3YyL" target="_blank" rel="noopener">片段</a> 😉</p>
+<h3 id="安装了的-web-app-启动时会带自定义的闪屏画面"><a href="#安装了的-web-app-启动时会带自定义的闪屏画面" class="headerlink" title="安装了的 web app 启动时会带自定义的闪屏画面"></a>安装了的 web app 启动时会带自定义的闪屏画面</h3><p>在旧版本的 Android Chrome 上，点击主屏幕上的 app 图标通常会花费 200 毫秒（一些慢的网站甚至要数秒）以到达文档的第一帧被渲染到屏幕上。</p>
+<p>在这段时间内，用户会看到一个白屏，减少对你网站的感知到的性能。Chrome 47 和以上版本 <a href="https://developers.google.com/web/updates/2015/10/splashscreen?hl=en" target="_blank" rel="noopener">支持自定义闪屏</a>（基于来自 Web App manifest 的背景颜色，名字和图标）会在浏览器准备绘制一些东西前给屏幕一些颜色。这使得你的 webapp 感受上更接近 “原生”。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*sQHn9k-t--cNcijL." alt=""></p>
+<p><a href="http://realfavicongenerator.net/" target="_blank" rel="noopener">Realfavicongenerator.net</a> 现在还支持根据你的清单（manifest）预览并自定义闪屏，很方便地节约时间。</p>
+<p><strong>注意：Firefox for Android 和 Opera for Android 也支持 Web 应用程序清单，闪屏和添加到主屏幕的体验。在 iOS 上，Safari 也支持自定义添加到 <a href="https://developer.apple.com/library/ios/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html" target="_blank" rel="noopener">主屏幕的图标</a> 并曾经支持一个 <a href="https://gist.github.com/tfausak/2222823" target="_blank" rel="noopener">专有的闪屏</a> 实现，然而这个在 iOS9 上显得不能用了。我已经填了一个特性请求给 Webkit，以支持 Web App manifest，所以…希望一切顺利吧。</strong></p>
+<h3 id="设计是移动友好的"><a href="#设计是移动友好的" class="headerlink" title="设计是移动友好的"></a>设计是移动友好的</h3><p>为多种设备所优化的 Apps 必须在他们的 document 里面包括一个  <a href="https://developers.google.com/web/fundamentals/design-and-ui/responsive/fundamentals/set-the-viewport?hl=en" target="_blank" rel="noopener">meta-viewport</a>。这看上去非常明显，但是我看到过很多的 React 项目中，人们忘了加上这个。好在 <a href="https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/public/index.html#L5" target="_blank" rel="noopener">create-react-app</a> 有默认加上有效的 meta-viewport，而且如果缺失的话 Lighthouse 会标记上：</p>
+<p>尽管我们非常重视渐进式 Web 应用程序在移动 web 的体验，这 <a href="https://www.justinribeiro.com/chronicle/2016/09/10/desktop-pwa-bring-the-goodness/" target="_blank" rel="noopener">并不意味着桌面应该被忘记</a>。一个精心设计的 PWA 应该可以在各种 viewport 尺寸、浏览器以及设备上良好运作，正如 Housing.com 所展示的：</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*bgAmcKHWLB_DxiRC." alt=""></p>
+<p>在系列第 2 部分，我们将会看看那 <a href="https://medium.com/@addyosmani/progressive-web-apps-with-react-js-part-2-page-load-performance-33b932d97cf2#.9ebqqaw8k" target="_blank" rel="noopener"><strong>使用 React 和 Webpack 的页面加载性能</strong></a>。我们会深入 code-splitting（代码分割），基于路由的 chunking（分块）以及 达到更快交互性 PRPL 模式。</p>
+<p>如果你不熟悉 React，我发现 Wes Bos 写的 <a href="https://goo.gl/G1WGxU" target="_blank" rel="noopener">给新手的 React</a> 很棒。</p>
+<p><strong>感谢 Gray Norton, Sean Larkin, Sunil Pai, Max Stoiber, Simon Boudrias, Kyle Mathews 和 Owen Campbell-Moore 的校对</strong></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/前端/" rel="tag"># 前端</a>
+          
+            <a href="/tags/PWA/" rel="tag"># PWA</a>
+          
+            <a href="/tags/React-js/" rel="tag"># React.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/20/android-new-project-from-0-p11/" rel="next" title="从零开始的Android新项目11 - 组件化实践（1）">
+                <i class="fa fa-chevron-left"></i> 从零开始的Android新项目11 - 组件化实践（1）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/16/pwa-react-p2/" rel="prev" title="使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能">
+                使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-React-js-的渐进式-Web-应用程序：第-1-部分-介绍"><span class="nav-number">1.</span> <span class="nav-text">使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#渐进式-Web-应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。"><span class="nav-number">1.0.1.</span> <span class="nav-text">渐进式 Web 应用程序利用新技术的优势带给了用户最佳的移动网站和原生应用。它们是可靠的，迅捷的，迷人的。它们来自可靠的源，而且无论网络状态如何都能加载。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lighthouse"><span class="nav-number">1.0.2.</span> <span class="nav-text">Lighthouse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络连接是安全的"><span class="nav-number">1.0.3.</span> <span class="nav-text">网络连接是安全的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTPS-的工具和建议"><span class="nav-number">1.0.3.1.</span> <span class="nav-text">HTTPS 的工具和建议</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用户会被提醒将-app-添加到-Homescreen"><span class="nav-number">1.0.4.</span> <span class="nav-text">用户会被提醒将 app 添加到 Homescreen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装了的-web-app-启动时会带自定义的闪屏画面"><span class="nav-number">1.0.5.</span> <span class="nav-text">安装了的 web app 启动时会带自定义的闪屏画面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设计是移动友好的"><span class="nav-number">1.0.6.</span> <span class="nav-text">设计是移动友好的</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

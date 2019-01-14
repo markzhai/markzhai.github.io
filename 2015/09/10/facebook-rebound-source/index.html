@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Rebound源码分析对于想体验一下rebound的效果，又懒得clone和编译代码的，这里提供一个demo apk。 今天看到了tumblr发布了基于rebound的Backboard，本想直接分析一下Backboard对rebound做了些什么，不过考虑到rebound还没有仔细分析过，所以这里做一下源码分析。 对外部来说，首先接触的就是SpringSystem了，但在说它之前，先让我们看看S">
+<meta name="keywords" content="Android,源码分析,Rebound,Animation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Facebook Rebound 弹性动画库 源码分析">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2015/09/10/facebook-rebound-source/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="Rebound源码分析对于想体验一下rebound的效果，又懒得clone和编译代码的，这里提供一个demo apk。 今天看到了tumblr发布了基于rebound的Backboard，本想直接分析一下Backboard对rebound做了些什么，不过考虑到rebound还没有仔细分析过，所以这里做一下源码分析。 对外部来说，首先接触的就是SpringSystem了，但在说它之前，先让我们看看S">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-02-19T16:28:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Facebook Rebound 弹性动画库 源码分析">
+<meta name="twitter:description" content="Rebound源码分析对于想体验一下rebound的效果，又懒得clone和编译代码的，这里提供一个demo apk。 今天看到了tumblr发布了基于rebound的Backboard，本想直接分析一下Backboard对rebound做了些什么，不过考虑到rebound还没有仔细分析过，所以这里做一下源码分析。 对外部来说，首先接触的就是SpringSystem了，但在说它之前，先让我们看看S">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2015/09/10/facebook-rebound-source/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Facebook Rebound 弹性动画库 源码分析 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2015/09/10/facebook-rebound-source/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Facebook Rebound 弹性动画库 源码分析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-09-10 19:58:10" itemprop="dateCreated datePublished" datetime="2015-09-10T19:58:10+08:00">2015-09-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-20 00:28:06" itemprop="dateModified" datetime="2016-02-20T00:28:06+08:00">2016-02-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Effects/" itemprop="url" rel="index"><span itemprop="name">Android Effects</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Rebound源码分析"><a href="#Rebound源码分析" class="headerlink" title="Rebound源码分析"></a>Rebound源码分析</h1><p>对于想体验一下rebound的效果，又懒得clone和编译代码的，这里提供一个<a href="http://pan.baidu.com/s/1o6y3qcy" target="_blank" rel="noopener">demo apk</a>。</p>
+<p>今天看到了tumblr发布了基于<a href="https://github.com/facebook/rebound" target="_blank" rel="noopener">rebound</a>的<a href="https://github.com/tumblr/Backboard" target="_blank" rel="noopener">Backboard</a>，本想直接分析一下Backboard对rebound做了些什么，不过考虑到rebound还没有仔细分析过，所以这里做一下源码分析。</p>
+<p>对外部来说，首先接触的就是<code>SpringSystem</code>了，但在说它之前，先让我们看看<code>Spring</code>是什么。</p>
+<h2 id="Spring"><a href="#Spring" class="headerlink" title="Spring"></a>Spring</h2><p>Spring通过可设置的摩擦力(Friction)和张力(tension)实现了<a href="http://baike.baidu.com/view/127907.htm" target="_blank" rel="noopener">胡克定律</a>，通过代码模拟了物理场景：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">PhysicsState</span> </span>&#123;</span><br><span class="line">  <span class="keyword">double</span> position;</span><br><span class="line">  <span class="keyword">double</span> velocity;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PhysicsState mCurrentState = <span class="keyword">new</span> PhysicsState();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PhysicsState mPreviousState = <span class="keyword">new</span> PhysicsState();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PhysicsState mTempState = <span class="keyword">new</span> PhysicsState();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">double</span> mStartValue;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">double</span> mEndValue;</span><br></pre></td></tr></table></figure></p>
+<p>每个spring从<code>mStartValue</code>到<code>mEndValue</code>进行运动，内部维护了当前状态、前值状态，以及临时状态，每个状态由通过位置和速度来描述，而运动的推进逻辑则在<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">advance</span><span class="params">(<span class="keyword">double</span> realDeltaTime)</span></span></span><br></pre></td></tr></table></figure></p>
+<p><code>advance</code>方法中，SpringSystem会遍历由其管理的所有Spring实例，对它们进行<code>advance</code>。</p>
+<h2 id="SpringListener"><a href="#SpringListener" class="headerlink" title="SpringListener"></a>SpringListener</h2><p>每个<code>Spring</code>内部都维护着一个<code>SpringListener</code>数组，这也是我们经常会需要去实现的一个接口：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SpringListener</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onSpringUpdate</span><span class="params">(Spring spring)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onSpringAtRest</span><span class="params">(Spring spring)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onSpringActivate</span><span class="params">(Spring spring)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onSpringEndStateChange</span><span class="params">(Spring spring)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>按照先后顺序：</p>
+<ul>
+<li>onSpringActivate在首次开始运动时候调用。</li>
+<li>onSpringUpdate在advance后调用，表示状态更新。</li>
+<li>onSpringAtRest在进入rest状态后调用。</li>
+<li>onSpringEndStateChange则略有不同，仅在<code>setEndValue</code>中被调用，且该<code>Spring</code>需要在运动中且新的endValue不等于原endValue。</li>
+</ul>
+<h2 id="SpringSystem"><a href="#SpringSystem" class="headerlink" title="SpringSystem"></a>SpringSystem</h2><p><code>SpringSystem</code>继承了<code>BaseSpringSystem</code>，对外提供了一个静态create方法，并屏蔽了Construtor：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SpringSystem <span class="title">create</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> SpringSystem(AndroidSpringLooperFactory.createSpringLooper());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">SpringSystem</span><span class="params">(SpringLooper springLooper)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">super</span>(springLooper);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到create方法里面默认给了一个<code>SpringLooper</code>的工厂类创建实例（内部根据系统版本是否&gt;=3.0返回了不同的子类实例），而<code>SpringLooper</code>顾名思义是一个Looper，做的就是不断地更新<code>SpringSystem</code>的状态，实际调用了<code>BaseSpringSystem</code>的<code>loop</code>方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * loop the system until idle</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> elapsedMillis elapsed milliseconds</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">(<span class="keyword">double</span> elapsedMillis)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (SpringSystemListener listener : mListeners) &#123;</span><br><span class="line">    listener.onBeforeIntegrate(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  advance(elapsedMillis);</span><br><span class="line">  <span class="keyword">if</span> (mActiveSprings.isEmpty()) &#123;</span><br><span class="line">    mIdle = <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (SpringSystemListener listener : mListeners) &#123;</span><br><span class="line">    listener.onAfterIntegrate(<span class="keyword">this</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (mIdle) &#123;</span><br><span class="line">    mSpringLooper.stop();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>即通过每次elapse的时间，来把system往前advance（有点类似游戏里，每一帧的运动，如果不够快就会掉帧，这里对应地，elapsedMillis则可能会很大）。</p>
+<p>大部分的逻辑其实在<code>BaseSpringSystem</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseSpringSystem</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Spring&gt; mSpringRegistry = <span class="keyword">new</span> HashMap&lt;String, Spring&gt;();</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Spring&gt; mActiveSprings = <span class="keyword">new</span> CopyOnWriteArraySet&lt;Spring&gt;();</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> SpringLooper mSpringLooper;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> CopyOnWriteArraySet&lt;SpringSystemListener&gt; mListeners = <span class="keyword">new</span> CopyOnWriteArraySet&lt;SpringSystemListener&gt;();</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">boolean</span> mIdle = <span class="keyword">true</span>;</span><br></pre></td></tr></table></figure></p>
+<p><code>mSpringRegistry</code>保存了所有由该<code>SpringSystem</code>管理的<code>Spring</code>实例，键值String则是Spring内的一个自增id，每个<code>Spring</code>实例的id都会不同。通过<code>createSpring</code>创建的<code>Spring</code>实例都会直接被加到该HashMap。</p>
+<p><code>mActiveSprings</code>内放的是被激活的<code>Spring</code>，实际在调用<code>Spring.java</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Spring <span class="title">setCurrentValue</span><span class="params">(<span class="keyword">double</span> currentValue, <span class="keyword">boolean</span> setAtRest)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Spring <span class="title">setEndValue</span><span class="params">(<span class="keyword">double</span> endValue)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Spring <span class="title">setVelocity</span><span class="params">(<span class="keyword">double</span> velocity)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>三个方法的时候才会进行激活，且在实际loop过程中，也只会对激活的Spring进行advance。</p>
+<p><code>mSpringLooper</code>是该<code>SpringSystem</code>绑定的Looper。</p>
+<p><code>mListeners</code>是注册在该<code>SpringSystem</code>上的<code>SpringSystemListener</code><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SpringSystemListener</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onBeforeIntegrate</span><span class="params">(BaseSpringSystem springSystem)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">onAfterIntegrate</span><span class="params">(BaseSpringSystem springSystem)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>会在<code>SpringSystem</code>的<code>loop</code>方法开始和结束时候调用<code>onBeforeIntegrate</code>以及<code>onAfterIntegrate</code>，比如可以在所有Spring loop完之后检查它们的值，并进行速度限制，暂停等操作，相对于绑定到<code>Spring</code>的<code>SpringListener</code>，这个更全局一些。</p>
+<h2 id="SpringChain"><a href="#SpringChain" class="headerlink" title="SpringChain"></a>SpringChain</h2><p>顾名思义，<code>SpringChain</code>就是连锁Spring，由数个<code>Spring</code>结合而成，且两两相连，可以用来做一些连锁的效果，比如数个图片之间的牵引效果。</p>
+<p>每个<code>SpringChain</code>都会有一个control spring来作为带头大哥，在链中前后的<code>Spring</code>都会被他们的前任所拉动。比如我们有 1 2 3 4 5五个Spring，选择3作为带头大哥，则3开始运动后，会分别拉动2和4，然后2会拉1，4则去拉动5。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">SpringChain</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> mainTension,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> mainFriction,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> attachmentTension,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">int</span> attachmentFriction)</span> </span>&#123;</span><br><span class="line">  mMainSpringConfig = SpringConfig.fromOrigamiTensionAndFriction(mainTension, mainFriction);</span><br><span class="line">  mAttachmentSpringConfig =</span><br><span class="line">      SpringConfig.fromOrigamiTensionAndFriction(attachmentTension, attachmentFriction);</span><br><span class="line">  registry.addSpringConfig(mMainSpringConfig, <span class="string">"main spring "</span> + id++);</span><br><span class="line">  registry.addSpringConfig(mAttachmentSpringConfig, <span class="string">"attachment spring "</span> + id++);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>SpringChain有两个配置：</p>
+<ul>
+<li>ControlSpring使用<code>mMainSpringConfig</code>。</li>
+<li>其他<code>Spring</code>则使用<code>mAttachmentSpringConfig</code>。</li>
+</ul>
+<p>在什么参数都不带的构造函数中，会默认给出如下参数<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_MAIN_TENSION = <span class="number">40</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_MAIN_FRICTION = <span class="number">6</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_ATTACHMENT_TENSION = <span class="number">70</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_ATTACHMENT_FRICTION = <span class="number">10</span>;</span><br></pre></td></tr></table></figure></p>
+<p>即ControlSpring摩擦力和张力都会相对小一些。</p>
+<p><code>SpringChain</code>本身实现了<code>SpringListener</code>，并使用那些接口来进行整个chain的更新。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSpringUpdate</span><span class="params">(Spring spring)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获得control spring的索引，并更新前后Spring的endValue，从而触发连锁影响</span></span><br><span class="line">    <span class="keyword">int</span> idx = mSprings.indexOf(spring);</span><br><span class="line">    SpringListener listener = mListeners.get(idx);</span><br><span class="line">    <span class="keyword">int</span> above = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> below = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (idx == mControlSpringIndex) &#123;</span><br><span class="line">        below = idx - <span class="number">1</span>;</span><br><span class="line">        above = idx + <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (idx &lt; mControlSpringIndex) &#123;</span><br><span class="line">        below = idx - <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (idx &gt; mControlSpringIndex) &#123;</span><br><span class="line">        above = idx + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (above &gt; -<span class="number">1</span> &amp;&amp; above &lt; mSprings.size()) &#123;</span><br><span class="line">        mSprings.get(above).setEndValue(spring.getCurrentValue());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (below &gt; -<span class="number">1</span> &amp;&amp; below &lt; mSprings.size()) &#123;</span><br><span class="line">        mSprings.get(below).setEndValue(spring.getCurrentValue());</span><br><span class="line">    &#125;</span><br><span class="line">    listener.onSpringUpdate(spring);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSpringAtRest</span><span class="params">(Spring spring)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> idx = mSprings.indexOf(spring);</span><br><span class="line">    mListeners.get(idx).onSpringAtRest(spring);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSpringActivate</span><span class="params">(Spring spring)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> idx = mSprings.indexOf(spring);</span><br><span class="line">    mListeners.get(idx).onSpringActivate(spring);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSpringEndStateChange</span><span class="params">(Spring spring)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> idx = mSprings.indexOf(spring);</span><br><span class="line">    mListeners.get(idx).onSpringEndStateChange(spring);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通常我们想要这个<code>SpringChain</code>进行运动会调用mSpringChain.setControlSpringIndex(0).getControlSpring().setEndValue(1);</p>
+<p>ControlSpring便会开始运动，并调用到<code>SpringChain</code>作为<code>SpringListener</code>的那些方法，进而整个系统作为一个链开始运动。</p>
+<h2 id="SpringConfiguratorView"><a href="#SpringConfiguratorView" class="headerlink" title="SpringConfiguratorView"></a>SpringConfiguratorView</h2><p><code>SpringConfiguratorView</code>继承了<code>FrameLayout</code>，如果体验过demo apk的同学，应该注意到屏幕底下上拉可以对Spring的参数进行配置，这就是由<code>SpringConfiguratorView</code>做的了。</p>
+<h2 id="AnimationQueue"><a href="#AnimationQueue" class="headerlink" title="AnimationQueue"></a>AnimationQueue</h2><p>同样是用来做连锁动画的，不过Backboard没有用到这个，Facebook自己的例子也没有用过该类，以前做动画的时候用过这个，结果貌似是有什么坑，最后改成了SpringChain去实现。</p>
+<p>AnimationQueue本身和Rebound没有任何关系，内部定义了接口<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Callback</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onFrame</span><span class="params">(Double value)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>原理倒是有点像rebound。由于和rebound本身没关系，这里就不多说了。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/源码分析/" rel="tag"># 源码分析</a>
+          
+            <a href="/tags/Rebound/" rel="tag"># Rebound</a>
+          
+            <a href="/tags/Animation/" rel="tag"># Animation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/28/intellij老是警告的SparseArray是什么-HashMap的替代者/" rel="next" title="intellij老是警告的SparseArray是什么 - HashMap的替代者">
+                <i class="fa fa-chevron-left"></i> intellij老是警告的SparseArray是什么 - HashMap的替代者
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/10/Android换肤技术总结/" rel="prev" title="Android换肤技术总结">
+                Android换肤技术总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Rebound源码分析"><span class="nav-number">1.</span> <span class="nav-text">Rebound源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring"><span class="nav-number">1.1.</span> <span class="nav-text">Spring</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringListener"><span class="nav-number">1.2.</span> <span class="nav-text">SpringListener</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringSystem"><span class="nav-number">1.3.</span> <span class="nav-text">SpringSystem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringChain"><span class="nav-number">1.4.</span> <span class="nav-text">SpringChain</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringConfiguratorView"><span class="nav-number">1.5.</span> <span class="nav-text">SpringConfiguratorView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AnimationQueue"><span class="nav-number">1.6.</span> <span class="nav-text">AnimationQueue</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="作为 PWA 的象征之一，我们首先做的，就是加上 Service Worker。 添加 Service Worker注册我们的项目是使用 ejs 在 webpack 阶段注入几个变量生成最后的 index.html 的，所以直接拿 index.ejs 动刀即可： 12345678910111213141516171819202122232425262728293031&amp;lt;body&amp;gt;  &amp;">
+<meta name="keywords" content="JavaScript,前端,PWA,React.js,Service Worker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PWA 渐进式实践 (2) - Service Worker">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2017/01/13/pwa-in-practice-2/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="作为 PWA 的象征之一，我们首先做的，就是加上 Service Worker。 添加 Service Worker注册我们的项目是使用 ejs 在 webpack 阶段注入几个变量生成最后的 index.html 的，所以直接拿 index.ejs 动刀即可： 12345678910111213141516171819202122232425262728293031&amp;lt;body&amp;gt;  &amp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/pwa-in-practice-10.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/pwa-in-practice-11.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/pwa-in-practice-12.png">
+<meta property="og:updated_time" content="2017-01-13T05:06:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PWA 渐进式实践 (2) - Service Worker">
+<meta name="twitter:description" content="作为 PWA 的象征之一，我们首先做的，就是加上 Service Worker。 添加 Service Worker注册我们的项目是使用 ejs 在 webpack 阶段注入几个变量生成最后的 index.html 的，所以直接拿 index.ejs 动刀即可： 12345678910111213141516171819202122232425262728293031&amp;lt;body&amp;gt;  &amp;">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/pwa-in-practice-10.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2017/01/13/pwa-in-practice-2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>PWA 渐进式实践 (2) - Service Worker | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2017/01/13/pwa-in-practice-2/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">PWA 渐进式实践 (2) - Service Worker
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-01-13 12:14:42 / Modified: 13:06:27" itemprop="dateCreated datePublished" datetime="2017-01-13T12:14:42+08:00">2017-01-13</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Frontend/" itemprop="url" rel="index"><span itemprop="name">Frontend</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>作为 PWA 的象征之一，我们首先做的，就是加上 Service Worker。</p>
+<h1 id="添加-Service-Worker"><a href="#添加-Service-Worker" class="headerlink" title="添加 Service Worker"></a>添加 Service Worker</h1><h2 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h2><p>我们的项目是使用 ejs 在 webpack 阶段注入几个变量生成最后的 index.html 的，所以直接拿 index.ejs 动刀即可：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"container"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"&lt;%= bundle %&gt;"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">if</span> (<span class="string">'serviceWorker'</span> <span class="keyword">in</span> navigator) &#123;</span></span><br><span class="line"><span class="javascript">      navigator.serviceWorker.register(<span class="string">'/service-worker.js'</span>, &#123;</span></span><br><span class="line"><span class="javascript">        scope: <span class="string">'./'</span></span></span><br><span class="line"><span class="javascript">      &#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">registration</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        registration.onupdatefound = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (navigator.serviceWorker.controller) &#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">const</span> installingWorker = registration.installing;</span></span><br><span class="line"><span class="javascript">            installingWorker.onstatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">              <span class="keyword">switch</span> (installingWorker.state) &#123;</span></span><br><span class="line"><span class="javascript">                <span class="keyword">case</span> <span class="string">'installed'</span>:</span></span><br><span class="line"><span class="javascript">                  <span class="keyword">break</span>;</span></span><br><span class="line"><span class="javascript">                <span class="keyword">case</span> <span class="string">'redundant'</span>:</span></span><br><span class="line"><span class="javascript">                  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'The installing '</span> +</span></span><br><span class="line"><span class="javascript">                    <span class="string">'service worker became redundant.'</span>);</span></span><br><span class="line"><span class="javascript">                <span class="keyword">default</span>:</span></span><br><span class="line"><span class="javascript">                <span class="comment">// Ignore</span></span></span><br><span class="line"><span class="undefined">              &#125;</span></span><br><span class="line"><span class="undefined">            &#125;;</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined">        &#125;;</span></span><br><span class="line"><span class="javascript">      &#125;).catch(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.error(<span class="string">'Error during service worker registration:'</span>, e);</span></span><br><span class="line"><span class="undefined">      &#125;);</span></span><br><span class="line"><span class="javascript">    &#125; <span class="keyword">else</span> &#123;</span></span><br><span class="line"><span class="javascript">      <span class="built_in">console</span>.log(<span class="string">'service worker is not supported'</span>);</span></span><br><span class="line"><span class="undefined">    &#125;</span></span><br><span class="line"><span class="undefined">  </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>即 body 中，第二个 script 标签的内容，其参数 service-worker.js，是与 index.html 在同一个目录的空文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// This file is intentionally without code.</span></span><br><span class="line"><span class="comment">// It's present so that service worker registration</span></span><br><span class="line"><span class="comment">// will work when serving from the 'public' directory.</span></span><br></pre></td></tr></table></figure>
+<p>实际上打包后会生成真正的 service-worker.js，所以现在只是用来占个位子。</p>
+<p>纳尼？这样就好了？</p>
+<p>确实，这样，我们就已经完成了注册，这也是 PWA 和微信小程序这种二流方案不同的地方，其更注重于如何提高现有设计实现下的体验，使用开放的标准并进行推进。</p>
+<h2 id="Cache-策略"><a href="#Cache-策略" class="headerlink" title="Cache 策略"></a>Cache 策略</h2><p>下一步就是增加我们的缓存策略了，我们需要安装 2 个小工具：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install sw-precache --save</span><br><span class="line">npm install sw-toolbox --save</span><br></pre></td></tr></table></figure>
+<p>然后在 package.json 里面更新一下我们的 script：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "build": "npm run copy &amp;&amp; node run build &amp;&amp; npm run precache",</span><br><span class="line">  "build:debug": "npm run copy &amp;&amp; node run build --debug &amp;&amp; npm run precache",</span><br><span class="line">  "copy": "cp node_modules/sw-toolbox/sw-toolbox.js public/sw-toolbox.js",</span><br><span class="line">  "precache": "./node_modules/sw-precache/cli.js --root=public --config=sw-precache-config.json"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如上，增加 copy 和 precache 任务，并更新 build，在 build 前后插入新的 task。</p>
+<p>然后就是配置文件了，在项目目录下，增加 <code>sw-precache-config.json</code> 文件：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"staticFileGlobs"</span>: [</span><br><span class="line">    <span class="string">"public/dist/**.css"</span>,</span><br><span class="line">    <span class="string">"public/dist/**.png"</span>,</span><br><span class="line">    <span class="string">"public/dist/**.js"</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"importScripts"</span>: [</span><br><span class="line">    <span class="string">"sw-toolbox.js"</span>,</span><br><span class="line">    <span class="string">"runtime-caching.js"</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"stripPrefix"</span>: <span class="string">"public/"</span>,</span><br><span class="line">  <span class="attr">"verbose"</span>: <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在 public 目录下，增加 <code>runtime-caching.js</code> 文件：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// global.toolbox is defined in a different script, sw-toolbox.js, which is part of the</span></span><br><span class="line"><span class="comment">// https://github.com/GoogleChrome/sw-toolbox project.</span></span><br><span class="line"><span class="comment">// That sw-toolbox.js script must be executed first, so it needs to be listed before this in the</span></span><br><span class="line"><span class="comment">// importScripts() call that the parent service worker makes.</span></span><br><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">global</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// See https://github.com/GoogleChrome/sw-toolbox/blob/6e8242dc328d1f1cfba624269653724b26fa94f1/README.md#toolboxroutergeturlpattern-handler-options</span></span><br><span class="line">  <span class="comment">// and https://github.com/GoogleChrome/sw-toolbox/blob/6e8242dc328d1f1cfba624269653724b26fa94f1/README.md#toolboxfastest</span></span><br><span class="line">  <span class="comment">// for more details on how this handler is defined and what the toolbox.fastest strategy does.</span></span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.*)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="regexp">/\.(?:googleapis|gstatic|firebaseio|appspot)\.com$/</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.+)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="string">'https://api.pai.bigins.cn/'</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.+)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="string">'https://qa.api.pai.bigins.cn/'</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/*'</span>, global.toolbox.fastest);</span><br><span class="line">&#125;(self));</span><br></pre></td></tr></table></figure></p>
+<p>运行一下 npm run build，发现 <code>service-worker.js</code> 被更新了，里面是生成的策略脚本。</p>
+<h2 id="评测"><a href="#评测" class="headerlink" title="评测"></a>评测</h2><p>再次运行 Lighthouse 后，发现我们的评分已经嗖嗖嗖上去了：</p>
+<p><img src="http://blog.zhaiyifan.cn/images/pwa-in-practice-10.png" alt="After service worker"></p>
+<h1 id="离线依然返回-200"><a href="#离线依然返回-200" class="headerlink" title="离线依然返回 200"></a>离线依然返回 200</h1><p>这里的秘密就在 runtime-caching.js 文件里，我们更新一下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// global.toolbox is defined in a different script, sw-toolbox.js, which is part of the</span></span><br><span class="line"><span class="comment">// https://github.com/GoogleChrome/sw-toolbox project.</span></span><br><span class="line"><span class="comment">// That sw-toolbox.js script must be executed first, so it needs to be listed before this in the</span></span><br><span class="line"><span class="comment">// importScripts() call that the parent service worker makes.</span></span><br><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">global</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// See https://github.com/GoogleChrome/sw-toolbox/blob/6e8242dc328d1f1cfba624269653724b26fa94f1/README.md#toolboxroutergeturlpattern-handler-options</span></span><br><span class="line">  <span class="comment">// and https://github.com/GoogleChrome/sw-toolbox/blob/6e8242dc328d1f1cfba624269653724b26fa94f1/README.md#toolboxfastest</span></span><br><span class="line">  <span class="comment">// for more details on how this handler is defined and what the toolbox.fastest strategy does.</span></span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.*)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="regexp">/\.(?:googleapis|gstatic|firebaseio|appspot)\.com$/</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.+)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="string">'https://api.pai.bigins.cn/'</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.+)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="string">'https://qa.api.pai.bigins.cn/'</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/(.+)'</span>, global.toolbox.fastest, &#123;</span><br><span class="line">    origin: <span class="string">'https://pai.bigins.cn/'</span>,</span><br><span class="line">  &#125;);</span><br><span class="line">  global.toolbox.router.get(<span class="string">'/*'</span>, global.toolbox.fastest);</span><br><span class="line">  global.toolbox.precache([<span class="string">'/index.html'</span>, <span class="string">'/index.css'</span>, <span class="string">'/img/logo.png'</span>]);</span><br><span class="line">&#125;(self));</span><br></pre></td></tr></table></figure></p>
+<p>然后再提交构建一下，在 Chrome 的 Network Panel 中，勾选 Offline，然后刷新页面，哇，依然可以用诶。</p>
+<h2 id="评测-1"><a href="#评测-1" class="headerlink" title="评测"></a>评测</h2><p><img src="http://blog.zhaiyifan.cn/images/pwa-in-practice-11.png" alt="After precache"></p>
+<p>通过完善 Service Worker，我们的评分已经嗖嗖嗖上了80，达到了83分。</p>
+<h1 id="What’s-next"><a href="#What’s-next" class="headerlink" title="What’s next"></a>What’s next</h1><p><img src="http://blog.zhaiyifan.cn/images/pwa-in-practice-12.png" alt="What&#39;s next"></p>
+<p>剩下的就是一些比较棘手的性能和体验问题了，我们下回见。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/前端/" rel="tag"># 前端</a>
+          
+            <a href="/tags/PWA/" rel="tag"># PWA</a>
+          
+            <a href="/tags/React-js/" rel="tag"># React.js</a>
+          
+            <a href="/tags/Service-Worker/" rel="tag"># Service Worker</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/11/pwa-in-practice-1/" rel="next" title="PWA 渐进式实践 (1) - Lighthouse in Action">
+                <i class="fa fa-chevron-left"></i> PWA 渐进式实践 (1) - Lighthouse in Action
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/15/pwa-in-practice-3/" rel="prev" title="PWA 渐进式实践 (3) - 用户体验 & 性能">
+                PWA 渐进式实践 (3) - 用户体验 & 性能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#添加-Service-Worker"><span class="nav-number">1.</span> <span class="nav-text">添加 Service Worker</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#注册"><span class="nav-number">1.1.</span> <span class="nav-text">注册</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cache-策略"><span class="nav-number">1.2.</span> <span class="nav-text">Cache 策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#评测"><span class="nav-number">1.3.</span> <span class="nav-text">评测</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#离线依然返回-200"><span class="nav-number">2.</span> <span class="nav-text">离线依然返回 200</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#评测-1"><span class="nav-number">2.1.</span> <span class="nav-text">评测</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#What’s-next"><span class="nav-number">3.</span> <span class="nav-text">What’s next</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

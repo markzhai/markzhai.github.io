@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言在Android逆向分析(2) APK的打包与安装一文中对资源编译过程的介绍中，笔者提到了overlay（重叠包）这个概念，一位每天都被自己帅醒的好友看了那篇东西后，来问我这个重叠包究竟是个什么东西，笔者想了想，确实这个概念有很多同学们都不甚了解，搜索了一下网上了介绍，也几乎没有看到任何对这个的讲解，只有老罗的博客提到过  –mOverlay：表示当前正在编译的资源的重叠包。重叠包是什么概念呢">
+<meta name="keywords" content="Android,Resource,aapt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译时替换资源 - Android重叠包与资源合并一见">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/18/android-resource-overlay/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="前言在Android逆向分析(2) APK的打包与安装一文中对资源编译过程的介绍中，笔者提到了overlay（重叠包）这个概念，一位每天都被自己帅醒的好友看了那篇东西后，来问我这个重叠包究竟是个什么东西，笔者想了想，确实这个概念有很多同学们都不甚了解，搜索了一下网上了介绍，也几乎没有看到任何对这个的讲解，只有老罗的博客提到过  –mOverlay：表示当前正在编译的资源的重叠包。重叠包是什么概念呢">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-02-19T15:25:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编译时替换资源 - Android重叠包与资源合并一见">
+<meta name="twitter:description" content="前言在Android逆向分析(2) APK的打包与安装一文中对资源编译过程的介绍中，笔者提到了overlay（重叠包）这个概念，一位每天都被自己帅醒的好友看了那篇东西后，来问我这个重叠包究竟是个什么东西，笔者想了想，确实这个概念有很多同学们都不甚了解，搜索了一下网上了介绍，也几乎没有看到任何对这个的讲解，只有老罗的博客提到过  –mOverlay：表示当前正在编译的资源的重叠包。重叠包是什么概念呢">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/18/android-resource-overlay/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>编译时替换资源 - Android重叠包与资源合并一见 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/18/android-resource-overlay/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">编译时替换资源 - Android重叠包与资源合并一见
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-18 16:42:26" itemprop="dateCreated datePublished" datetime="2016-02-18T16:42:26+08:00">2016-02-18</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-19 23:25:12" itemprop="dateModified" datetime="2016-02-19T23:25:12+08:00">2016-02-19</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Introduction/" itemprop="url" rel="index"><span itemprop="name">Android Introduction</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在<a href="http://blog.zhaiyifan.cn/2016/02/13/android-reverse-2/">Android逆向分析(2) APK的打包与安装</a>一文中对资源编译过程的介绍中，笔者提到了overlay（重叠包）这个概念，一位每天都被自己帅醒的好友看了那篇东西后，来问我这个重叠包究竟是个什么东西，笔者想了想，确实这个概念有很多同学们都不甚了解，搜索了一下网上了介绍，也几乎没有看到任何对这个的讲解，只有<a href="http://blog.csdn.net/luoshengyang/article/details/8744683" target="_blank" rel="noopener">老罗的博客</a>提到过</p>
+<blockquote>
+<p>–mOverlay：表示当前正在编译的资源的重叠包。重叠包是什么概念呢？假设我们正在编译的是Package-1，这时候我们可以设置另外一个Package-2，用来告诉aapt，如果Package-2定义有和Package-1一样的资源，那么就用定义在Package-2的资源来替换掉定义在Package-1的资源。通过这种Overlay机制，我们就可以对资源进行定制，而又不失一般性。</p>
+</blockquote>
+<p>那我们应该怎么怎么去使用重叠包呢？它又能用在什么地方，带来什么便利呢？</p>
+<p>本文从aapt overlay切入，介绍其用法和在gradle的实践，并接着介绍了gradle plugin提供的资源合并机制和实践。</p>
+<p>测试源码: <a href="https://github.com/markzhai/ResourceOverlayDemo" target="_blank" rel="noopener">ResourceOverlayDemo</a>。</p>
+<h1 id="aapt-overlay"><a href="#aapt-overlay" class="headerlink" title="aapt overlay"></a>aapt overlay</h1><p>我们看看aapt的命令help里是怎么描述的，省略版:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Usage:</span><br><span class="line"> aapt l[ist] [-v] [-a] file.&#123;zip,jar,apk&#125;</span><br><span class="line">   List contents of Zip-compatible archive.</span><br><span class="line"></span><br><span class="line"> aapt d[ump] [--values] [--include-meta-data] WHAT file.&#123;apk&#125; [asset [asset ...]]</span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line"> aapt p[ackage] [-d][-f][-m][-u][-v][-x][-z][-M AndroidManifest.xml] \</span><br><span class="line">        ...</span><br><span class="line">        [--utf16] [--auto-add-overlay] \</span><br><span class="line">        ...</span><br><span class="line">        [-S resource-sources [-S resource-sources ...]] \</span><br><span class="line">        [-F apk-file] [-J R-file-dir] \</span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">   Package the android resources.  It will <span class="built_in">read</span> assets and resources that are</span><br><span class="line">   supplied with the -M -A -S or raw-files-dir arguments.  The -J -P -F and -R</span><br><span class="line">   options control <span class="built_in">which</span> files are output.</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"> Modifiers:</span><br><span class="line">   ...</span><br><span class="line">   <span class="comment"># 特别说明下，这就是前一篇我们说到的include的base set啦，比如android.jar</span></span><br><span class="line">   -I  add an existing package to base include <span class="built_in">set</span></span><br><span class="line">   ...</span><br><span class="line">   <span class="comment"># overlay通过-S指定，可以指定多个目录，</span></span><br><span class="line">   -S  directory <span class="keyword">in</span> <span class="built_in">which</span> to find resources.  Multiple directories will be scanned</span><br><span class="line">       and the first match found (left to right) will take precedence.</span><br><span class="line">   ...</span><br><span class="line">   <span class="comment"># 自动添加overlays包里的资源</span></span><br><span class="line">   --auto-add-overlay</span><br><span class="line">       Automatically add resources that are only <span class="keyword">in</span> overlays.</span><br><span class="line">   ...</span><br></pre></td></tr></table></figure></p>
+<p>举个例子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">aapt package \</span><br><span class="line">-M AndroidManifest.xml \</span><br><span class="line">-m -J gen \</span><br><span class="line">-S src/com/example/res \</span><br><span class="line">-S src/com/example/ui/res</span><br></pre></td></tr></table></figure>
+<p>假如我们有如上的aapt命令输入，那么当<code>src/com/example/res</code>与<code>src/com/example/ui/res</code>有相同资源的时候，就会使用前者的，这里对资源替换的粒度是resource而不是文件，比如两个文件夹的values/string.xml都有对同一个string id的描述，最后就会使用前者的字符串。</p>
+<p>然后我们再来看看<code>--auto-add-overlay</code>有什么用，</p>
+<p>假如我们在<code>src/com/example/ui/res</code>定义了资源string a，但是在<code>src/com/example/res</code>却没有这个string，那就会报错，因为基础包里是没有那个资源的，这时候就需要加上<code>--auto-add-overlay</code>，于是就会自动把新的资源都添加进去。</p>
+<p>overlay大致就是这么一回事啦。</p>
+<h1 id="Gradle实践"><a href="#Gradle实践" class="headerlink" title="Gradle实践"></a>Gradle实践</h1><h2 id="aaptOptions"><a href="#aaptOptions" class="headerlink" title="aaptOptions"></a>aaptOptions</h2><p>google的官方文档简直说了和没说一样。还是自己来吧，用AS的模板新建一个Testapp工程，随便建两个res文件夹，各放两个strings.xml，结构为：</p>
+<pre><code>├── res
+│   ├── drawable
+│   ├── layout
+│   │   ├── activity_main.xml
+│   │   └── content_main.xml
+│   ├── menu
+│   │   └── menu_main.xml
+│   ├── mipmap-xxxhdpi
+│   │   └── ic_launcher.png
+│   └── values
+│       ├── colors.xml
+│       ├── dimens.xml
+│       ├── strings.xml
+│       └── styles.xml
+├── res2
+│   └── values
+│       └── strings.xml
+└── res3
+    └── values
+        └── strings.xml
+</code></pre><p>res2和res3分别定义了一个string <code>hehe</code>，value分别为<code>hehe res2</code>和<code>hehe res3</code>。</p>
+<p>content_main.xml的TextView使用了<code>hehe</code>（原来就是那个Hello World）。当然这里as会报错，因为res2和res3并没有标示为资源文件夹。</p>
+<p>在module的build.gradle里:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">  ...</span><br><span class="line">  aaptOptions &#123;</span><br><span class="line">      additionalParameters <span class="string">'-S'</span>,</span><br><span class="line">              <span class="string">'/Users/yifan/dev/github/Testapp/app/src/main/res3'</span>,</span><br><span class="line">              <span class="string">'-S'</span>,</span><br><span class="line">              <span class="string">'/Users/yifan/dev/github/Testapp/app/src/main/res2'</span>,</span><br><span class="line">              <span class="string">'--auto-add-overlay'</span></span><br><span class="line">      noCompress <span class="string">'foo'</span>, <span class="string">'bar'</span></span><br><span class="line">      ignoreAssetsPattern <span class="string">'!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir&gt;_*:!CVS:!thumbs.db:!picasa.ini:!*~'</span></span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后我们试图编译:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">All input files are considered out-of-date <span class="keyword">for</span> incremental task <span class="string">':app:processDebugResources'</span>.</span><br><span class="line">Starting process <span class="string">'command '</span>/Users/yifan/dev/sdk/adt-bundle-mac-sdk/build-tools/23.0.2/aapt<span class="string">''</span>. Working directory: /Users/yifan/dev/github/Testapp/app Command: /Users/yifan/dev/sdk/adt-bundle-mac-sdk/build-tools/23.0.2/aapt package -f --no-crunch -I /Users/yifan/dev/sdk/adt-bundle-mac-sdk/platforms/android-23/android.jar -M /Users/yifan/dev/github/Testapp/app/build/intermediates/manifests/full/debug/AndroidManifest.xml -S /Users/yifan/dev/github/Testapp/app/build/intermediates/res/merged/debug -A /Users/yifan/dev/github/Testapp/app/build/intermediates/assets/debug -m -J /Users/yifan/dev/github/Testapp/app/build/generated/<span class="built_in">source</span>/r/debug -F /Users/yifan/dev/github/Testapp/app/build/intermediates/res/resources-debug.ap_ --debug-mode --custom-package cn.zhaiyifan.testapp -0 apk -S /Users/yifan/dev/github/Testapp/app/src/main/res2 --output-text-symbols /Users/yifan/dev/github/Testapp/app/build/intermediates/symbols/debug</span><br><span class="line">Successfully started process <span class="string">'command '</span>/Users/yifan/dev/sdk/adt-bundle-mac-sdk/build-tools/23.0.2/aapt<span class="string">''</span></span><br><span class="line">/Users/yifan/dev/github/Testapp/app/build/intermediates/res/merged/debug/values-af/values-af.xml:3 : AAPT: Resource at abc_action_bar_home_description appears <span class="keyword">in</span> overlay but not <span class="keyword">in</span> the base package; use &lt;add-resource&gt; to add.</span><br><span class="line">...</span><br><span class="line">...各种类似报错</span><br><span class="line">/usr/<span class="built_in">local</span>/google/buildbot/src/googleplex-android/mnc-supportlib-release/frameworks/support/v7/appcompat/res/color/switch_thumb_material_light.xml:19 : AAPT: No resource found that matches the given name (at <span class="string">'color'</span> with value <span class="string">'@color/switch_thumb_normal_material_light'</span>).</span><br><span class="line"></span><br><span class="line">:app:processDebugResources FAILED</span><br><span class="line">:app:processDebugResources (Thread[main,5,main]) completed. Took 10.493 secs.</span><br></pre></td></tr></table></figure>
+<p>看到<code>&lt;add-resource&gt;</code>这个，大概知道啥问题了…于是在<code>additionalParameters</code>最后又加上了<code>--auto-add-overlay</code>，成功编译运行。</p>
+<p>在屏幕中央，显示了hehe res3，交换-S顺序后则变成了hehe res2，符合我们第一节中说到的，选择首个匹配原则。</p>
+<p>不仅是string，anim，layout等等资源都可以使用重叠包来进行动态指定。</p>
+<h2 id="资源合并"><a href="#资源合并" class="headerlink" title="资源合并"></a>资源合并</h2><p>和aapt的overlay有关，但使用场景略有不同，也介绍一下。</p>
+<p>Google在Android Tools Project Site专门为此开了一个页面：<a href="http://tools.android.com/tech-docs/new-build-system/resource-merging" target="_blank" rel="noopener">Resource Merging(资源合并)</a>。</p>
+<p>在过去的编译系统中，资源合并是通过传给aapt一个作为重叠包的资源文件夹列表来做的，再加上–auto-add-overlay来确保在重叠包里的新资源会被自动添加（默认行为只会重载既有资源）。</p>
+<p>基础Gradle的编译系统的一个目标就是提供更大的灵活性，而另一个经常并问到的功能要求则是能拥有多个资源文件夹。aapt无法去处理这个，所以新的编译系统引进了一种新的超越aapt的合并机制，生成一个单独的，合并的，资源文件夹并提供给aapt。这个合并机制拥有增量的优点，既因为Gradle的输入/输出变更检测，又因为其实现方式（可以只使用唯一一个变更文件来做重新merge）。</p>
+<p>合并的资源来自3种来源：</p>
+<ol>
+<li>主资源，和main sourceSet相关联，大多位于src/main/res</li>
+<li>Variant重叠包，来自Build Type和Flavor(s).</li>
+<li>Library项目依赖，通过它们的aar bundle提供资源。</li>
+</ol>
+<h3 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h3><p>优先级为：BuildType -&gt; Flavor -&gt; main -&gt; Dependencies.</p>
+<p>这意味着如果一个资源同时在Build Type和main存在，会使用Build Type里的。</p>
+<p>需要注意的是合并的scope，同样（类型，名字）的资源但标示符不同的，是分开处理的。</p>
+<p>即如果src/main/res有:</p>
+<ul>
+<li>res/layout/foo.xml</li>
+<li>res/layout-land/foo.xml<br>而src/debug/res有：</li>
+<li>res/layout/foo.xml</li>
+</ul>
+<p>则合并后的资源文件夹会包含默认的来自src/debug/res的foo.xml，但横屏版本则会选择src/main/res下的。</p>
+<p>PS: android的资源有19个维度，见<a href="http://developer.android.com/guide/topics/resources/providing-resources.html#AlternativeResources" target="_blank" rel="noopener">Grouping Resource Types</a>的Table 2，这19个维度会唯一指定1个资源（qualifier标示符）。在老罗的资源介绍博客中曾经提到过18个维度，现在变成了19是因为多了Round screen这个维度，用于描述Android Wear，添加于API 23.</p>
+<h3 id="处理多个资源文件夹"><a href="#处理多个资源文件夹" class="headerlink" title="处理多个资源文件夹"></a>处理多个资源文件夹</h3><p>每个sourceSet可以定义多个资源文件夹，举个例子:</p>
+<pre><code>android.sourceSets {
+   main.res.srcDirs = [&apos;src/main/res&apos;, &apos;src/main/res2&apos;]
+}
+</code></pre><p>这种情况下，两个资源文件夹具有相同优先级，即如果一个资源在两个文件夹都声明了，合并会报错。</p>
+<h3 id="Library依赖的优先级顺序"><a href="#Library依赖的优先级顺序" class="headerlink" title="Library依赖的优先级顺序"></a>Library依赖的优先级顺序</h3><p>根据传递的依赖，Library项目的实际集被工程视为一个图，而不是平铺的列表，然后合并机制只会处理一个平优先级列表。</p>
+<p>如果我们考虑如下例子的依赖关系：<br>项目 -&gt; A, B (意味着A的优先级高于B)<br>A -&gt; C, D<br>B -&gt; C<br>则最后的优先级list为A, D, B, C，同时保证了A和B可以重载C。</p>
+<h3 id="小测试"><a href="#小测试" class="headerlink" title="小测试"></a>小测试</h3><p>继续在之前我们建立的工程的基础上做个小测试吧。在sourceSet加上res2文件夹，最后build.gradle的android域如下:<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">    compileSdkVersion <span class="number">23</span></span><br><span class="line">    buildToolsVersion <span class="string">"23.0.2"</span></span><br><span class="line"></span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        applicationId <span class="string">"cn.zhaiyifan.testapp"</span></span><br><span class="line">        minSdkVersion <span class="number">14</span></span><br><span class="line">        targetSdkVersion <span class="number">23</span></span><br><span class="line">        versionCode <span class="number">1</span></span><br><span class="line">        versionName <span class="string">"1.0"</span></span><br><span class="line">    &#125;</span><br><span class="line">    buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            minifyEnabled <span class="literal">false</span></span><br><span class="line">            proguardFiles getDefaultProguardFile(<span class="string">'proguard-android.txt'</span>), <span class="string">'proguard-rules.pro'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    aaptOptions &#123;</span><br><span class="line">        additionalParameters <span class="string">'-S'</span>,</span><br><span class="line">                <span class="string">'/Users/yifan/dev/github/Testapp/app/src/main/res3'</span>,</span><br><span class="line">                <span class="string">'-S'</span>,</span><br><span class="line">                <span class="string">'/Users/yifan/dev/github/Testapp/app/src/main/res2'</span>,</span><br><span class="line">                <span class="string">'--auto-add-overlay'</span></span><br><span class="line">        noCompress <span class="string">'foo'</span>, <span class="string">'bar'</span></span><br><span class="line">        ignoreAssetsPattern <span class="string">'!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir&gt;_*:!CVS:!thumbs.db:!picasa.ini:!*~'</span></span><br><span class="line">    &#125;</span><br><span class="line">    android.sourceSets &#123;</span><br><span class="line">        main.res.srcDirs = [<span class="string">'src/main/res'</span>, <span class="string">'src/main/res2'</span>]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行后发现界面显示了 hehe res2，符合预期，因为res2已经和res合并了，所以先找到了build/intermediates/res/merged/debug下的string，没有用res3的。</p>
+<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>重叠包可以让我们在不同的buildType、渠道下的包，使用不同的资源，做一些定制，而不用侵入代码本身的逻辑。</p>
+<p>资源合并则可以帮助资源分组，比如按业务分组之类的，当然也能做重叠包能做的事（比如在不同的buildType申明不同的res.srcDirs）…所以你问我有了resource merge之后重叠包还有什么用…我还真没法回答，可能有什么奇异的场景会用到吧，毕竟Google也说了，这是一种超越aapt的合并机制。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>我们了解了Android aapt overlay的机制，gradle下的资源合并是怎么一回事，并编写运行demo验证了资源应用两种机制后的结果。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
+<li><a href="https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/utils/README" target="_blank" rel="noopener">https://android.googlesource.com/platform/frameworks/native/+/jb-dev/libs/utils/README</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/8744683" target="_blank" rel="noopener">http://blog.csdn.net/luoshengyang/article/details/8744683</a></li>
+<li><a href="http://tools.android.com/tech-docs/new-build-system/resource-merging" target="_blank" rel="noopener">http://tools.android.com/tech-docs/new-build-system/resource-merging</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Resource/" rel="tag"># Resource</a>
+          
+            <a href="/tags/aapt/" rel="tag"># aapt</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/13/android-reverse-2/" rel="next" title="Android逆向分析(2) APK的打包与安装">
+                <i class="fa fa-chevron-left"></i> Android逆向分析(2) APK的打包与安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/23/world-class-testing-development-pipeline-for-android-part-1/" rel="prev" title="世界级的Android测试开发流程（一）">
+                世界级的Android测试开发流程（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#aapt-overlay"><span class="nav-number">2.</span> <span class="nav-text">aapt overlay</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Gradle实践"><span class="nav-number">3.</span> <span class="nav-text">Gradle实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#aaptOptions"><span class="nav-number">3.1.</span> <span class="nav-text">aaptOptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源合并"><span class="nav-number">3.2.</span> <span class="nav-text">资源合并</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优先级"><span class="nav-number">3.2.1.</span> <span class="nav-text">优先级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理多个资源文件夹"><span class="nav-number">3.2.2.</span> <span class="nav-text">处理多个资源文件夹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Library依赖的优先级顺序"><span class="nav-number">3.2.3.</span> <span class="nav-text">Library依赖的优先级顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小测试"><span class="nav-number">3.2.4.</span> <span class="nav-text">小测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用场景"><span class="nav-number">4.</span> <span class="nav-text">使用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

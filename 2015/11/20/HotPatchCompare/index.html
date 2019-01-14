@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近开源界涌现了很多热补丁项目，但从方案上来说，主要包括Dexposed、AndFix、ClassLoader（来源是原QZone，现淘宝的工程师陈钟，在15年年初就已经开始实现）三种。前两个都是阿里巴巴内部的不同团队做的（淘宝和支付宝），后者则来自腾讯的QQ空间团队。 开源界往往一个方案会有好几种实现（比如ClassLoader方案已经有不下三种实现了），但这三种方案的原理却徊然不同，那么让我们">
+<meta name="keywords" content="Android,Hotpatch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="各大热补丁方案分析和比较">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2015/11/20/HotPatchCompare/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="最近开源界涌现了很多热补丁项目，但从方案上来说，主要包括Dexposed、AndFix、ClassLoader（来源是原QZone，现淘宝的工程师陈钟，在15年年初就已经开始实现）三种。前两个都是阿里巴巴内部的不同团队做的（淘宝和支付宝），后者则来自腾讯的QQ空间团队。 开源界往往一个方案会有好几种实现（比如ClassLoader方案已经有不下三种实现了），但这三种方案的原理却徊然不同，那么让我们">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-02-19T16:28:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="各大热补丁方案分析和比较">
+<meta name="twitter:description" content="最近开源界涌现了很多热补丁项目，但从方案上来说，主要包括Dexposed、AndFix、ClassLoader（来源是原QZone，现淘宝的工程师陈钟，在15年年初就已经开始实现）三种。前两个都是阿里巴巴内部的不同团队做的（淘宝和支付宝），后者则来自腾讯的QQ空间团队。 开源界往往一个方案会有好几种实现（比如ClassLoader方案已经有不下三种实现了），但这三种方案的原理却徊然不同，那么让我们">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2015/11/20/HotPatchCompare/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>各大热补丁方案分析和比较 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2015/11/20/HotPatchCompare/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">各大热补丁方案分析和比较
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-11-20 21:46:13" itemprop="dateCreated datePublished" datetime="2015-11-20T21:46:13+08:00">2015-11-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-20 00:28:01" itemprop="dateModified" datetime="2016-02-20T00:28:01+08:00">2016-02-20</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近开源界涌现了很多热补丁项目，但从方案上来说，主要包括<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a>、<a href="https://github.com/alibaba/AndFix" target="_blank" rel="noopener">AndFix</a>、<a href="http://bugly.qq.com/blog/?p=781" target="_blank" rel="noopener">ClassLoader</a>（来源是原QZone，现淘宝的工程师陈钟，在15年年初就已经开始实现）三种。前两个都是阿里巴巴内部的不同团队做的（淘宝和支付宝），后者则来自腾讯的QQ空间团队。</p>
+<p>开源界往往一个方案会有好几种实现（比如ClassLoader方案已经有不下三种实现了），但这三种方案的原理却徊然不同，那么让我们来看看它们三者的原理和各自的优缺点吧。</p>
+<h1 id="Dexposed"><a href="#Dexposed" class="headerlink" title="Dexposed"></a>Dexposed</h1><p>基于<a href="https://github.com/rovo89/Xposed" target="_blank" rel="noopener">Xposed</a>的AOP框架，方法级粒度，可以进行AOP编程、插桩、热补丁、SDK hook等功能。</p>
+<p>Xposed需要Root权限，是因为它要修改其他应用、系统的行为，而对单个应用来说，其实不需要root。 Xposed通过修改Android Dalvik运行时的Zygote进程，并使用Xposed Bridge来hook方法并注入自己的代码，实现非侵入式的runtime修改。比如蜻蜓fm和喜马拉雅做的事情，其实就很适合这种场景，别人反编译市场下载的代码是看不到patch的行为的。<a href="https://github.com/rovo89/Xposed/blob/master/libxposed_dalvik.cpp" target="_blank" rel="noopener">小米</a>(onVmCreated里面还未小米做了资源的处理)也重用了dexposed，去做了很多自定义主题的功能，还有沉浸式状态栏等。</p>
+<p>我们知道，应用启动的时候，都会fork zygote进程，装载class和invoke各种初始化方法，Xposed就是在这个过程中，替换了app_process，hook了各种入口级方法（比如handleBindApplication、ServerThread、ActivityThread、ApplicationPackageManager的getResourcesForApplication等），加载XposedBridge.jar提供动态hook基础。</p>
+<p>具体到方法，可参见<a href="https://github.com/rovo89/XposedBridge" target="_blank" rel="noopener">XposedBridge</a>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Intercept every call to the specified method and call a handler function instead.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> method The method to intercept</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">hookMethodNative</span><span class="params">(Member method, Class&lt;?&gt; declaringClass, <span class="keyword">int</span> slot, Object additionalInfo)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>其具体native实现则在<a href="https://github.com/rovo89/Xposed/blob/master/libxposed_common.cpp" target="_blank" rel="noopener">Xposed的libxposed_common.cpp</a>里面有注册，根据系统版本分发到libxposed_dalvik和libxposed_art里面，以dalvik为例大致来说就是记录下原来的方法信息，并把方法指针指向我们的hookedMethodCallback，从而实现拦截的目的。</p>
+<p>方法级的替换是指，可以在方法前、方法后插入代码，或者直接替换方法。只能针对java方法做拦截，不支持C的方法。</p>
+<p>来说说硬伤吧，不支持art，不支持art，不支持art。<br>重要的事情要说三遍。尽管在6月，项目网站的roadmap就写了7、8月会支持art，但事实是现在还无法解决art的兼容。</p>
+<p>另外，如果线上release版本进行了混淆，那写patch也是一件很痛苦的事情，反射+内部类，可能还有包名和内部类的名字冲突，总而言之就是写得很痛苦。</p>
+<h1 id="AndFix"><a href="#AndFix" class="headerlink" title="AndFix"></a>AndFix</h1><p>同样是方法的hook，AndFix不像Dexposed从Method入手，而是以Field为切入点。</p>
+<p>先看Java入口，<code>AndFixManager.fix</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * fix</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> file        patch file</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> classLoader classloader of class that will be fixed</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> classes     classes will be fixed</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">fix</span><span class="params">(File file, ClassLoader classLoader, List&lt;String&gt; classes)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 省略...判断是否支持，安全检查，读取补丁的dex文件</span></span><br><span class="line"></span><br><span class="line">		ClassLoader patchClassLoader = <span class="keyword">new</span> ClassLoader(classLoader) &#123;</span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="keyword">protected</span> Class&lt;?&gt; findClass(String className) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">				Class&lt;?&gt; clazz = dexFile.loadClass(className, <span class="keyword">this</span>);</span><br><span class="line">				<span class="keyword">if</span> (clazz == <span class="keyword">null</span> &amp;&amp; className.startsWith(<span class="string">"com.alipay.euler.andfix"</span>)) &#123;</span><br><span class="line">					<span class="keyword">return</span> Class.forName(className);<span class="comment">// annotation’s class not found</span></span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> (clazz == <span class="keyword">null</span>) &#123;</span><br><span class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> ClassNotFoundException(className);</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">return</span> clazz;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;;</span><br><span class="line">		Enumeration&lt;String&gt; entrys = dexFile.entries();</span><br><span class="line">		Class&lt;?&gt; clazz = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">while</span> (entrys.hasMoreElements()) &#123;</span><br><span class="line">			String entry = entrys.nextElement();</span><br><span class="line">			<span class="keyword">if</span> (classes != <span class="keyword">null</span> &amp;&amp; !classes.contains(entry)) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;<span class="comment">// skip, not need fix</span></span><br><span class="line">			&#125;</span><br><span class="line">      <span class="comment">// 找到了，加载补丁class</span></span><br><span class="line">			clazz = dexFile.loadClass(entry, patchClassLoader);</span><br><span class="line">			<span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</span><br><span class="line">				fixClass(clazz, classLoader);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">		Log.e(TAG, <span class="string">"pacth"</span>, e);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看来最终fix是在<code>fixClass方法</code>:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fixClass</span><span class="params">(Class&lt;?&gt; clazz, ClassLoader classLoader)</span> </span>&#123;</span><br><span class="line">  Method[] methods = clazz.getDeclaredMethods();</span><br><span class="line">  MethodReplace methodReplace;</span><br><span class="line">  String clz;</span><br><span class="line">  String meth;</span><br><span class="line">  <span class="comment">// 遍历补丁class里的方法，进行一一替换，annotation则是补丁包工具自动加上的</span></span><br><span class="line">  <span class="keyword">for</span> (Method method : methods) &#123;</span><br><span class="line">    methodReplace = method.getAnnotation(MethodReplace.class);</span><br><span class="line">    <span class="keyword">if</span> (methodReplace == <span class="keyword">null</span>)</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    clz = methodReplace.clazz();</span><br><span class="line">    meth = methodReplace.method();</span><br><span class="line">    <span class="keyword">if</span> (!isEmpty(clz) &amp;&amp; !isEmpty(meth)) &#123;</span><br><span class="line">      replaceMethod(classLoader, clz, meth, method);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">replaceMethod</span><span class="params">(ClassLoader classLoader, String clz, String meth, Method method)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    String key = clz + <span class="string">"@"</span> + classLoader.toString();</span><br><span class="line">    Class&lt;?&gt; clazz = mFixedClass.get(key);</span><br><span class="line">    <span class="keyword">if</span> (clazz == <span class="keyword">null</span>) &#123;<span class="comment">// class not load</span></span><br><span class="line">      <span class="comment">// 要被替换的class</span></span><br><span class="line">      Class&lt;?&gt; clzz = classLoader.loadClass(clz);</span><br><span class="line">      <span class="comment">// 这里也很黑科技，通过C层，改写accessFlags，把需要替换的类的所有方法（Field）改成了public，具体可以看Method结构体</span></span><br><span class="line">      clazz = AndFix.initTargetClass(clzz);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;<span class="comment">// initialize class OK</span></span><br><span class="line">      mFixedClass.put(key, clazz);</span><br><span class="line">      <span class="comment">// 需要被替换的函数</span></span><br><span class="line">      Method src = clazz.getDeclaredMethod(meth, method.getParameterTypes());</span><br><span class="line">      <span class="comment">// 这里是调用了jni，art和dalvik分别执行不同的替换逻辑，在cpp进行实现</span></span><br><span class="line">      AndFix.addReplaceMethod(src, method);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    Log.e(TAG, <span class="string">"replaceMethod"</span>, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在dalvik和art上，系统的调用不同，但是原理类似，这里我们尝个鲜，以6.0为例<code>art_method_replace_6_0</code>：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 进行方法的替换</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">replace_6_0</span><span class="params">(JNIEnv* env, jobject src, jobject dest)</span> </span>&#123;</span><br><span class="line">	art::mirror::ArtMethod* smeth = (art::mirror::ArtMethod*) env-&gt;FromReflectedMethod(src);</span><br><span class="line">	art::mirror::ArtMethod* dmeth = (art::mirror::ArtMethod*) env-&gt;FromReflectedMethod(dest);</span><br><span class="line"></span><br><span class="line">	dmeth-&gt;declaring_class_-&gt;class_loader_ =</span><br><span class="line">			smeth-&gt;declaring_class_-&gt;class_loader_; <span class="comment">//for plugin classloader</span></span><br><span class="line">	dmeth-&gt;declaring_class_-&gt;clinit_thread_id_ =</span><br><span class="line">			smeth-&gt;declaring_class_-&gt;clinit_thread_id_;</span><br><span class="line">	dmeth-&gt;declaring_class_-&gt;status_ = smeth-&gt;declaring_class_-&gt;status_<span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 把原方法的各种属性都改成补丁方法的</span></span><br><span class="line">	smeth-&gt;declaring_class_ = dmeth-&gt;declaring_class_;</span><br><span class="line">	smeth-&gt;dex_cache_resolved_types_ = dmeth-&gt;dex_cache_resolved_types_;</span><br><span class="line">	smeth-&gt;access_flags_ = dmeth-&gt;access_flags_;</span><br><span class="line">	smeth-&gt;dex_cache_resolved_methods_ = dmeth-&gt;dex_cache_resolved_methods_;</span><br><span class="line">	smeth-&gt;dex_code_item_offset_ = dmeth-&gt;dex_code_item_offset_;</span><br><span class="line">	smeth-&gt;method_index_ = dmeth-&gt;method_index_;</span><br><span class="line">	smeth-&gt;dex_method_index_ = dmeth-&gt;dex_method_index_;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 实现的指针也替换为新的</span></span><br><span class="line">	smeth-&gt;ptr_sized_fields_.entry_point_from_interpreter_ =</span><br><span class="line">			dmeth-&gt;ptr_sized_fields_.entry_point_from_interpreter_;</span><br><span class="line">	smeth-&gt;ptr_sized_fields_.entry_point_from_jni_ =</span><br><span class="line">			dmeth-&gt;ptr_sized_fields_.entry_point_from_jni_;</span><br><span class="line">	smeth-&gt;ptr_sized_fields_.entry_point_from_quick_compiled_code_ =</span><br><span class="line">			dmeth-&gt;ptr_sized_fields_.entry_point_from_quick_compiled_code_;</span><br><span class="line"></span><br><span class="line">	LOGD(<span class="string">"replace_6_0: %d , %d"</span>,</span><br><span class="line">			smeth-&gt;ptr_sized_fields_.entry_point_from_quick_compiled_code_,</span><br><span class="line">			dmeth-&gt;ptr_sized_fields_.entry_point_from_quick_compiled_code_);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 这就是上面提到的，把方法都改成public的，所以说了解一下jni还是很有必要的，java世界在c世界是有映射关系的</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setFieldFlag_6_0</span><span class="params">(JNIEnv* env, jobject field)</span> </span>&#123;</span><br><span class="line">	art::mirror::ArtField* artField =</span><br><span class="line">			(art::mirror::ArtField*) env-&gt;FromReflectedField(field);</span><br><span class="line">	artField-&gt;access_flags_ = artField-&gt;access_flags_ &amp; (~<span class="number">0x0002</span>) | <span class="number">0x0001</span>;</span><br><span class="line">	LOGD(<span class="string">"setFieldFlag_6_0: %d "</span>, artField-&gt;access_flags_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在dalvik上的实现略有不同，是通过jni bridge来指向补丁的方法。</p>
+<p>使用上，直接写一个新的类，会由补丁工具会生成注解，描述其与要打补丁的类和方法的对应关系。</p>
+<h1 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h1><p>原腾讯空间Android工程师，也是我的启蒙老师的陈钟发明的热补丁方案，是他在看源码的时候偶然发现的切入点。</p>
+<p>我们知道，multidex方案的实现，其实就是把多个dex放进app的classloader之中，从而使得所有dex的类都能被找到。而实际上findClass的过程中，如果出现了重复的类，参照下面的类加载的实现，是会使用第一个找到的类的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Class <span class="title">findClass</span><span class="params">(String name, List&lt;Throwable&gt; suppressed)</span> </span>&#123;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Element element : dexElements) &#123;  <span class="comment">//每个Element就是一个dex文件</span></span><br><span class="line">        DexFile dex = element.dexFile;</span><br><span class="line">        <span class="keyword">if</span> (dex != <span class="keyword">null</span>) &#123;</span><br><span class="line">            Class clazz = dex.loadClassBinaryName(name, definingContext, suppressed);</span><br><span class="line">            <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</span><br><span class="line">              <span class="keyword">return</span> clazz;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (dexElementsSuppressedExceptions != <span class="keyword">null</span>) &#123;  </span><br><span class="line">        suppressed.addAll(Arrays.asList(dexElementsSuppressedExceptions));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该热补丁方案就是从这一点出发，只要把有问题的类修复后，放到一个单独的dex，通过反射插入到dexElements数组的最前面，不就可以让虚拟机加载到打完补丁的class了吗。</p>
+<p>说到此处，似乎已经是一个完整的方案了，但在实践中，会发现运行加载类的时候报preverified错误，原来在<code>DexPrepare.cpp</code>，将dex转化成odex的过程中，会在<code>DexVerify.cpp</code>进行校验，验证如果直接引用到的类和clazz是否在同一个dex，如果是，则会打上CLASS_ISPREVERIFIED标志。通过在所有类（Application除外，当时还没加载自定义类的代码）的构造函数插入一个对在单独的dex的类的引用，就可以解决这个问题。空间使用了javaassist进行编译时字节码插入。</p>
+<p>开源实现有<a href="https://github.com/jasonross/Nuwa" target="_blank" rel="noopener">Nuwa</a>, <a href="https://github.com/dodola/HotFix" target="_blank" rel="noopener">HotFix</a>, <a href="https://github.com/bunnyblue/DroidFix" target="_blank" rel="noopener">DroidFix</a>。</p>
+<h1 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h1><p>Dexposed不支持Art模式（5.0+），且写补丁有点困难，需要反射写混淆后的代码，粒度太细，要替换的方法多的话，工作量会比较大。</p>
+<p>AndFix支持2.3-6.0，但是不清楚是否有一些机型的坑在里面，毕竟jni层不像java曾一样标准，从实现来说，方法类似Dexposed，都是通过jni来替换方法，但是实现上更简洁直接，应用patch不需要重启。但由于从实现上直接跳过了类初始化，设置为初始化完毕，所以像是静态函数、静态成员、构造函数都会出现问题，复杂点的类Class.forname很可能直接就会挂掉。</p>
+<p>ClassLoader方案支持2.3-6.0，会对启动速度略微有影响，只能在下一次应用启动时生效，在空间中已经有了较长时间的线上应用，如果可以接受在下次启动才应用补丁，是很好的选择。</p>
+<p>总的来说，在兼容性稳定性上，<strong>ClassLoader方案很可靠</strong>，如果需要应用<strong>不重启就能修复</strong>，而且方法足够简单，可以使用<strong>AndFix</strong>，而<strong>Dexposed由于还不能支持art</strong>，所以只能暂时放弃，希望开发者们可以改进使它能支持art模式，毕竟xposed的种种能力还是很吸引人的（比如hook别人app的方法拿到解密后的数据，嘿嘿），还有比如无痕埋点啊线上追踪问题之类的，随时可以下掉。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Hotpatch/" rel="tag"># Hotpatch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/20/new-skin-toggle-way/" rel="next" title="新的换肤思路">
+                <i class="fa fa-chevron-left"></i> 新的换肤思路
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/11/24/BuildAndroid6OnMacElCapitan/" rel="prev" title="在Mac 10.11编译最新的Android 6.0">
+                在Mac 10.11编译最新的Android 6.0 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Dexposed"><span class="nav-number">1.</span> <span class="nav-text">Dexposed</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AndFix"><span class="nav-number">2.</span> <span class="nav-text">AndFix</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ClassLoader"><span class="nav-number">3.</span> <span class="nav-text">ClassLoader</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#比较"><span class="nav-number">4.</span> <span class="nav-text">比较</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

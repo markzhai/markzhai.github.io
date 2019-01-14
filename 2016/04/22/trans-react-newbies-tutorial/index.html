@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="原文链接 : HOMEBLOG React JS: newbies tutorial 原文作者 : Elise Cicognani 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JasinYip, malcolmyu, 羊羊羊   正如你能从标题猜到的，这篇文章的目标是给那些有很少编程经验的读者的。比如，像我这样的人：因为迄今为止，我才探索了编程世界6个月。所以，这将是一篇">
+<meta name="keywords" content="JavaScript,前端,React.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React.js 新手村教程">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/04/22/trans-react-newbies-tutorial/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="原文链接 : HOMEBLOG React JS: newbies tutorial 原文作者 : Elise Cicognani 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JasinYip, malcolmyu, 羊羊羊   正如你能从标题猜到的，这篇文章的目标是给那些有很少编程经验的读者的。比如，像我这样的人：因为迄今为止，我才探索了编程世界6个月。所以，这将是一篇">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/a490147fjw1f2x94p1ev2j20m80etjtt.jpg">
+<meta property="og:updated_time" content="2016-11-14T15:27:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React.js 新手村教程">
+<meta name="twitter:description" content="原文链接 : HOMEBLOG React JS: newbies tutorial 原文作者 : Elise Cicognani 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JasinYip, malcolmyu, 羊羊羊   正如你能从标题猜到的，这篇文章的目标是给那些有很少编程经验的读者的。比如，像我这样的人：因为迄今为止，我才探索了编程世界6个月。所以，这将是一篇">
+<meta name="twitter:image" content="http://ww4.sinaimg.cn/large/a490147fjw1f2x94p1ev2j20m80etjtt.jpg">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/04/22/trans-react-newbies-tutorial/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>React.js 新手村教程 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/04/22/trans-react-newbies-tutorial/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React.js 新手村教程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-04-22 10:54:01" itemprop="dateCreated datePublished" datetime="2016-04-22T10:54:01+08:00">2016-04-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-11-14 23:27:14" itemprop="dateModified" datetime="2016-11-14T23:27:14+08:00">2016-11-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Frontend/" itemprop="url" rel="index"><span itemprop="name">Frontend</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<ul>
+<li>原文链接 : <a href="http://www.leanpanda.com/blog/2016/04/06/react-newbies-tutorial/" target="_blank" rel="noopener">HOMEBLOG React JS: newbies tutorial</a></li>
+<li>原文作者 : Elise Cicognani</li>
+<li>译文出自 : <a href="https://github.com/xitu/gold-miner" target="_blank" rel="noopener">掘金翻译计划</a></li>
+<li>译者 : <a href="https://github.com/markzhai" target="_blank" rel="noopener">markzhai</a></li>
+<li>校对者: <a href="https://github.com/JasinYip" target="_blank" rel="noopener">JasinYip</a>, <a href="https://github.com/malcolmyu" target="_blank" rel="noopener">malcolmyu</a>, <a href="https://github.com/antonia0912" target="_blank" rel="noopener">羊羊羊</a></li>
+</ul>
+</blockquote>
+<p>正如你能从标题猜到的，这篇文章的目标是给那些有很少编程经验的读者的。比如，像我这样的人：因为迄今为止，我才探索了编程世界6个月。<strong>所以，这将是一篇新手村教程！</strong> 你只需要拥有对 HTML 和 CSS 的理解，以及基本的 JavaScript（JS）知识就能看懂本文。</p>
+<p>注意：在接下来的例子中，我们将会利用 ES6 提供的新能力，来简化写 JS 代码的过程。然而，你也能完全使用 ES5 来写 React。</p>
+<p>预计阅读时间9分钟</p>
+<h1 id="什么是-React-？"><a href="#什么是-React-？" class="headerlink" title="什么是 React ？"></a>什么是 React ？</h1><p>React 是一个 JS 库，由 Facebook 和 Instagram 创建(<a href="https://facebook.github.io/react/" target="_blank" rel="noopener">https://facebook.github.io/react/</a>)。它通过将应用分为一些动态的、可复用的 <strong>组件</strong>，来使我们可以创建单页应用(<a href="http://www.leanpanda.com/blog/2015/05/25/single-page-application-development/" target="_blank" rel="noopener">Single Page Applications (SPA)</a>)。</p>
+<p>一个 React 组件是一个继承了由 React 提供的 <strong>Component</strong> 的 JS 类。一个组件代表并定义了一块 HTML 代码，以及任何与这块代码相关的行为，比如点击事件。组件就像是乐高积木，可以用来组建成所需的复杂应用。完全由 JS 代码构成的组件，可以被隔离和复用。基本方法是 <strong>render()</strong>，它简单地返回一片HTML代码。</p>
+<p>这种用来定义 React 组件的语法被称为 <strong>JSX</strong>。该语法由 React 的创建者们所开发，被用来简化 JS-HTML 代码的组件内交互。使用该语法写的代码在变成实际 JS 代码前必须被编译。</p>
+<h1 id="创建一个组件（component）"><a href="#创建一个组件（component）" class="headerlink" title="创建一个组件（component）"></a>创建一个组件（component）</h1><p>为了创建我们的组件并将它渲染为一页 HTML，我们首先在我们的 HTML 文件里需要定义一个有唯一 id 的 div。接着，我们将要在 JSX 文件里写代码，以连接 React 组件到使用其 id 的 div，如下面的例子所示。这样做将会指导浏览器在相关 DOM 标签所在的页面渲染组件。</p>
+<iframe height="266" scrolling="no" src="//codepen.io/makhenzi/embed/XXdmvL/?height=266&amp;theme-id=0&amp;default-tab=js,result&amp;embed-version=2" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;">See the Pen &lt;a href=”<a href="http://codepen.io/makhenzi/pen/XXdmvL/&quot;&gt;Start&lt;/a" target="_blank" rel="noopener">http://codepen.io/makhenzi/pen/XXdmvL/&quot;&gt;Start&lt;/a</a>&gt; by Makhenzi (&lt;a href=”<a href="http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;</a>) on &lt;a href=”<a href="http://codepen.io&quot;&gt;CodePen&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io&quot;&gt;CodePen&lt;/a&gt;</a>.</iframe>
+
+<p>See the Pen <a href="http://codepen.io/makhenzi/pen/XXdmvL/" target="_blank" rel="noopener">Start</a> by Makhenzi (<a href="http://codepen.io/makhenzi" target="_blank" rel="noopener">@makhenzi</a>) on <a href="http://codepen.io" target="_blank" rel="noopener">CodePen</a>.</p>
+<p>JSX 内的 HTML 标签属性和普通 HTML 内的是几乎一样的；唯一不同的是“class”，在 JSX 里面变成了“className”。类 HTML 语法使用圆括号闭合，而包含 JS 的块则使用尖括号闭合。正如你将看到的。render() _总_ 会返回一个 div，而在其中开发者可以自由引入他们认为合适的任意多的标签和元素。</p>
+<h2 id="例子：海盗的灭绝"><a href="#例子：海盗的灭绝" class="headerlink" title="例子：海盗的灭绝"></a>例子：海盗的灭绝</h2><p><img src="http://ww4.sinaimg.cn/large/a490147fjw1f2x94p1ev2j20m80etjtt.jpg" alt=""></p>
+<p>如果我们选择使用 React 来创建这张图，我们可以对屏幕上各个日期进行可视化，并在那些日期被点击的时候，才显示对应的温度和海盗数量。</p>
+<p>为此我们需要2个组件：第一个用来渲染日期，并将每个日期链接到给定的海盗数量和温度；第二个则需要用来接收日期上的点击事件对应的信息，如海盗的数量和当时的温度，接着基于这些数据渲染选择的元素。</p>
+<p>前者相当于是“父亲”的角色，并包含多个后面的“子”组件的链接，而后者则紧密依赖于它们的“父亲”。</p>
+<p>React 结构，被称为<a href="https://facebook.github.io/react/docs/working-with-the-browser.html" target="_blank" rel="noopener">虚拟 DOM</a>，可以使我们在组件的内容发生改变的时候，不需要刷新整个页面，而可以只更新对应组件。为此，组件需要一个内部方法，来保存变量 data 和 赋值给该元素的会被改变的 HTML 属性。这些属性会自行链接到那些我们在组件内定义的，会负责响应变化的方法。</p>
+<h2 id="状态-State-和属性-props"><a href="#状态-State-和属性-props" class="headerlink" title="状态(State)和属性(props)"></a>状态(State)和属性(props)</h2><p>在我们的例子里，那个独立的变量 data 是由日期组成的。这些会根据点击事件所集合的 DOM 内连锁反应进而根据对应海盗、温度信息而进行改变。所以我们将会根据每个 “DATA” 对象内的对应日期去保存信息。我们还将利用 React 在父组件内的 <code>this.state={}</code> 属性来以键值对拷贝形式保存变量数据的。</p>
+<p>以这种形式组织程序使得我们可以利用 React 提供的方法，来以“状态(state)”的形式和数据交互，并对其进行任意更改。</p>
+<p>考虑到我们想要使用 DATA 对象的 key 来渲染 HTML 内的日期，最好可以找到一种方法来在 key 上使用 JS 的 <code>map()</code> 方法(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map" target="_blank" rel="noopener">Array.prototype.map()</a>)，以便能直接显示返回到 <code>render()</code> 的 HTML。事实上确实有方法可以做到！我们只需要把 JS 代码包裹在双花括号里，并放置在想要代码输出显示的管理该组件的 DOM 块内，然后就好了。</p>
+<p>在这个特殊例子中，我们将在组件内的方法里定义 <code>map()</code> 回调，其将在同一组件的<code>render()</code>内返回一片 HTML 代码。</p>
+<iframe height="266" scrolling="no" src="//codepen.io/makhenzi/embed/XXdmvL/?height=266&amp;theme-id=0&amp;default-tab=js,result&amp;embed-version=2" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;">See the Pen &lt;a href=”<a href="http://codepen.io/makhenzi/pen/XXdmvL/&quot;&gt;Start&lt;/a" target="_blank" rel="noopener">http://codepen.io/makhenzi/pen/XXdmvL/&quot;&gt;Start&lt;/a</a>&gt; by Makhenzi (&lt;a href=”<a href="http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;</a>) on &lt;a href=”<a href="http://codepen.io&quot;&gt;CodePen&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io&quot;&gt;CodePen&lt;/a&gt;</a>.</iframe>
+
+<p>See the Pen <a href="http://codepen.io/makhenzi/pen/qbZbxR/" target="_blank" rel="noopener">State1</a> by Makhenzi (<a href="http://codepen.io/makhenzi" target="_blank" rel="noopener">@makhenzi</a>) on <a href="http://codepen.io" target="_blank" rel="noopener">CodePen</a>.</p>
+<p>为了分配点击事件到每个日期，我们将会分配 <code>onClick</code> 属性给它们。</p>
+<p>在该属性中，我们会调用组件的方法，该方法则会定义我们希望在 onClick 事件后触发的状态修改和其他变更。</p>
+<p>在我们的例子里，我们定义该函数为 <code>handleClick()</code>。在 handleClick() 中，我们会调用 React 方法 <code>setState()</code>，其允许我们在在每个点击事件中去更改状态数据。我们只需要插入一个包含我们想要修改的状态 key 的对象，并在后者括号内分配给它们新的相关联值。</p>
+<p>总的来说，每次一个日期被点击，被选中的div的onClick属性会调用 <code>HandClick()</code> 方法，该方法会调用 setState() 方法来修改组件的状态。</p>
+<p>每次状态改变，一旦发生 React 就会自动检查组件的 <code>render()</code> 函数的返回，以寻找基于新状态需要更新的内容。一旦有那样的数据， React 就会自动触发一次新的 <code>render()</code> 来更新那些有变更的 HTML 片段。</p>
+<p>(我很抱歉，在接着的例子里，我插入了三行利用了 Classnames 的代码，一个用来基于状态变更来做 CSS 管理的小工具，我这么做只是为了给预览一点颜色。我还会使用它在最终的例子里给预览填充一些海盗变量。你可以找到 GitHub 上 Classnames 仓库的链接，还有一个<a href="https://github.com/JedWatson/classnames" target="_blank" rel="noopener">简要使用向导</a>)</p>
+<iframe height="266" scrolling="no" src="//codepen.io/makhenzi/embed/EPKwRo/?height=266&amp;theme-id=0&amp;default-tab=js,result&amp;embed-version=2" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;">See the Pen &lt;a href=”<a href="http://codepen.io/makhenzi/pen/EPKwRo/&quot;&gt;State2&lt;/a" target="_blank" rel="noopener">http://codepen.io/makhenzi/pen/EPKwRo/&quot;&gt;State2&lt;/a</a>&gt; by Makhenzi (&lt;a href=”<a href="http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;</a>) on &lt;a href=”<a href="http://codepen.io&quot;&gt;CodePen&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io&quot;&gt;CodePen&lt;/a&gt;</a>.</iframe>
+
+<p>See the Pen <a href="http://codepen.io/makhenzi/pen/EPKwRo/" target="_blank" rel="noopener">State2</a> by Makhenzi (<a href="http://codepen.io/makhenzi" target="_blank" rel="noopener">@makhenzi</a>) on <a href="http://codepen.io" target="_blank" rel="noopener">CodePen</a>.</p>
+<p>如此，我们的父组件状态已经被设定好根据选中数据去创建子组件（其将会描述海盗数量和对应温度）。</p>
+<p>我们将会在 JSX 文件中创建子组件的实例，正如我们之前对父组件所做的。为了链接子组件到其父亲上，我们只需要在后者的 <code>render()</code> 函数使用同一种语法和一个 HTML 标签去定义关系。如果我们称它为 “Child” ，它将会在我们插入 <code>&lt;Child /&gt;</code>处所在的 HTML 块内出现。</p>
+<p>我们的子组件还必须根据现在选中数据所关联的海盗和温度，传递数据到其父亲。为此，我们将利用赋给 Child 标签的属性，其名字可以随便取，其信息只对父组件可见。</p>
+<p>如此一来，子组件将可以通过显式访问归属于其父组件的数据，即利用这些 “attribute-bridges”，或者 <strong>属性(props)</strong>，来获取到它自己内部信息的访问权。</p>
+<p>所以，每次父组件的状态发生改变，其子组件的属性内容就会自动进行更新。但是，正如子组件的<code>render()</code>方法会显示属性内容，它也会基于单向的数据线性流，根据任何收到的新信息去进行更新。</p>
+<iframe height="266" scrolling="no" src="//codepen.io/makhenzi/embed/EPKbmO/?height=266&amp;theme-id=0&amp;default-tab=js,result&amp;embed-version=2" frameborder="no" allowtransparency="true" allowfullscreen="true" style="width: 100%;">See the Pen &lt;a href=”<a href="http://codepen.io/makhenzi/pen/EPKbmO/&quot;&gt;Props&lt;/a" target="_blank" rel="noopener">http://codepen.io/makhenzi/pen/EPKbmO/&quot;&gt;Props&lt;/a</a>&gt; by Makhenzi (&lt;a href=”<a href="http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io/makhenzi&quot;&gt;@makhenzi&lt;/a&gt;</a>) on &lt;a href=”<a href="http://codepen.io&quot;&gt;CodePen&lt;/a&gt;" target="_blank" rel="noopener">http://codepen.io&quot;&gt;CodePen&lt;/a&gt;</a>.</iframe>
+
+<p>See the Pen <a href="http://codepen.io/makhenzi/pen/EPKbmO/" target="_blank" rel="noopener">Props</a> by Makhenzi (<a href="http://codepen.io/makhenzi" target="_blank" rel="noopener">@makhenzi</a>) on <a href="http://codepen.io" target="_blank" rel="noopener">CodePen</a>.</p>
+<p>搞定了！组件们会互相交互，并根据我们的点击在 DOM 里渲染不同数据，而不需要单页去进行刷新。以这个为基础，交互的复杂性和组件的数量可以按需增加，使我们能创建复杂高效的应用。</p>
+<p>如果你被这个库的潜力启发了，<a href="https://react.rocks/" target="_blank" rel="noopener">不妨看看 react.rocks 网站</a>，在那里你会找到很多有趣的点子来帮助你开始。(:</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/前端/" rel="tag"># 前端</a>
+          
+            <a href="/tags/React-js/" rel="tag"># React.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/20/trans-java-8-in-android-n-preview/" rel="next" title="在 Android N 预览版中使用 Java 8 的新特性">
+                <i class="fa fa-chevron-left"></i> 在 Android N 预览版中使用 Java 8 的新特性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/25/node-web-server-build-1/" rel="prev" title="在Centos7安装Node.js并搭建Server">
+                在Centos7安装Node.js并搭建Server <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是-React-？"><span class="nav-number">1.</span> <span class="nav-text">什么是 React ？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建一个组件（component）"><span class="nav-number">2.</span> <span class="nav-text">创建一个组件（component）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#例子：海盗的灭绝"><span class="nav-number">2.1.</span> <span class="nav-text">例子：海盗的灭绝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态-State-和属性-props"><span class="nav-number">2.2.</span> <span class="nav-text">状态(State)和属性(props)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="系列第二篇，来看看基于 React 路由分块的页面加载优化。   原文地址：Progressive Web Apps with React.js: Part 2 — Page Load Performance 原文作者：Addy Osmani 译文出自：掘金翻译计划 译者：markzhai 校对者：Romeo0906，AceLeeWinnie   使用 React.js 的渐进式 Web 应用程序">
+<meta name="keywords" content="JavaScript,前端,PWA,React.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/11/16/pwa-react-p2/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="系列第二篇，来看看基于 React 路由分块的页面加载优化。   原文地址：Progressive Web Apps with React.js: Part 2 — Page Load Performance 原文作者：Addy Osmani 译文出自：掘金翻译计划 译者：markzhai 校对者：Romeo0906，AceLeeWinnie   使用 React.js 的渐进式 Web 应用程序">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*KlJk2hhZl3wyn6E4.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*qfZvSxxJxPHhXXgb.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*N--j53GygKHn2ViI.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*55ArR_Z3qt7Az_FW.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*z2tqS124xW0GDmcP.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*c9rmq2rp95BN39qg.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*l-XqjMw7_XX0wsxX.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*glKcFK9_RLNk9AyR.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*tVvolw4FTKjNFAnY.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*QphlrnwHQiOsB06w.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*YMvoz-W2HL3v2MIs.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*D5j-Jv_FVkMigRyZ.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*2XxuNsDEp1-4VuoU.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/1600/0*-llrY94drXMjBUW6.">
+<meta property="og:image" content="https://cdn-images-1.medium.com/max/2000/0*-hLp_Acvig_s4Uop.">
+<meta property="og:updated_time" content="2017-01-12T03:05:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能">
+<meta name="twitter:description" content="系列第二篇，来看看基于 React 路由分块的页面加载优化。   原文地址：Progressive Web Apps with React.js: Part 2 — Page Load Performance 原文作者：Addy Osmani 译文出自：掘金翻译计划 译者：markzhai 校对者：Romeo0906，AceLeeWinnie   使用 React.js 的渐进式 Web 应用程序">
+<meta name="twitter:image" content="https://cdn-images-1.medium.com/max/2000/0*KlJk2hhZl3wyn6E4.">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/11/16/pwa-react-p2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/11/16/pwa-react-p2/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-11-16 23:26:28" itemprop="dateCreated datePublished" datetime="2016-11-16T23:26:28+08:00">2016-11-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2017-01-12 11:05:31" itemprop="dateModified" datetime="2017-01-12T11:05:31+08:00">2017-01-12</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Frontend/" itemprop="url" rel="index"><span itemprop="name">Frontend</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>系列第二篇，来看看基于 React 路由分块的页面加载优化。</p>
+<blockquote>
+<ul>
+<li>原文地址：<a href="https://medium.com/@addyosmani/progressive-web-apps-with-react-js-part-2-page-load-performance-33b932d97cf2#.o0f4vf64s" target="_blank" rel="noopener">Progressive Web Apps with React.js: Part 2 — Page Load Performance</a></li>
+<li>原文作者：<a href="https://medium.com/@addyosmani" target="_blank" rel="noopener">Addy Osmani</a></li>
+<li>译文出自：<a href="https://github.com/xitu/gold-miner" target="_blank" rel="noopener">掘金翻译计划</a></li>
+<li>译者：<a href="https://github.com/markzhai" target="_blank" rel="noopener">markzhai</a></li>
+<li>校对者：<a href="https://github.com/Romeo0906" target="_blank" rel="noopener">Romeo0906</a>，<a href="https://github.com/AceLeeWinnie" target="_blank" rel="noopener">AceLeeWinnie</a></li>
+</ul>
+</blockquote>
+<h1 id="使用-React-js-的渐进式-Web-应用程序：第-2-部分-页面加载性能"><a href="#使用-React-js-的渐进式-Web-应用程序：第-2-部分-页面加载性能" class="headerlink" title="使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能"></a>使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能</h1><h2 id="这是新系列的第二部分，新系列介绍的是使用-Lighthouse-优化移动-web-应用传输的技巧。本期，我们关注的是页面加载性能。"><a href="#这是新系列的第二部分，新系列介绍的是使用-Lighthouse-优化移动-web-应用传输的技巧。本期，我们关注的是页面加载性能。" class="headerlink" title="这是新系列的第二部分，新系列介绍的是使用 Lighthouse 优化移动 web 应用传输的技巧。本期，我们关注的是页面加载性能。"></a>这是新<a href="https://medium.com/@addyosmani/progressive-web-apps-with-react-js-part-i-introduction-50679aef2b12#.ysn8uhvkq" target="_blank" rel="noopener">系列</a>的第二部分，新系列介绍的是使用 <a href="https://github.com/googlechrome/lighthouse" target="_blank" rel="noopener">Lighthouse</a> 优化移动 web 应用传输的技巧。本期，我们关注的是页面加载性能。</h2><h3 id="保证页面加载性能是快的"><a href="#保证页面加载性能是快的" class="headerlink" title="保证页面加载性能是快的"></a>保证页面加载性能是快的</h3><p>移动 Web 的速度很关键。平均来说，更快的体验会 <a href="https://www.doubleclickbygoogle.com/articles/mobile-speed-matters/" target="_blank" rel="noopener">延长 70% 的会话</a> 以及两倍以上更多的移动广告收益。基于 React 的 Web 性能投资中，Flipkart Lite 使<a href="https://developers.google.com/web/showcase/2016/flipkart" target="_blank" rel="noopener">访问时间提升了三倍</a>， GQ 在流量上得到了 <a href="http://digiday.com/publishers/gq-com-cut-page-load-time-80-percent/" target="_blank" rel="noopener">80% 增长</a>，Trainline 在 <a href="https://youtu.be/ai-6qwT6ES8?t=462" target="_blank" rel="noopener">年收益上增长了 11M</a> 并且 Instagram 的 <a href="http://engineering.instagram.com/posts/193415561023919/performance-&amp;-usage-at-Instagram" target="_blank" rel="noopener">好感度上升了 33%</a>。</p>
+<p>在你的 web app 加载时有一些 <a href="https://www.youtube.com/watch?v=wFwogd4CdwY&amp;index=4&amp;list=PLNYkxOF6rcIB3ci6nwNyLYNU6RDOU3YyL" target="_blank" rel="noopener">关键的用户时刻</a>：</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*KlJk2hhZl3wyn6E4." alt=""></p>
+<p>测量并优化一直很重要。Lighthouse 的页面加载检测会关注：</p>
+<ul>
+<li><a href="https://www.quora.com/What-does-First-Meaningful-Paint-mean-in-Web-Performance" target="_blank" rel="noopener"><strong>第一次有意义的绘制</strong></a>（当页面主内容可见）</li>
+<li><a href="https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/metrics/speed-index" target="_blank" rel="noopener"><strong>速度指数（Speed Index）</strong></a>（完全可见）</li>
+<li><strong>估算的输入延迟</strong>（主线程什么时候才能立即处理用户输入）</li>
+<li>以及 <strong>抵达可交互的时间</strong>（ app 到开始可用和可交互的时间)</li>
+</ul>
+<p><strong>关于 PWA <a href="(https://www.youtube.com/watch?v=IxXGMesq_8s">值得关注的有趣指标</a>)，Paul Irish 做了很棒的总结。</strong></p>
+<p><strong>良好性能的目标：</strong></p>
+<ul>
+<li><strong>遵循</strong> <a href="https://developers.google.com/web/tools/chrome-devtools/profile/evaluate-performance/rail?hl=en" target="_blank" rel="noopener"><strong>RAIL 性能模型</strong></a> 的 L 部分。<strong>A+ 的性能是我们所有人都必须力求达到的，即便有的浏览器不支持 Service Worker。我们仍然可以快速地在屏幕上获得一些有意义的内容，并且仅加载我们所需要的</strong></li>
+<li><strong>在典型网络（3G）和硬件条件下</strong></li>
+<li>首次访问在 5 秒内可交互，重复访问（Service Worker 可用）则在 2 秒内。</li>
+<li>首次加载（网络限制下），速度指数在 3000 或者更少。</li>
+<li>第二次加载（磁盘限制，因为 Service Worker 可用）：速度指数 1000 或者更少。</li>
+</ul>
+<p>让我们再说说，关于通过 TTI 关注交互性。</p>
+<h3 id="关注抵达可交互时间（TTI）"><a href="#关注抵达可交互时间（TTI）" class="headerlink" title="关注抵达可交互时间（TTI）"></a>关注抵达可交互时间（TTI）</h3><p>为交互性优化，也就是使得 app 尽快能对用户可用（比如让他们可以四处点击，app 可以响应）。这对试图在移动设备上提供一流用户体验的现代 web 体验很关键。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*qfZvSxxJxPHhXXgb." alt=""></p>
+<p>Lighthouse 目前将 TTI 作为布局是否达到稳定的衡量，web 字型是否可见并且主线程是否有足够的能力处理用户输入。有很多方法来手动跟踪 TTI，重要的是根据指标进行优化会提升你用户的体验。</p>
+<p>对于像 React 这样的库，你应该关心的是在移动设备上 <a href="https://aerotwist.com/blog/the-cost-of-frameworks/" target="_blank" rel="noopener">启用库的代价</a> 因为这会让人们有感知。在 <a href="https://github.com/insin/react-hn" target="_blank" rel="noopener">ReactHN</a>，我们达到了 <strong>1700毫秒</strong> 内就完成了交互，尽管有多个视图，但我们还是保持整个 app 的大小和执行消耗相对很小：app 压缩包只有 11KB，vendor/React/libraries 压缩包只有 107KB。实际上，它们是这样的：</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*N--j53GygKHn2ViI." alt=""></p>
+<p>之后，对于有小功能的 app 来说，我们会使用 <a href="https://www.polymer-project.org/1.0/toolbox/server" target="_blank" rel="noopener">PRPL</a> 这样的性能模式，这种模式可以充分利用 <a href="https://www.igvita.com/2013/06/12/innovating-with-http-2.0-server-push/" target="_blank" rel="noopener">HTTP/2 的服务器推送</a> 功能，利用颗粒状的 “基于路由的分块” 来得到快速的可交互时间。（可以试试 <a href="https://shop.polymer-project.org/" target="_blank" rel="noopener">Shop</a> demo 来获取直观了解）。</p>
+<p>Housing.com 最近使用了类 PRPL 模式搭载 React 体验，获得了很多赞扬：</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*55ArR_Z3qt7Az_FW." alt=""></p>
+<p>Housing.com 利用 Webpack 路由分块，来推迟入口页面的部分启动消耗（仅加载 route 渲染所需要的）。更多细节请查看 <a href="https://twitter.com/samccone/status/771786445015035904" target="_blank" rel="noopener">Sam Saccone 的优秀 Housing.com 性能检测</a>.</p>
+<p>Flipkart 也做了类似的：</p>
+<p>注意：关于什么是 “可交互时间”，有很多不同的看法，Lighthouse 对 TTI 的定义也可能会演变。还有其他测试可交互时间的方法，页面跳转后第一个 5 秒内 window 没有长任务的时刻，或者一次文本/内容绘制后第一次 5 秒内 window 没有长任务的时刻。基本上，就是页面稳定后多久用户才可以和 app 交互。</p>
+<p>注意：尽管不是强制的要求，你可能也需要提高视觉完整度（速度指数），通过 <a href="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/" target="_blank" rel="noopener">优化关键渲染路径</a>。<a href="https://github.com/addyosmani/critical-path-css-tools#node-modules" target="_blank" rel="noopener">关键路径 CSS 优化工具的存在</a> 以及其优化在 HTTP/2 的世界中依然有效。</p>
+<h3 id="用基于路由的分块来提高性能"><a href="#用基于路由的分块来提高性能" class="headerlink" title="用基于路由的分块来提高性能"></a>用基于路由的分块来提高性能</h3><h3 id="Webpack"><a href="#Webpack" class="headerlink" title="Webpack"></a>Webpack</h3><p><strong>如果你第一次接触模块打包工具，比如 Webpack，看看</strong> <a href="https://www.youtube.com/watch?v=OhPUaEuEaXk" target="_blank" rel="noopener"><strong>JS 模块化打包器</strong></a><strong>(视频) 可能会有帮助。</strong></p>
+<p>如今一些的 JavaScript 工具能够方便地将所有脚本打包成一个所有页面都引入的 bundle.js 文件。这意味着很多时候，你可能要加载很多对当前路由来说并不需要的代码。为什么一次路由需要加载 500KB 的 JS，而事实上 50KB 就够了呢？我们应该丢开那些无助于获得更快体验的脚本，来加速获得可交互的路由。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*z2tqS124xW0GDmcP." alt=""></p>
+<p><strong>当仅提供用户一次 route 所需要的最小功能的可用代码就可以的时候，避免提供庞大整块的 bundles（像上图）。</strong></p>
+<p>代码分割是解决整块的 bundles 的一个方法。想法大致是在你的代码中定义分割点，然后分割成不同的文件进行按需懒加载。这会改善启动时间，帮助更迅速地达到可交互状态。</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*c9rmq2rp95BN39qg." alt=""></p>
+<p>想象使用一个公寓列表 app。如果我们登陆的路由是列出我们所在区域的地产（route-1）—— 我们不需要全部地产详情（route-2）或者预约看房（route-3）的代码，所以我们可以只提供列表路由所需要的 JavaScript 代码，然后动态加载其余部分。</p>
+<p>这些年来，很多 app 已经使用了代码分割的概念，然而现在用 “<a href="https://gist.github.com/addyosmani/44678d476b8843fd981ff8011d389724" target="_blank" rel="noopener">基于路由的分块</a>” 来称呼它。我们可以通过 Webpack 模块打包器为 React 启用这个设置。</p>
+<h3 id="实践基于路由的代码分块"><a href="#实践基于路由的代码分块" class="headerlink" title="实践基于路由的代码分块"></a>实践基于路由的代码分块</h3><p>当 Webpack 在 app 代码中发现  <a href="https://webpack.github.io/docs/code-splitting.html" target="_blank" rel="noopener">require.ensure()</a>（在 <a href="https://gist.github.com/sokra/27b24881210b56bbaff7" target="_blank" rel="noopener">Webpack 2</a> 中是 <a href="http://moduscreate.com/code-splitting-for-react-router-with-es6-imports/" target="_blank" rel="noopener">System.import</a>）时，支持分割代码。这些方法出现的地方被称为“分割点”，Webpack 会对它们的每一个都生成一个分开的 bundle，按需解决依赖。</p>
+<pre><code>// 定义一个 &quot;split-point&quot;
+require.ensure([], function () {
+   const details = require(&apos;./Details&apos;);
+   // 所有被 require() 需要的都会成为分开的 bundle
+   // require(deps, cb) 是异步的。它会异步加载，并且评估
+   // 模块，通过你的 deps 的 exports 调用 cb。
+});
+</code></pre><p>当你的代码需要某些东西，Webpack 会发起一个 JSONP 请求来从服务器获得它。这个和 React Router 结合工作得很好，我们可以在对用户渲染视图之前在依赖（块）中懒加载一个新的路由。</p>
+<p>Webpack 2 支持 <a href="https://medium.com/modus-create-front-end-development/automatic-code-splitting-for-react-router-w-es6-imports-a0abdaa491e9#.3ryyedhfc" target="_blank" rel="noopener">使用 React Router 的自动代码分割</a>，它可以像 import 语句一样处理 System.import 模块调用，将导入的文件和它们的依赖一起打包。依赖不会与你在 Webpack 设置中的初始入口冲突。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'../containers/App'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">errorLoading</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.error(<span class="string">'Lazy-loading failed'</span>, err);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">loadRoute</span>(<span class="params">cb</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params"><span class="built_in">module</span></span>) =&gt;</span> cb(<span class="literal">null</span>, <span class="built_in">module</span>.default);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  component: App,</span><br><span class="line">  childRoutes: [</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    &#123;</span><br><span class="line">      path: <span class="string">'booktour'</span>,</span><br><span class="line">      getComponent(location, cb) &#123;</span><br><span class="line">        System.import(<span class="string">'../pages/BookTour'</span>)</span><br><span class="line">          .then(loadRoute(cb))</span><br><span class="line">          .catch(errorLoading);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="加分项：预加载那些路由！"><a href="#加分项：预加载那些路由！" class="headerlink" title="加分项：预加载那些路由！"></a>加分项：预加载那些路由！</h3><p>在我们继续之前，一个配置可选项是来自 <a href="https://www.smashingmagazine.com/2016/02/preload-what-is-it-good-for/" target="_blank" rel="noopener"></a> 的 <a href="https://twitter.com/addyosmani/status/743571393174872064" target="_blank" rel="noopener">Resource Hints</a>。这提供了一个声明式获取资源的方法，而不用执行他们。预加载可以用来加载那些用户<strong>可能</strong>访问的路由的 Webpack 块，用户真正访问这些路由时已经缓存并且能够立即实例化。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*l-XqjMw7_XX0wsxX." alt=""></p>
+<p>笔者写这篇文章的时候，预加载只能在 <a href="http://caniuse.com/#feat=link-rel-preload" target="_blank" rel="noopener">Chrome</a> 中进行，但是在其他浏览器中被处理为渐进式增加（如果支持的话）。</p>
+<p>注意：html-webpack-plugin 的 <a href="https://github.com/ampedandwired/html-webpack-plugin#events" target="_blank" rel="noopener">模板和自定义事件</a> 可以使用最小的改变来让简化这个过程。然后你应该保证预加载的资源真正会对你大部分的用户浏览过程有用。</p>
+<h3 id="异步加载路由"><a href="#异步加载路由" class="headerlink" title="异步加载路由"></a>异步加载路由</h3><p>让我们回到代码分割（code-splitting）—— 在一个使用 React 和 <a href="https://github.com/reactjs/react-router" target="_blank" rel="noopener">React Router</a> 的 app 里，我们可以使用 require.ensure() 以在 ensure 被调用的时候异步加载一个组件。顺带一提，如果任何人在探索服务器渲染，如果要 node 上尝试服务器端渲染，需要用 <a href="https://www.npmjs.com/package/node-ensure" target="_blank" rel="noopener">node-ensure</a> 包作垫片代替。Pete Hunt 在 <a href="https://github.com/petehunt/webpack-howto#9-async-loading" target="_blank" rel="noopener">Webpack How-to</a> 里涉及了异步加载。</p>
+<p>在下面的例子里，require.ensure() 使我们可以按需懒加载路由，在组件被使用前等待拉取：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rootRoute = &#123;</span><br><span class="line">  component: Layout,</span><br><span class="line">  path: <span class="string">'/'</span>,</span><br><span class="line">  indexRoute: &#123;</span><br><span class="line">    getComponent (location, cb) &#123;</span><br><span class="line">      <span class="built_in">require</span>.ensure([], () =&gt; &#123;</span><br><span class="line">        cb(<span class="literal">null</span>, <span class="built_in">require</span>(<span class="string">'./Landing'</span>))</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  childRoutes: [</span><br><span class="line">    &#123;</span><br><span class="line">      path: <span class="string">'book'</span>,</span><br><span class="line">      getComponent (location, cb) &#123;</span><br><span class="line">        <span class="built_in">require</span>.ensure([], () =&gt; &#123;</span><br><span class="line">          cb(<span class="literal">null</span>, <span class="built_in">require</span>(<span class="string">'./BookTour'</span>))</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      path: <span class="string">'details/:id'</span>,</span><br><span class="line">      getComponent (location, cb) &#123;</span><br><span class="line">        <span class="built_in">require</span>.ensure([], () =&gt; &#123;</span><br><span class="line">          cb(<span class="literal">null</span>, <span class="built_in">require</span>(<span class="string">'./Details'</span>))</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>注意：我经常配合 CommonChunksPlugin (minChunks: Infinity) 使用上面的配置，这样不同入口文件中的相同模块只有一个 chunk。这还 <a href="https://github.com/webpack/webpack/issues/368#issuecomment-247212086" target="_blank" rel="noopener">降低</a> 了陷入缺省 webpack 运行期。</strong></p>
+<p>Brian Holt 在 React 的完整介绍 中对异步路由加载介绍得很好。。</p>
+<p>Brian Holt 在 <a href="https://btholt.github.io/complete-intro-to-react/" target="_blank" rel="noopener">React 的完整介绍</a> 对异步路由加载阐述地很全面。通过异步路由的代码分割在 React Router 的最新版本和 <a href="https://gist.github.com/acdlite/a68433004f9d6b4cbc83b5cc3990c194" target="_blank" rel="noopener">新的 React Router V4</a> 上都可以使用。</p>
+<h3 id="使用异步的-getComponent-require-ensure-的声明式路由-chunk"><a href="#使用异步的-getComponent-require-ensure-的声明式路由-chunk" class="headerlink" title="使用异步的 getComponent + require.ensure() 的声明式路由 chunk"></a>使用异步的 getComponent + require.ensure() 的声明式路由 chunk</h3><p>有一个可以更快设置代码分割的小技巧。在 React Router 中，一个根路由 “/” 映射到 <code>App</code> 组件的 <a href="https://github.com/ReactTraining/react-router/blob/master/docs/API.md#route" target="_blank" rel="noopener">申明式的路由</a> 就像这样 <code>&lt;Route path=”/” component={App}&gt;</code>。</p>
+<p>React Router 也支持 <code>[getComponent](https://github.com/ReactTraining/react-router/blob/master/docs/API.md#getcomponentnextstate-callback)</code> 属性，十分方便，类似于 <code>component</code> 但却是异步的，并且能够<strong>非常快速</strong>地设置代码分割：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;Route</span><br><span class="line">   path=&quot;stories/:storyId&quot;</span><br><span class="line">   getComponent=&#123;(nextState, cb) =&gt; &#123;</span><br><span class="line">   // 异步地查找 components</span><br><span class="line">  cb(null, Stories)</span><br><span class="line">&#125;&#125; /&gt;</span><br></pre></td></tr></table></figure>
+<p><code>getComponent</code> 函数参数包括下一个状态（我设置为 null）和一个回调。</p>
+<p>让我们添加一些基于路由的代码分割到 <a href="https://github.com/insin/react-hn" target="_blank" rel="noopener">ReactHN</a>。我们会从 <a href="https://github.com/insin/react-hn/blob/master/src/routes.js#L36" target="_blank" rel="noopener">routes</a> 文件中的一段开始 —— 它为每个路由定义了引入调用和 React Router 路由（比如 news, item, poll, job, comment 永久链接等）：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> IndexRoute = <span class="built_in">require</span>(<span class="string">'react-router/lib/IndexRoute'</span>)</span><br><span class="line"><span class="keyword">var</span> App = <span class="built_in">require</span>(<span class="string">'./App'</span>)</span><br><span class="line"><span class="keyword">var</span> Item = <span class="built_in">require</span>(<span class="string">'./Item'</span>)</span><br><span class="line"><span class="keyword">var</span> PermalinkedComment = <span class="built_in">require</span>(<span class="string">'./PermalinkedComment'</span>) &lt;--</span><br><span class="line"><span class="keyword">var</span> UserProfile = <span class="built_in">require</span>(<span class="string">'./UserProfile'</span>)</span><br><span class="line"><span class="keyword">var</span> NotFound = <span class="built_in">require</span>(<span class="string">'./NotFound'</span>)</span><br><span class="line"><span class="keyword">var</span> Top = stories(<span class="string">'news'</span>, <span class="string">'topstories'</span>, <span class="number">500</span>)</span><br><span class="line"><span class="comment">// ....</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">"/"</span> <span class="attr">component</span>=<span class="string">&#123;App&#125;</span>&gt;</span></span></span><br><span class="line">  &lt;IndexRoute component=&#123;Top&#125;/&gt;</span><br><span class="line">  &lt;Route path="news" component=&#123;Top&#125;/&gt;</span><br><span class="line">  &lt;Route path="item/:id" component=&#123;Item&#125;/&gt;</span><br><span class="line">  &lt;Route path="job/:id" component=&#123;Item&#125;/&gt;</span><br><span class="line">  &lt;Route path="poll/:id" component=&#123;Item&#125;/&gt;</span><br><span class="line">  &lt;Route path="comment/:id" component=&#123;PermalinkedComment&#125;/&gt; &lt;---</span><br><span class="line">  &lt;Route path="newcomments" component=&#123;Comments&#125;/&gt;</span><br><span class="line">  &lt;Route path="user/:id" component=&#123;UserProfile&#125;/&gt;</span><br><span class="line">  &lt;Route path="*" component=&#123;NotFound&#125;/&gt;</span><br><span class="line">&lt;/Route&gt;</span><br></pre></td></tr></table></figure></p>
+<p>ReactHN 现在提供给用户一个整块的 JS bundle，包含<strong>所有</strong>路由。让我们将它转换为路由分块，只提供一次路由真正需要的代码，从 comment 的永久链接开始（comment/:id）：</p>
+<p>所以我们首先删了对永久链接组件的隐式 require：</p>
+<pre><code>var PermalinkedComment = require(‘./PermalinkedComment’)
+</code></pre><p>然后开始我们的路由..</p>
+<p>然后使用声明式的 getComponent 来更新它。我们在路由中使用 require.ensure() 调用来懒加载，而这就是我们所需要做的一切了：</p>
+<pre><code>&lt;Route
+  path=&quot;comment/:id&quot;
+  getComponent={(location, callback) =&gt; {
+    require.ensure([], require =&gt; {
+      callback(null, require(&apos;./PermalinkedComment&apos;))
+    }, &apos;PermalinkedComment&apos;)
+  }}
+/&gt;
+</code></pre><p>OMG，太棒了。这..就搞定了。不骗你。我们可以如法炮制剩下的路由，然后运行 webpack。它会正确地找到 require.ensure() 调用，并且如我们所愿地分割代码。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*glKcFK9_RLNk9AyR." alt=""></p>
+<p>将声明式代码分割应用到我们的大部分路由后，我们可以看到路由分块生效了，只在需要的时候对一个路由（我们能够预缓存在 Service Worker 里）加载所需代码：</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*tVvolw4FTKjNFAnY." alt=""></p>
+<p>提醒：有许多可用于 Service Worker 的简单 Webpack 插件：</p>
+<ul>
+<li><a href="https://github.com/goldhand/sw-precache-webpack-plugin" target="_blank" rel="noopener">sw-precache-webpack-plugin</a> 在底层使用 sw-precache</li>
+<li><a href="https://github.com/NekR/offline-plugin" target="_blank" rel="noopener">offline-plugin</a> 被 react-boilerplate 所使用</li>
+</ul>
+<h4 id="CommonsChunkPlugin"><a href="#CommonsChunkPlugin" class="headerlink" title="CommonsChunkPlugin"></a>CommonsChunkPlugin</h4><p><img src="https://cdn-images-1.medium.com/max/1600/0*QphlrnwHQiOsB06w." alt=""></p>
+<p>为了识别出在不同路由使用的通用模块并把它们放在一个通用的分块，需要使用 <a href="https://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin" target="_blank" rel="noopener">CommonsChunkPlugin</a>。它需要在每个页面引入两个 script 标签，一个用于 commons 分块，另一个用于一次路由的入口分块。</p>
+<pre><code>const CommonsChunkPlugin = require(&quot;webpack/lib/optimize/CommonsChunkPlugin&quot;);
+module.exports = {
+    entry: {
+        p1: &quot;./route-1&quot;,
+        p2: &quot;./route-2&quot;,
+        p3: &quot;./route-3&quot;
+    },
+    output: {
+        filename: &quot;[name].entry.chunk.js&quot;
+    },
+    plugins: [
+        new CommonsChunkPlugin(&quot;commons.chunk.js&quot;)
+    ]
+}
+</code></pre><p>Webpack 的 <a href="https://blog.madewithlove.be/post/webpack-your-bags/" target="_blank" rel="noopener">— display-chunks 标志</a> 对于查看模块在哪个分块中出现很有用。这个帮助我们减少分块中重复的依赖，并且能够提示是否应该在项目中开启 CommonChunksPlugin。这是一个带有多个组件的项目，在不同分块间检测到重复的 Mustache.js 依赖：</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*YMvoz-W2HL3v2MIs." alt=""></p>
+<p>Webpack 1 也支持通过 <a href="https://github.com/webpack/docs/wiki/optimization#deduplication" target="_blank" rel="noopener">DedupePlugin</a> 以在你的依赖树中进行依赖库的去重。在 Webpack 2，tree-shaking 应该淘汰了这个的需求。</p>
+<p><strong>更多 Webpack 的小贴士</strong></p>
+<ul>
+<li>你的代码库中 require.ensure() 调用的数目通常会关联到生成的 bundles 的数目。在代码库中大量使用 ensure 的时候意识到这点很有用。</li>
+<li><a href="https://medium.com/modus-create-front-end-development/webpack-2-tree-shaking-configuration-9f1de90f3233" target="_blank" rel="noopener">Webpack2 的 Tree-shaking</a> 会帮助删除没用的 exports，这可以让你的 bundle 尺寸变小。</li>
+<li>另外，避免在 通用/共享的 bundles 里面调用 require.ensure()。你会发现这创建了入口点引用，而我们假定这些引用的依赖已经完成加载了。</li>
+<li>在 Webpack 2，System.import 目前不支持服务端渲染，但我已经在 <a href="http://stackoverflow.com/a/39088208" target="_blank" rel="noopener">StackOverflow</a> 分享了怎么去处理这个问题。</li>
+<li>如果需要优化编译速度，可以看看 <a href="https://github.com/webpack/docs/wiki/list-of-plugins" target="_blank" rel="noopener">Dll plugin</a>，<a href="https://www.npmjs.com/package/parallel-webpack" target="_blank" rel="noopener">parallel-webpack</a> 以及目标的编译。</li>
+<li>如果你希望通过 Webpack <strong>异步</strong> 或者 <strong>延迟</strong> 脚本，看看 <a href="https://github.com/numical/script-ext-html-webpack-plugin" target="_blank" rel="noopener">script-ext-html-webpack-plugin</a></li>
+</ul>
+<p><strong>在 Webpack 编译中检测臃肿</strong></p>
+<p>Webpack 社区有很多建立在 Web 上的编译分析器包括 <a href="http://webpack.github.io/analyse/" target="_blank" rel="noopener">http://webpack.github.io/analyse/</a>，<a href="https://chrisbateman.github.io/webpack-visualizer/" target="_blank" rel="noopener">https://chrisbateman.github.io/webpack-visualizer/</a>，和 <a href="https://alexkuz.github.io/stellar-webpack/" target="_blank" rel="noopener">https://alexkuz.github.io/stellar-webpack/</a>，这些能方便地明确你项目中最大的模块。</p>
+<p><a href="https://github.com/danvk/source-map-explorer" target="_blank" rel="noopener"><strong>source-map-explorer</strong></a> (来自 Paul Irish) 通过 source maps 来理解代码臃肿，也<strong>超级棒</strong>的。看看这个对 ReactHN Webpack bundle 的 tree-map 可视化，带有每个文件的代码行数，以及百分比的统计分析：</p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*D5j-Jv_FVkMigRyZ." alt=""></p>
+<p>你可能也会对来自 Sam Saccone 的 <a href="https://github.com/samccone/coverage-ext" target="_blank" rel="noopener"><strong>coverage-ext</strong></a> 感兴趣，它可以生成任何 webapp 的代码覆盖率。这个对于理解你的代码中有多少实际会被执行到很有用。</p>
+<h3 id="代码分割（code-splitting）之上：PRPL-模式"><a href="#代码分割（code-splitting）之上：PRPL-模式" class="headerlink" title="代码分割（code-splitting）之上：PRPL 模式"></a>代码分割（code-splitting）之上：PRPL 模式</h3><p>Polymer 发现了一个有趣的 web 性能模式，用于精细服务的 apps，称为 <a href="https://www.polymer-project.org/1.0/toolbox/server" target="_blank" rel="noopener">PRPL</a>（看看 <a href="https://www.youtube.com/watch?v=J4i0xJnQUzU" target="_blank" rel="noopener">Kevin 的 I/O 演讲</a>)。这个模式尝试优化交互，各个字母代表：</p>
+<ul>
+<li>(P)ush，对于初始路由推送关键资源。</li>
+<li>(R)ender，渲染初始路由，并使它尽快变得可交互。</li>
+<li>(P)re-cache，通过 Service Worker 预缓存剩下的路由。</li>
+<li>(L)azy-load，根据用户在应用中的移动懒加载并懒初始化 apps 中对应的部分。</li>
+</ul>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*2XxuNsDEp1-4VuoU." alt=""></p>
+<p>在这里，我们必须给予 <a href="https://shop.polymer-project.org/" target="_blank" rel="noopener">Polymer Shop demo</a> 大大的赞赏，因为它展示给我们移动设备上的实现方法。使用 PRPL（在这种情况下通过 HTML Imports，从而利用浏览器的后台 HTML parser 的好处）。屏幕上的像素你都可以使用。这里额外的工作在于分块和保持可交互。在一台真实移动设备上，我们可以在 1.75 秒内达到可交互。其中 1.3 秒用于 JavaScript，但它都被打散了。在那以后所有功能都可以用了。</p>
+<p>你到现在应该已经成功享受到将应用打碎到更精细的分块的好处了。当用户第一次访问我们的 PWA，假设说他们访问一个特定的路由。服务器（使用 H/2 推送）能够推送下来仅仅那次路由需要的分块 —— 这些是用来启动应用的必要资源，并会进入网络缓存中。</p>
+<p>一旦它们被推送下来了，我们就能高效地准备好未来会被加载的页面分块到缓存中。当应用启动后，检查路由并发现我们想要的已经在缓存中了，所以我们就能使得应用的首次加载非常快 —— 不仅仅是闪屏 —— 而是用户请求的可交互内容。</p>
+<p>下一步是尽快渲染这个视图的内容。第三步是，当用户在看当前的视图的时候，使用 Service Worker 来开始预缓存所有其他用户还没有请求的分块和路由，将它们安装到 Service Worker 的缓存中。</p>
+<p>此时，整个应用（或者大部分）都已经可以离线使用了。当用户跳转到应用的不同部分，我们可以从 Service Worker 的缓存中懒加载下面的部分。不需要网络加载 —— 因为它们已经被预缓存了。瞬间加载碉堡了！❤</p>
+<p>PRPL 可以被应用到任何 app，正如 Flipkart 最近在他们的 React 栈上所展示的。完全使用 PRPL 的 Apps 可以利用 HTTP/2 服务器推送的快速加载，通过产生两种编译版本，并根据浏览器的支持提供不同版本：</p>
+<ul>
+<li><p>一个 bundled 编译，为没有 HTTP/2 推送支持的服务器/浏览器优化以最小化往返。对大多数人而言，这是现在默认的访问内容。</p>
+</li>
+<li><p>一个没有 bundled 编译，用于支持 HTTP/2 推送的服务器/浏览器，使得首次绘制更快。</p>
+</li>
+</ul>
+<p>这个部分基于我们在之前讨论的路由分块的概念。通过 PRPL，服务器和我们的 Service Worker 协作来为非活动路由预缓存资源。当一个用户在你的 app 中浏览并改变路由，我们对尚未缓存的路由进行懒加载，并创建请求的视图。</p>
+<h3 id="实现-PRPL"><a href="#实现-PRPL" class="headerlink" title="实现 PRPL"></a>实现 PRPL</h3><p><strong>篇幅过长，没有阅读：Webpack 的 require.ensure() 以及异步的 ‘getComponent’，还有 React Router 是到 PRPL 风格性能模式的最小摩擦路径</strong></p>
+<p><img src="https://cdn-images-1.medium.com/max/1600/0*-llrY94drXMjBUW6." alt=""></p>
+<p>PRPL 的一大部分在于颠覆 JS 打包思维，并像编写时候那样精细地传输资源（至少从功能独立模块角度上）。配合 Webpack，这就是我们已经说过的路由分块。</p>
+<p>对于初始路由推送关键资源。理想情况下，使用 <a href="https://www.igvita.com/2013/06/12/innovating-with-http-2.0-server-push/" target="_blank" rel="noopener">HTTP/2 服务端推送</a>，但即便没有它，也不会成为实现类 PRPL 路径的阻碍。即便没有 H/2 推送，你也可以实现一个大致和“完整” PRPL 类似的结果，只需要发送 <a href="https://www.smashingmagazine.com/2016/02/preload-what-is-it-good-for/" target="_blank" rel="noopener">预加载头</a> 而不需要 H/2。</p>
+<p>看看 Flipkart 他们前后的生产瀑布流：</p>
+<p><img src="https://cdn-images-1.medium.com/max/2000/0*-hLp_Acvig_s4Uop." alt=""></p>
+<p>Webpack 已经通过 <a href="https://github.com/webpack/webpack/tree/master/examples/http2-aggressive-splitting" target="_blank" rel="noopener">AggressiveSplittingPlugin</a> 的形式支持了 H/2。</p>
+<p>AggressiveSplittingPlugin 分割每个块直到它到达了指定的 maxSize（最大尺寸），正如我们在下面的例子里可见的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">module.exports = &#123;</span><br><span class="line">    entry: &quot;./example&quot;,</span><br><span class="line">    output: &#123;</span><br><span class="line">        path: path.join(__dirname, &quot;js&quot;),</span><br><span class="line">        filename: &quot;[chunkhash].js&quot;,</span><br><span class="line">        chunkFilename: &quot;[chunkhash].js&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    plugins: [</span><br><span class="line">        new webpack.optimize.AggressiveSplittingPlugin(&#123;</span><br><span class="line">            minSize: 30000,</span><br><span class="line">            maxSize: 50000</span><br><span class="line">        &#125;),</span><br><span class="line">// ...</span><br></pre></td></tr></table></figure></p>
+<p>查看官方 <a href="https://github.com/webpack/webpack/tree/master/examples/http2-aggressive-splitting" target="_blank" rel="noopener">plugin page</a>，以获得关于更多细节的例子。<a href="https://docs.google.com/document/d/1K0NykTXBbbbTlv60t5MyJvXjqKGsCVNYHyLEXIxYMv0/preview?pref=2&amp;pli=1" target="_blank" rel="noopener">学习 HTTP/2 推送实验的课程</a> 和 <a href="https://99designs.com.au/tech-blog/blog/2016/07/14/real-world-http-2-400gb-of-images-per-day/" target="_blank" rel="noopener">真实世界 HTTP/2</a> 也值得一读。</p>
+<ul>
+<li>渲染初始路由：这实际上取决于你使用的框架或者库。</li>
+<li>预缓存剩下的路由。对于缓存，我们依赖于 Service Worker。<a href="https://github.com/GoogleChrome/sw-precache" target="_blank" rel="noopener">sw-precache</a> 能很好地生成一个 Service Worker 用于静态资源预缓存。对于 Webpack 我们可以使用 <a href="https://www.npmjs.com/package/sw-precache-webpack-plugin" target="_blank" rel="noopener">SWPrecacheWebpackPlugin</a>。</li>
+<li>按需懒加载并创建剩下的路由 —— 在 Webpack 领域，可以使用 require.ensure() 和 System.import()。</li>
+</ul>
+<h3 id="通过-Webpack-的缓存失效和长期缓存"><a href="#通过-Webpack-的缓存失效和长期缓存" class="headerlink" title="通过 Webpack 的缓存失效和长期缓存"></a>通过 Webpack 的缓存失效和长期缓存</h3><p><strong>为什么关心静态资源版本？</strong></p>
+<p>静态资源指的是我们页面中像是脚本，stylesheets 和图片这样的资源。当用户第一次访问我们页面的时候，他们需要其需要的所有资源。比如说当我们加载一个路由的时候，JavaScript 块和上次访问之际并没有改变 —— 我们不必重新抓取这些脚本因为他们已经在浏览器缓存中存在了。更少的网络请求是我们在 web 性能优化中的胜利。</p>
+<p>通常地，我们使用对每个文件设置 <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=en" target="_blank" rel="noopener">expires 头</a> 来达到目的。一个 expires 头只意味着我们可以告诉浏览器，避免在指定时间内（比如说1年）发起另一个对该文件的请求到服务器。随着代码演变和重新部署，我们想要确保用户可以获得最新的文件，如果没有改变的话则不需要重新下载资源。</p>
+<p><a href="https://css-tricks.com/strategies-for-cache-busting-css/" target="_blank" rel="noopener">Cache-busting</a> 通过在文件名后面附加字符串来完成这个 —— 他可以是一个编译版本（比如 src=”chunk.js?v=1.2.0”），一个 timestamp 或者别的什么。我倾向于添加一个文件内容的 hash 到文件名（比如 chunk.d9834554decb6a8j.js）因为这个在文件内容发生改变的时候总是会改变。在 Webpack 社区常用 MD5 哈希生成的 16 字节长的“概要”来实现这个目的。</p>
+<p><a href="https://medium.com/@okonetchnikov/long-term-caching-of-static-assets-with-webpack-1ecb139adb95" target="_blank" rel="noopener"><strong>通过 Webpack 的静态资源长期缓存</strong></a> <strong>是关于这个主题的优秀读物，你应该去看一看。我试图在下面涵盖其涉及到的主要内容。</strong></p>
+<p><strong>在 Webpack 中通过 content-hashing 来做资源版本控制</strong></p>
+<p>在 Webpack 设置中加上如下内容来启用基于内容哈希的资源版本 <a href="https://webpack.github.io/docs/long-term-caching.html" target="_blank" rel="noopener">[chunkhash]</a>：</p>
+<pre><code>filename: ‘[name].[chunkhash].js’,
+chunkFilename: ‘[name].[chunkhash].js’
+</code></pre><p>我们也想要保证常规的 [name].js 和 内容哈希 ([name].[chunkhash].js) 文件名在我们的 HTML 文件被正确引用。不同之处在于引用 <code>&lt;script src=”chunk”.js”&gt;</code> 和 <code>&lt;script src=”chunk.d9834554decb6a8j.js”&gt;</code>。</p>
+<p>下面是一个注释了的 Webpack 设置样例，包括了一些其他的插件来使得长期缓存的安装更优雅。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>);</span><br><span class="line"><span class="comment">// 使用 webpack-manifest-plugin 来生成包含了源文件到对应输出的映射的资源 manifest。Webpack 使用 IDs 而不是模块名来保持生成的文件尽量小。IDs 在它们被放进 chunk（分块）manifest 之前被生成并映射到 chunk 的文件名（会跑到我们的入口 chunk）。不幸的是，任何对代码的改变都会更新入口 chunk 包括新的 manifest，并刷新我们的缓存。</span></span><br><span class="line"><span class="keyword">const</span> ManifestPlugin = <span class="built_in">require</span>(<span class="string">'webpack-manifest-plugin'</span>);</span><br><span class="line"><span class="comment">// 我们通过 chunk-manifest-webpack-plugin 来修复这个问题，它会将 manifest 放到一个完全独立的 JSON 文件。</span></span><br><span class="line"><span class="keyword">const</span> ChunkManifestPlugin = <span class="built_in">require</span>(<span class="string">'chunk-manifest-webpack-plugin'</span>);</span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: &#123;</span><br><span class="line">    vendor: <span class="string">'./src/vendor.js'</span>,</span><br><span class="line">    main: <span class="string">'./src/index.js'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: path.join(__dirname, <span class="string">'build'</span>),</span><br><span class="line">    filename: <span class="string">'[name].[chunkhash].js'</span>,</span><br><span class="line">    chunkFilename: <span class="string">'[name].[chunkhash].js'</span></span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">      name: <span class="string">"vendor"</span>,</span><br><span class="line">      minChunks: <span class="literal">Infinity</span>,</span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="keyword">new</span> ManifestPlugin(),</span><br><span class="line">    <span class="keyword">new</span> ChunkManifestPlugin(&#123;</span><br><span class="line">      filename: <span class="string">"chunk-manifest.json"</span>,</span><br><span class="line">      manifestVariable: <span class="string">"webpackManifest"</span></span><br><span class="line">    &#125;),</span><br><span class="line">    <span class="comment">// 对非确定的模块顺序的权宜之计。在通过 Webpack 的静态资源长期缓存文章中有更多介绍</span></span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.OccurenceOrderPlugin()</span><br><span class="line">  ]</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>现在我们有了这个 chunk-manifest JSON 的编译，我们需要把它内联（inline）到我们的 HTML，那么 Webpack 就能实际在页面启动时真正对其有访问权。所以在 <code>&lt;script&gt;</code> 标签中加上上面的输出。</p>
+<p>通过使用 <a href="https://github.com/ampedandwired/html-webpack-plugin" target="_blank" rel="noopener">html-webpack-plugin</a> 可以实现自动将脚本内联到 HTML 中。</p>
+<p>注意：Webpack 理想上可以通过 <a href="https://jakearchibald.com/2016/caching-best-practices/" target="_blank" rel="noopener">no shared ID range</a> 来简化启用长期缓存的步骤（见~4–1）。</p>
+<p>如果要学习更多 HTTP 的 <a href="https://jakearchibald.com/2016/caching-best-practices/" target="_blank" rel="noopener">缓存最佳实践</a>，可以阅读 Jake Archibald 的优秀文章。</p>
+<h3 id="更多阅读"><a href="#更多阅读" class="headerlink" title="更多阅读"></a>更多阅读</h3><ul>
+<li><a href="https://webpack.github.io/docs/code-splitting.html" target="_blank" rel="noopener">Webpack 关于代码分割的文档</a></li>
+<li>Formidable 的关于 Webpack 的 OSS Playbook <a href="https://formidable.com/open-source/playbook/docs/frontend/webpack-code-splitting/" target="_blank" rel="noopener">代码分割</a> and <a href="https://formidable.com/open-source/playbook/docs/frontend/webpack-shared-libs/" target="_blank" rel="noopener">shared libraries</a></li>
+<li><a href="http://michalzalecki.com/progressive-web-apps-with-webpack" target="_blank" rel="noopener">使用 Webpack 的渐进式 Web Apps</a></li>
+<li><a href="https://getpocket.com/redirect?url=http%3A%2F%2Fjonathancreamer.com%2Fadvanced-webpack-part-2-code-splitting%2F&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">高级 Webpack Part 2&#8202;—&#8202;代码分割</a></li>
+<li><a href="https://medium.com/@lavrton/progressive-loading-for-modern-web-applications-via-code-splitting-fb43999735c6#.1965mrwlr" target="_blank" rel="noopener">为现代 web 应用程序通过代码分割来渐进加载</a></li>
+<li><a href="https://getpocket.com/redirect?url=https%3A%2F%2Ftailordev.fr%2Fblog%2F2016%2F03%2F17%2Floading-dependencies-asynchronously-in-react-components%2F&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">在 React 组件中异步加载依赖</a></li>
+<li><a href="https://medium.com/@soederpop/webpack-plugins-been-we-been-keepin-on-the-dll-cdfdd6cb8cd7" target="_blank" rel="noopener">我们继续前进在 Webpack 插件 DLL</a></li>
+<li><a href="https://getpocket.com/redirect?url=https%3A%2F%2Fmedium.com%2Fmodus-create-front-end-development%2Fautomatic-code-splitting-for-react-router-w-es6-imports-a0abdaa491e9%23.twoltv57f&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">自动代码分割用于 React Router 和 ES6 Imports&#8202;—&#8202;Modus Create</a></li>
+<li><a href="https://getpocket.com/redirect?url=http%3A%2F%2Fstackoverflow.com%2Fquestions%2F34925717%2Fusing-webpack-and-react-router-for-lazyloading-and-code-splitting-not-loading&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">使用 webpack 和 react-router 于懒加载和代码分割没有去加载</a></li>
+<li><a href="https://reactjsnews.com/isomorphic-react-in-real-life" target="_blank" rel="noopener">在现实生活通过 React 同构/通用渲染/路由/数据抓取</a></li>
+<li><a href="https://getpocket.com/redirect?url=http%3A%2F%2Fblog.scottlogic.com%2F2016%2F02%2F05%2Fa-lazy-isomorphic-react-experiment.html&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">一个懒得同构 React 实验</a></li>
+<li><a href="https://getpocket.com/redirect?url=https%3A%2F%2Fgithub.com%2Fryanflorence%2Fexample-react-router-server-rendering-lazy-routes&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">服务端渲染懒路由</a> 基于 React Router 和代码分割</li>
+<li><a href="https://scotch.io/tutorials/react-on-the-server-for-beginners-build-a-universal-react-and-node-app" target="_blank" rel="noopener">给初学者的 React 在服务端&#8202;—&#8202;构建一个通用的 React app</a></li>
+<li><a href="https://getpocket.com/redirect?url=http%3A%2F%2Fblog.mxstbr.com%2F2016%2F01%2Freact-apps-with-pages%2F&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">有页面的 React.js Apps</a></li>
+<li><a href="https://getpocket.com/redirect?url=https%3A%2F%2Fwiredcraft.com%2Fblog%2Fcode-splitting-single-page-app%2F&amp;formCheck=0b0d10781e025a205b05e2941ffdc845" target="_blank" rel="noopener">将世界银行数据网站构建为使用代码分割的快速加载单页应用</a></li>
+<li><a href="https://github.com/gatsbyjs/gatsby/issues/431" target="_blank" rel="noopener">在 Gatsby 实现 PRPL（React.js 静态网站生成器）</a></li>
+</ul>
+<h4 id="高级模块打包优化读物"><a href="#高级模块打包优化读物" class="headerlink" title="高级模块打包优化读物"></a>高级模块打包优化读物</h4><ul>
+<li><a href="https://nolanlawson.com/2016/08/15/the-cost-of-small-modules/" target="_blank" rel="noopener">模块化的代价</a></li>
+<li><a href="https://twitter.com/nolanlawson/status/768525330113925121" target="_blank" rel="noopener">RollUp 和 Closure Compiler 如何减轻模块的代价</a></li>
+<li><a href="https://github.com/samccone/The-cost-of-transpiling-es2015-in-2016" target="_blank" rel="noopener">在 2016 年转译 ES2015 的代价</a></li>
+</ul>
+<p>在系列文章第三篇中，我们会来看看 <a href="https://medium.com/@addyosmani/progressive-web-apps-with-react-js-part-3-offline-support-and-network-resilience-c84db889162c#.tcspudthd" target="_blank" rel="noopener"><strong>怎么使你的 React PWA 能离线和断续的网络状态下工作</strong></a>.</p>
+<p>如果你新接触 React，我发现 Wes Bos 写的 <a href="https://goo.gl/G1WGxU" target="_blank" rel="noopener">给新手的 React</a> 很棒。</p>
+<p><strong>感谢 Gray Norton, Sean Larkin, Sunil Pai, Max Stoiber, Simon Boudrias, Kyle Mathews 和 Owen Campbell-Moore 的校对。</strong></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/前端/" rel="tag"># 前端</a>
+          
+            <a href="/tags/PWA/" rel="tag"># PWA</a>
+          
+            <a href="/tags/React-js/" rel="tag"># React.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/14/pwa-react-p1/" rel="next" title="使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍">
+                <i class="fa fa-chevron-left"></i> 使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/31/Blog-Plan-2016/" rel="prev" title="Blog计划2016">
+                Blog计划2016 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用-React-js-的渐进式-Web-应用程序：第-2-部分-页面加载性能"><span class="nav-number">1.</span> <span class="nav-text">使用 React.js 的渐进式 Web 应用程序：第 2 部分 - 页面加载性能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#这是新系列的第二部分，新系列介绍的是使用-Lighthouse-优化移动-web-应用传输的技巧。本期，我们关注的是页面加载性能。"><span class="nav-number">1.1.</span> <span class="nav-text">这是新系列的第二部分，新系列介绍的是使用 Lighthouse 优化移动 web 应用传输的技巧。本期，我们关注的是页面加载性能。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#保证页面加载性能是快的"><span class="nav-number">1.1.1.</span> <span class="nav-text">保证页面加载性能是快的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关注抵达可交互时间（TTI）"><span class="nav-number">1.1.2.</span> <span class="nav-text">关注抵达可交互时间（TTI）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用基于路由的分块来提高性能"><span class="nav-number">1.1.3.</span> <span class="nav-text">用基于路由的分块来提高性能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Webpack"><span class="nav-number">1.1.4.</span> <span class="nav-text">Webpack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实践基于路由的代码分块"><span class="nav-number">1.1.5.</span> <span class="nav-text">实践基于路由的代码分块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#加分项：预加载那些路由！"><span class="nav-number">1.1.6.</span> <span class="nav-text">加分项：预加载那些路由！</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步加载路由"><span class="nav-number">1.1.7.</span> <span class="nav-text">异步加载路由</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用异步的-getComponent-require-ensure-的声明式路由-chunk"><span class="nav-number">1.1.8.</span> <span class="nav-text">使用异步的 getComponent + require.ensure() 的声明式路由 chunk</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CommonsChunkPlugin"><span class="nav-number">1.1.8.1.</span> <span class="nav-text">CommonsChunkPlugin</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码分割（code-splitting）之上：PRPL-模式"><span class="nav-number">1.1.9.</span> <span class="nav-text">代码分割（code-splitting）之上：PRPL 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现-PRPL"><span class="nav-number">1.1.10.</span> <span class="nav-text">实现 PRPL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#通过-Webpack-的缓存失效和长期缓存"><span class="nav-number">1.1.11.</span> <span class="nav-text">通过 Webpack 的缓存失效和长期缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更多阅读"><span class="nav-number">1.1.12.</span> <span class="nav-text">更多阅读</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#高级模块打包优化读物"><span class="nav-number">1.1.12.1.</span> <span class="nav-text">高级模块打包优化读物</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

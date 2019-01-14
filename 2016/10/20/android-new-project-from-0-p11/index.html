@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="最近更新不太频繁，一方面工作上比较忙，除了 Android 也在负责前端，另外周末和深夜也在帮人做 Go 后台、设计技术方案、管进度的事情（因为报酬不错没忍心拒绝，而且确实对个人成长还有帮助），所以实在对不住。 另外，文章最底下有捐款啊，最近真是都没钱吃饭了。。。 前言这里的组件化，指的是 MDCC 2016 上冯森林提出的《回归初心，从容器化到组件化》。 我个人一直是比较反感黑科技的，其中首当其">
+<meta name="keywords" content="New Android Project From 0,Gradle,组件化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目11 - 组件化实践（1）">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/10/20/android-new-project-from-0-p11/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="最近更新不太频繁，一方面工作上比较忙，除了 Android 也在负责前端，另外周末和深夜也在帮人做 Go 后台、设计技术方案、管进度的事情（因为报酬不错没忍心拒绝，而且确实对个人成长还有帮助），所以实在对不住。 另外，文章最底下有捐款啊，最近真是都没钱吃饭了。。。 前言这里的组件化，指的是 MDCC 2016 上冯森林提出的《回归初心，从容器化到组件化》。 我个人一直是比较反感黑科技的，其中首当其">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-11-conversation.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-11-dependency.png">
+<meta property="og:updated_time" content="2016-10-23T04:36:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目11 - 组件化实践（1）">
+<meta name="twitter:description" content="最近更新不太频繁，一方面工作上比较忙，除了 Android 也在负责前端，另外周末和深夜也在帮人做 Go 后台、设计技术方案、管进度的事情（因为报酬不错没忍心拒绝，而且确实对个人成长还有帮助），所以实在对不住。 另外，文章最底下有捐款啊，最近真是都没钱吃饭了。。。 前言这里的组件化，指的是 MDCC 2016 上冯森林提出的《回归初心，从容器化到组件化》。 我个人一直是比较反感黑科技的，其中首当其">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-11-conversation.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/10/20/android-new-project-from-0-p11/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目11 - 组件化实践（1） | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/10/20/android-new-project-from-0-p11/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目11 - 组件化实践（1）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-10-20 22:03:13" itemprop="dateCreated datePublished" datetime="2016-10-20T22:03:13+08:00">2016-10-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-10-23 12:36:33" itemprop="dateModified" datetime="2016-10-23T12:36:33+08:00">2016-10-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近更新不太频繁，一方面工作上比较忙，除了 Android 也在负责前端，另外周末和深夜也在帮人做 Go 后台、设计技术方案、管进度的事情（因为报酬不错没忍心拒绝，而且确实对个人成长还有帮助），所以实在对不住。</p>
+<p>另外，文章最底下有捐款啊，最近真是都没钱吃饭了。。。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这里的组件化，指的是 MDCC 2016 上冯森林提出的《回归初心，从容器化到组件化》。</p>
+<p>我个人一直是比较反感黑科技的，其中首当其冲的就是 插件化 以及 保活。作为一个开发者，除了研究技术，提高自己以外，是否应该考虑些其他东西呢？尤其是我们这些嵌入式系统（客户端）开发者，在依赖、受哺于系统生态下，是不是应该考虑一下，怎么反哺？怎么去更好地维护这个生态环境，而不是一味破坏、消耗它呢？</p>
+<p>想一想那些黑科技带来的。插件化导致线上可以执行任何代码且不留下痕迹，用户安全性和信任感何在？保活导致应用长时间不释放，抢占系统资源，让用户产生 Android 越用越卡的感觉。全家桶互相唤醒，确定不是逼着用户删除应用？至少我在 Android 手机上是不敢装某些知名应用的。</p>
+<p>Greenify —— 绿色守护 帮助我们解决了应用死不掉的问题。那其他的呢？作为一个 Android 开发者，我不敢在我的 Android 手机上装一些应用 —— 支付宝、淘宝、闲鱼（Web 上还不让用）、天猫、京东、百度贴吧。有朋友找我推荐手机的时候，我从不会推荐 iPhone，但给他们推荐 Android 后，又会担心他们能不能 hold 住国内生态下的 Android 手机。有一个买了 Sony Z5 的女孩子，当时问我为啥用电那么快后，我实在无言以对。只能给她指导了一些姿势和黑科技。</p>
+<p><img src="/images/android-new-project-from-0-11-conversation.png" alt="Conversation"></p>
+<p>幸而时至半年后的今天，她用得还挺顺手，而 iOS10 也顺利给自己抹黑了一把。</p>
+<p>然而——<br>今天你在消耗这个生态，明天你就得为此承担结果。</p>
+<h1 id="组件化是什么"><a href="#组件化是什么" class="headerlink" title="组件化是什么"></a>组件化是什么</h1><p>组件化，相对于容器化（插件），是一种没有黑科技的相互隔离的并行开发方式。为了了解组件化，不得不先说一下插件化。</p>
+<h2 id="为什么我们需要插件化"><a href="#为什么我们需要插件化" class="headerlink" title="为什么我们需要插件化"></a>为什么我们需要插件化</h2><p>现代 Android 开发中，往往会堆积很多的需求进项目，超过 65535 后，MultiDex、插件化都是解决方案。但方法数不是引入插件化的唯一原因，更多的时候，引入插件化有另外几个理由：</p>
+<ul>
+<li>满足产品经理随时上线的需求（注意，这在国外是命令禁止的，App store 和 Google Play 都不允许这种行为，支付宝因此被 Google Play 下架过，仔细想想，如果任何应用都能在线上替换原来的行为，审查还有什么用？）。</li>
+<li>团队比较有钱，愿意养人做这个。技术人员觉得不做业务简直太棒了，可以安心研究技术。</li>
+<li>并行开发，常见于复杂的各种东西往里塞的大型应用，比如 —— 手Q、手空、手淘、支付宝、大众点评、携程等等。这些团队的 Android 开发动辄是数百人，并分成好几个业务组，如此要并行开发便需要解耦各个模块，避免互相依赖。而且代码一多吧，编译也会很慢（我们公司现在的工程已经需要 5 - 6 分钟了，手空使用 ant 都需要 5 分钟，而 手Q 使用 ant 则需要 10 分钟，改成 gradle 的话姑且乘个2，都是几十分钟的级别）。插件化可以加快编译速度，从而提高开发效率。</li>
+</ul>
+<p>其实真正的理由就只有第三个（我相信业务技术人员也不会真的想无休止地发版本，除了一些分 架构组/业务组 的地方，架构组会不考虑业务组的感受）。在知乎上，小梁也有对此作出回答：<a href="https://www.zhihu.com/question/19981105/answer/123618636" target="_blank" rel="noopener">怎么将 Android 程序做成插件化的形式？</a>，建议去读一下。</p>
+<p>本篇里不多说插件化的工作原理，建议移步去别处学习，直接看源码也可以，像 atlas 这样 Hook 构成的插件框架可能阅读起来会有些困难，其他还好。</p>
+<h2 id="插件化的恶"><a href="#插件化的恶" class="headerlink" title="插件化的恶"></a>插件化的恶</h2><p>躺不完的坑。<br>—— 即便是一些做了很多年的插件化框架，依然在不断躺坑，更何况是使用他们的开发者，简直是花式中枪。</p>
+<p>发不完的版本。<br>—— 什么？赶不上？没事，迟些可以单独发版本。这回你可真是搬砖的码农了。</p>
+<p>这个在我的插件里是好的呀。<br>—— 在各自的壳里运行很完美，然而集成后各种问题不断，甚至一启动就 ANR。</p>
+<p>版本带来的问题。<br>—— 因为要动态发版本，所以每个插件自然需要有各种版本。什么？那个不对？肯定是你引用的版本错啦。更何况发版本本身就是个让人很心累的事情。</p>
+<p>等等等等，不赘述。垃圾插件，还我青春。</p>
+<h2 id="组件化-VS-插件化"><a href="#组件化-VS-插件化" class="headerlink" title="组件化 VS 插件化"></a>组件化 VS 插件化</h2><p>组件化带来的，是一个没有黑科技的插件化。应用了 Android 原有的技术栈以及 Gradle 的灵活性，失去的是动态发版本的能力，其他则做得比插件化更好。因为没有黑科技，所以不会有那么多黑科技和各种 hook 导致的坑，以及为了规避它们必须小心翼翼遵守的开发规范，几乎和没有使用插件化的 Android 开发一模一样。</p>
+<p>而我们需要关心的，只是如何做好隔离，如何更好地设计，以及提高开发效率与产品体验。</p>
+<h1 id="Take-Action"><a href="#Take-Action" class="headerlink" title="Take Action"></a>Take Action</h1><h2 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h2><p>组件化的基本就是通过 gradle 脚本来做的。</p>
+<p>通过在需要组件化的业务 module 中：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isDebug.toBoolean()) &#123;</span><br><span class="line">    apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    apply <span class="string">plugin:</span> <span class="string">'com.android.library'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>并在业务 module 中放一个 gradle.properties：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">isDebug=false</span><br></pre></td></tr></table></figure></p>
+<p>如此，当我们设置 isDebug 为 true 时，则这个 module 将会作为 application module 编译为 apk，否则 为 library module 编译为 aar。</p>
+<p>下面的 gradle 是我们的一个组件化业务 module 的完整 build.gralde：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line">println isDebug.toBoolean()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (isDebug.toBoolean()) &#123;</span><br><span class="line">    apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    apply <span class="string">plugin:</span> <span class="string">'com.android.library'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">apply <span class="string">plugin:</span> <span class="string">'me.tatarka.retrolambda'</span></span><br><span class="line">apply <span class="string">plugin:</span> <span class="string">'com.neenbedankt.android-apt'</span></span><br><span class="line"></span><br><span class="line">android &#123;</span><br><span class="line">    compileSdkVersion rootProject.ext.compileSdkVersion</span><br><span class="line">    buildToolsVersion rootProject.ext.buildToolsVersion</span><br><span class="line"></span><br><span class="line">    defaultConfig &#123;</span><br><span class="line">        minSdkVersion rootProject.ext.minSdkVersion</span><br><span class="line">        targetSdkVersion rootProject.ext.targetSdkVersion</span><br><span class="line">        versionCode rootProject.ext.versionCode</span><br><span class="line">        versionName rootProject.ext.versionName</span><br><span class="line">        multiDexEnabled <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isDebug.toBoolean()) &#123;</span><br><span class="line">            ndk &#123;</span><br><span class="line">                abiFilters <span class="string">"armeabi-v7a"</span>, <span class="string">"x86"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    compileOptions &#123;</span><br><span class="line">        sourceCompatibility rootProject.ext.javaVersion</span><br><span class="line">        targetCompatibility rootProject.ext.javaVersion</span><br><span class="line">    &#125;</span><br><span class="line">    lintOptions &#123;</span><br><span class="line">        abortOnError rootProject.ext.abortOnLintError</span><br><span class="line">        checkReleaseBuilds rootProject.ext.checkLintRelease</span><br><span class="line">    &#125;</span><br><span class="line">    buildTypes &#123;</span><br><span class="line">        release &#123;</span><br><span class="line">            minifyEnabled <span class="literal">false</span></span><br><span class="line">            proguardFiles getDefaultProguardFile(<span class="string">'proguard-android.txt'</span>), <span class="string">'proguard-rules.pro'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dataBinding &#123;</span><br><span class="line">        enabled = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (isDebug.toBoolean()) &#123;</span><br><span class="line">        splits &#123;</span><br><span class="line">            abi &#123;</span><br><span class="line">                enable <span class="literal">true</span></span><br><span class="line">                reset()</span><br><span class="line">                include <span class="string">'armeabi-v7a'</span>, <span class="string">'x86'</span></span><br><span class="line">                universalApk <span class="literal">false</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    compile fileTree(<span class="string">dir:</span> <span class="string">'libs'</span>, <span class="string">include:</span> [<span class="string">'*.jar'</span>])</span><br><span class="line">    compile project(<span class="string">':lib_stay_base'</span>)</span><br><span class="line">    apt rootProject.ext.libGuava</span><br><span class="line">    apt rootProject.ext.libDaggerCompiler</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>各位根据实际需要参考修改即可。</p>
+<p>这里另外提供一个小诀窍，为了对抗 Android Studio 的坑爹，比如有时候改了 gradle，sync 后仍然没法直接通过 IDE 启动 module app，可以修改 settings.gradle，比如：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">include <span class="string">':app'</span></span><br><span class="line">include <span class="string">':data'</span></span><br><span class="line">include <span class="string">':domain'</span></span><br><span class="line">include <span class="string">':module_setting'</span></span><br><span class="line">include <span class="string">':module_card'</span></span><br><span class="line">include <span class="string">':module_discovery'</span></span><br><span class="line">include <span class="string">':module_feed'</span></span><br><span class="line">include <span class="string">':lib_stay_base'</span></span><br><span class="line"><span class="comment">// 省略一堆 sdk 库</span></span><br></pre></td></tr></table></figure></p>
+<p>可以把不需要的 module 都给先注释了（只留下需要的 module，lib_base，以及 sdk），尤其是 app module。然后基本上就没问题。</p>
+<h2 id="Manifest"><a href="#Manifest" class="headerlink" title="Manifest"></a>Manifest</h2><p>一个很常见的需求就是，当我作为独立业务运行的时候，manifest 会不同，比如会多些 activity（用来套的，或者测试调试用的），或者 application 不同，总之会有些细微的差别。</p>
+<p>一个简单的做法是：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">sourceSets &#123;</span><br><span class="line">    main &#123;</span><br><span class="line">        <span class="keyword">if</span> (isDebug.toBoolean()) &#123;</span><br><span class="line">            manifest.srcFile <span class="string">'src/debug/AndroidManifest.xml'</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            manifest.srcFile <span class="string">'src/release/AndroidManifest.xml'</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样在编译时使用两个 manifest，但是这样一来，两者就有很多重复的内容，会有维护、比较的成本。</p>
+<p>我们可以利用自带 flavor manifest merge，分别对应 debug/AndroidManifest.xml, main/AndroidManifest.xml, 以及 release/AndroidManifest.xml。</p>
+<p>main 下的 manifest 写通用的东西，另外 2 个分别写各自独立的，通常 release 的 manifest 只是一个空的 application 标签，而 debug 的会有 application 和调试用的 activity（你总得要有个启动 activity 吧）及权限。</p>
+<p>这里有一个小 tip，就是在 release 的 manifest 中，application 标签下尽量不要放任何东西，只是占个位，让上面去 merge，否则比如一个 module supportsRtl 设置为了 true，另一个 module 设置为了 false，就不得不去做 override 了。</p>
+<h2 id="Wrapper"><a href="#Wrapper" class="headerlink" title="Wrapper"></a>Wrapper</h2><p>看一个 debug manifest 的例子：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">package</span>=<span class="string">"com.amokie.stay.module.card"</span></span></span><br><span class="line"><span class="tag">          <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:name</span>=<span class="string">"com.amokie.stay.base.BaseApplication"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:alwaysRetainTaskState</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:hardwareAccelerated</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">"@mipmap/ic_launcher"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:largeHeap</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:sharedUserId</span>=<span class="string">"com.amokie.stay"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:supportsRtl</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">".WrapActivity"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.MAIN"</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.LAUNCHER"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>这里的 <code>WrapActivity</code> 就是我们所谓的 wrapper 了。</p>
+<p>因为入口页可能是一个 fragment，所以就需要一个 activity 来包一下它，并作为启动类。</p>
+<h2 id="Application"><a href="#Application" class="headerlink" title="Application"></a>Application</h2><p><code>BaseApplication</code> 继承了 <code>MultiDexApplication</code>，而真正最后集成的 Application 则继承自<br><code>BaseApplication</code>，并添加了一些集成时需要做的事情（比如监控、埋点、Crash上报的初始化）。</p>
+<p>但大部分的仍会放在 <code>BaseApplication</code>，比如图片库、React Native、Log 等。然后各个 Module 则直接使用 <code>BaseApplication</code>，免去各自去写初始化的代码。</p>
+<p>当然，如果一定想复杂化，也可以专门搞个 library module 做初始化，但我个人不建议过度复杂的设计。</p>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>可以先阅读阿布的总结文章：<a href="http://abner-nimengbo.cn/2016/10/10/componetization/" target="_blank" rel="noopener">项目组件化之遇到的坑</a>，也感谢小梁抛砖引玉的 <a href="https://github.com/liangzhitao/ComponentizationApp" target="_blank" rel="noopener">Demo</a>。</p>
+<p>我这边简单也讲一讲。</p>
+<h3 id="Data-Binding"><a href="#Data-Binding" class="headerlink" title="Data Binding"></a>Data Binding</h3><p>见我上一篇写到的<a href="http://blog.zhaiyifan.cn/2016/10/11/data-binding-in-library-module/">记一次 Data Binding 在 library module 中遇到的大坑</a>，简单说起来就是 data binding 在 library module 的支持有一个 bug，就是不支持 get ViewModel 的方法，只能 set 进去，从而导致做好模块化的 module 在作为 application 可以独立运行后，作为 library module 无法通过编译。</p>
+<p>另外碰到一个问题，就是时不时会有如下的报错（出现在集成 application 的时候，且并不是必现）：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter]</span><br><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter] FAILURE: Build completed with 3 failures.</span><br><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter]</span><br><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter] 1: Task failed with an exception.</span><br><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter] -----------</span><br><span class="line">10:26:29.622 [ERROR] [org.gradle.BuildExceptionReporter] * What went wrong:</span><br><span class="line">10:26:29.623 [ERROR] [org.gradle.BuildExceptionReporter] Execution failed for task &apos;:module_user:dataBindingProcessLayoutsRelease&apos;.</span><br><span class="line">10:26:29.623 [ERROR] [org.gradle.BuildExceptionReporter] &gt; -1</span><br><span class="line">10:26:29.623 [ERROR] [org.gradle.BuildExceptionReporter]</span><br><span class="line">10:26:29.623 [ERROR] [org.gradle.BuildExceptionReporter] * Exception is:</span><br><span class="line">10:26:29.624 [ERROR] [org.gradle.BuildExceptionReporter] org.gradle.api.tasks.TaskExecutionException: Execution failed for task &apos;:module_user:dataBindingProcessLayoutsRelease&apos;.</span><br><span class="line">10:26:29.624 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeActions(ExecuteActionsTaskExecuter.java:69)</span><br><span class="line">10:26:29.625 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:46)</span><br><span class="line">10:26:29.625 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.PostExecutionAnalysisTaskExecuter.execute(PostExecutionAnalysisTaskExecuter.java:35)</span><br><span class="line">10:26:29.626 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.SkipUpToDateTaskExecuter.execute(SkipUpToDateTaskExecuter.java:66)</span><br><span class="line">10:26:29.626 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ValidatingTaskExecuter.execute(ValidatingTaskExecuter.java:58)</span><br><span class="line">10:26:29.627 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.SkipEmptySourceFilesTaskExecuter.execute(SkipEmptySourceFilesTaskExecuter.java:52)</span><br><span class="line">10:26:29.627 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:52)</span><br><span class="line">10:26:29.627 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:53)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ExecuteAtMostOnceTaskExecuter.execute(ExecuteAtMostOnceTaskExecuter.java:43)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.DefaultTaskGraphExecuter$EventFiringTaskWorker.execute(DefaultTaskGraphExecuter.java:203)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.DefaultTaskGraphExecuter$EventFiringTaskWorker.execute(DefaultTaskGraphExecuter.java:185)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.AbstractTaskPlanExecutor$TaskExecutorWorker.processTask(AbstractTaskPlanExecutor.java:66)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.AbstractTaskPlanExecutor$TaskExecutorWorker.run(AbstractTaskPlanExecutor.java:50)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.ParallelTaskPlanExecutor.process(ParallelTaskPlanExecutor.java:47)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.taskgraph.DefaultTaskGraphExecuter.execute(DefaultTaskGraphExecuter.java:110)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.SelectedTaskExecutionAction.execute(SelectedTaskExecutionAction.java:37)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DefaultBuildExecuter.execute(DefaultBuildExecuter.java:37)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DefaultBuildExecuter.access$000(DefaultBuildExecuter.java:23)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DefaultBuildExecuter$1.proceed(DefaultBuildExecuter.java:43)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DryRunBuildExecutionAction.execute(DryRunBuildExecutionAction.java:32)</span><br><span class="line">10:26:29.628 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DefaultBuildExecuter.execute(DefaultBuildExecuter.java:37)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.execution.DefaultBuildExecuter.execute(DefaultBuildExecuter.java:30)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher$4.run(DefaultGradleLauncher.java:153)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.Factories$1.create(Factories.java:22)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.progress.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:91)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.progress.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:53)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher.doBuildStages(DefaultGradleLauncher.java:150)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher.access$200(DefaultGradleLauncher.java:32)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher$1.create(DefaultGradleLauncher.java:98)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher$1.create(DefaultGradleLauncher.java:92)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.progress.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:91)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.progress.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:63)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher.doBuild(DefaultGradleLauncher.java:92)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.initialization.DefaultGradleLauncher.run(DefaultGradleLauncher.java:83)</span><br><span class="line">10:26:29.629 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.InProcessBuildActionExecuter$DefaultBuildController.run(InProcessBuildActionExecuter.java:99)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.tooling.internal.provider.ExecuteBuildActionRunner.run(ExecuteBuildActionRunner.java:28)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.ChainingBuildActionRunner.run(ChainingBuildActionRunner.java:35)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.InProcessBuildActionExecuter.execute(InProcessBuildActionExecuter.java:48)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.InProcessBuildActionExecuter.execute(InProcessBuildActionExecuter.java:30)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.ContinuousBuildActionExecuter.execute(ContinuousBuildActionExecuter.java:81)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.exec.ContinuousBuildActionExecuter.execute(ContinuousBuildActionExecuter.java:46)</span><br><span class="line">10:26:29.630 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.ExecuteBuild.doBuild(ExecuteBuild.java:52)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:36)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.WatchForDisconnection.execute(WatchForDisconnection.java:37)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.ResetDeprecationLogger.execute(ResetDeprecationLogger.java:26)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.RequestStopIfSingleUsedDaemon.execute(RequestStopIfSingleUsedDaemon.java:34)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.ForwardClientInput$2.call(ForwardClientInput.java:74)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.ForwardClientInput$2.call(ForwardClientInput.java:72)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.util.Swapper.swap(Swapper.java:38)</span><br><span class="line">10:26:29.631 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.ForwardClientInput.execute(ForwardClientInput.java:72)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.health.DaemonHealthTracker.execute(DaemonHealthTracker.java:47)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.LogToClient.doBuild(LogToClient.java:60)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:36)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.EstablishBuildEnvironment.doBuild(EstablishBuildEnvironment.java:72)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.BuildCommandOnly.execute(BuildCommandOnly.java:36)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.health.HintGCAfterBuild.execute(HintGCAfterBuild.java:41)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.api.DaemonCommandExecution.proceed(DaemonCommandExecution.java:120)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.exec.StartBuildOrRespondWithBusy$1.run(StartBuildOrRespondWithBusy.java:50)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.launcher.daemon.server.DaemonStateCoordinator$1.run(DaemonStateCoordinator.java:237)</span><br><span class="line">10:26:29.632 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:54)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.concurrent.StoppableExecutorImpl$1.run(StoppableExecutorImpl.java:40)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter] Caused by: java.lang.ArrayIndexOutOfBoundsException: -1</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at com.sun.xml.internal.bind.v2.util.CollisionCheckStack.pushNocheck(CollisionCheckStack.java:117)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at com.sun.xml.internal.bind.v2.runtime.XMLSerializer.childAsRoot(XMLSerializer.java:472)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at com.sun.xml.internal.bind.v2.runtime.MarshallerImpl.write(MarshallerImpl.java:308)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at com.sun.xml.internal.bind.v2.runtime.MarshallerImpl.marshal(MarshallerImpl.java:236)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at android.databinding.tool.store.ResourceBundle$LayoutFileBundle.toXML(ResourceBundle.java:629)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at android.databinding.tool.LayoutXmlProcessor.writeXmlFile(LayoutXmlProcessor.java:252)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at android.databinding.tool.LayoutXmlProcessor.writeLayoutInfoFiles(LayoutXmlProcessor.java:239)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at com.android.build.gradle.internal.tasks.databinding.DataBindingProcessLayoutsTask.processResources(DataBindingProcessLayoutsTask.java:110)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:75)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.project.taskfactory.AnnotationProcessingTaskFactory$IncrementalTaskAction.doExecute(AnnotationProcessingTaskFactory.java:245)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.project.taskfactory.AnnotationProcessingTaskFactory$StandardTaskAction.execute(AnnotationProcessingTaskFactory.java:221)</span><br><span class="line">10:26:29.633 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.project.taskfactory.AnnotationProcessingTaskFactory$IncrementalTaskAction.execute(AnnotationProcessingTaskFactory.java:232)</span><br><span class="line">10:26:29.634 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.project.taskfactory.AnnotationProcessingTaskFactory$StandardTaskAction.execute(AnnotationProcessingTaskFactory.java:210)</span><br><span class="line">10:26:29.634 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeAction(ExecuteActionsTaskExecuter.java:80)</span><br><span class="line">10:26:29.634 [ERROR] [org.gradle.BuildExceptionReporter]        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeActions(ExecuteActionsTaskExecuter.java:61)</span><br><span class="line">10:26:29.634 [ERROR] [org.gradle.BuildExceptionReporter]        ... 68 more</span><br><span class="line">10:26:29.634 [ERROR] [org.gradle.BuildExceptionReporter]</span><br></pre></td></tr></table></figure></p>
+<p>经过分析和猜测后，发现每次都是同一个 module 堵住的，进去看了看…竟然几乎是空的，是个还没有进行组件化重构的模块（只有一个 manifest 和 string.xml），然而 build.gradle 却使用了 data binding。看来又是个 Google 埋下的坑。心很累，就不去报 bug 了。</p>
+<h3 id="Dagger2"><a href="#Dagger2" class="headerlink" title="Dagger2"></a>Dagger2</h3><p>几个月前写过<a href="http://blog.zhaiyifan.cn/2016/03/27/android-new-project-from-0-p4/">从零开始的Android新项目4 - Dagger2篇
+</a>，用了快一年时间的 Dagger2 后，越来越觉得这种注入方式很不错。</p>
+<p>然而没想到在组件化改造中会这么坑，但是也不能怪 Dagger2，而是原先隔离就做的不够好。</p>
+<p>从设计上来说，Component 和独有的 Module 都只能放在对应的业务 module 中。module 之间不能互相访问彼此的 Dagger Module。且 data 和 domain 两个 module 中各种业务独有的类也应该放在业务 module 中，或者至少应该分拆出来。否则在 Module A 进行组件化开发的时候，却能引用 Module B 的 Api 类以及数据 Bean，简单来说也就是知道得太多。</p>
+<p>所以如果使用了 Dagger2，这里就需要把原来的 scope 更进一步做到极致，理清所有依赖的可见区域。</p>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><p>每个 module 包名都应该使用 “$packageName.module.$business” 形式，资源使用业务名开头，比如 “feed_ic_like.png”。</p>
+<p>另外，在组件化实践过程中可能碰到的就是依赖的问题了，然而因为我们项目本身就设计得还算不错，所以并没有在这方面需要做任何修改，整个项目的架构图如下：</p>
+<p><img src="/images/android-new-project-from-0-11-dependency.png" alt="Conversation"></p>
+<p>简化了不少，有些省略了，因为实在懒得画。对模块来说，通用的东西放在底层 library（utils、widget），而只有自己用的则放在自己 module 就行了。</p>
+<p>作为一个善意提醒，如果一个模块分拆为三个模块，那 clean build 的速度肯定会变慢，要有心理准备。</p>
+<h2 id="模块隔离"><a href="#模块隔离" class="headerlink" title="模块隔离"></a>模块隔离</h2><p>可参考上图，关键的点就是高内聚，低耦合。</p>
+<p>通用的东西按照其功能性划分在不同 library 模块中。见上图（已经省略了不少了，实际 module 更多一些）。</p>
+<p>改进点在于，从组件化角度来讲，data 和 domain 并不是一个 public 的 scope，也应该放在各个业务模块中，但因为目前的实现，进行重构代价太大，只能放在以后新模块进行实践。</p>
+<h2 id="RPC"><a href="#RPC" class="headerlink" title="RPC"></a>RPC</h2><p>RPC 在广义上指的是一种通信协议，允许运行于一台计算机的程序调用另一台计算机的子程序，而开发者无需额外地为这个交互作用编程。Android 上的 AIDL 也是一种 RPC 的实现。</p>
+<p>这里指的 RPC 并没有跨进程或者机器，而是一种类似的 —— 在彼此无法互相访问的时候的接口定义和调用。</p>
+<h3 id="Proxy"><a href="#Proxy" class="headerlink" title="Proxy"></a>Proxy</h3><p>通用的 <code>Proxy</code> 抽象类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Proxy</span>&lt;<span class="title">T</span>, <span class="title">C</span>&gt; <span class="keyword">implements</span> <span class="title">IProxy</span>&lt;<span class="title">T</span>, <span class="title">C</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"Proxy"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Module&lt;T, C&gt; proxy;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">getUiInterface</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getProxy().getUiInterface();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> C <span class="title">getServiceInterface</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getProxy().getServiceInterface();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">getModuleClassName</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Module&lt;T, C&gt; <span class="title">getDefaultModule</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Module&lt;T, C&gt; <span class="title">getProxy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (proxy == <span class="keyword">null</span>) &#123;</span><br><span class="line">            String <span class="keyword">module</span> = getModuleClassName();</span><br><span class="line">            <span class="keyword">if</span> (!TextUtils.isEmpty(<span class="keyword">module</span>)) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    proxy = (Module&lt;T, C&gt;) ModuleManager.LoadModule(<span class="keyword">module</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">                    LogUtils.e(TAG, <span class="keyword">module</span> + <span class="string">" module load failed"</span>, e);</span><br><span class="line">                    proxy = getDefaultModule();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> proxy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实现类则集成并重载两个抽象方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FeedProxy</span> <span class="keyword">extends</span> <span class="title">Proxy</span>&lt;<span class="title">IFeedUI</span>, <span class="title">IFeedService</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> FeedProxy g = <span class="keyword">new</span> FeedProxy();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在没有获得真实实现时候的默认实现</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Module&lt;IFeedUI, IFeedService&gt; <span class="title">getDefaultModule</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> DefaultFeedModule();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 真实实现的类</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getModuleClassName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"com.amokie.stay.module.feed.FeedModule"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>IFeedUI 定义 Feed 模块中的 UI 相关接口，IFeedService 则是 Feed 模块的服务接口。</p>
+<p>建议直接暴露 intent 或者 void 方法来提供跳转，而不是返回 activity。</p>
+<h2 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h2><p>最 low 的就是用 Class.forName 去拿 activity 或者 fragment 了…其他可以使用 scheme、各自注册、甚至类 RPC 的调用方式。</p>
+<p>为什么说 forClass 去获取 activity 或者 fragment 很 low ？模块 A 想去模块 B 的一个页面，拿到 activity 后，难道还要自己去填 intent，还要自己去问人到底需要哪些参数，需要以什么形式过去？再者如果是要去模块 B 的某个 activity 中的某个 fragment，怎么表示？</p>
+<p>性能问题就不谈了。这么定义后，以后包名类名都不敢换了。</p>
+<h3 id="RPC-1"><a href="#RPC-1" class="headerlink" title="RPC"></a>RPC</h3><p>就是上面提到的类似 <code>IFeedUI</code> 这样的类了，使用的时候</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FeedProxy.g.getUiInterface().goToUserHome(context, userId);</span><br></pre></td></tr></table></figure>
+<p>根据灵活性和需要，也可以把 intent 本身作为初始参数传入。</p>
+<h3 id="注册"><a href="#注册" class="headerlink" title="注册"></a>注册</h3><p>即每个页面自行去中央 Navigator 注册自己的 Url。</p>
+<p>中央 Navigator 维护一个 Hashmap 用于查询跳转。</p>
+<p>如此，我们就依然可以通过 Android 原生的 Bundle/Intent 来传 Parcelable 数据。</p>
+<h3 id="scheme"><a href="#scheme" class="headerlink" title="scheme"></a>scheme</h3><p>Android 原生的 scheme。当我们在浏览器或者一个应用呼起另一个应用，使用的就是这个机制。</p>
+<p>与上一个方法不同的是，这是 Android 原生支持的，我们需要在 manifest 进行注册：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">"com.amokie.stay.module.card.ReactCardDetailActivity"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.VIEW"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.DEFAULT"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.BROWSABLE"</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:host</span>=<span class="string">"card"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:scheme</span>=<span class="string">"stayapp"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>跳转调用更简单：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">intent = <span class="keyword">new</span> Intent(Intent.ACTION_VIEW, Uri.parse(url));</span><br></pre></td></tr></table></figure></p>
+<p>参数可以使用类似 url param 的形式，比如：stayapp://feed-detail/?id=1234&amp;guest=true。<br>简单情况下也能直接使用 Rest 形式，即 stayapp://feed-detail/1234，但如此就只能传递一个数据过去了，毕竟 Rest 是一种资源描述。</p>
+<h1 id="结"><a href="#结" class="headerlink" title="结"></a>结</h1><p>Software -&gt; Peopleware，在项目逐渐变大后，团队人数变大，需求复杂度上升，组件化的开发形式可以隔绝模块间耦合，降低中大型团队的开发成本，而且编译速度也能提升（独立模块编译运行）。</p>
+<p>下一节将会讲到组件化实践中的：</p>
+<ul>
+<li>底层 library 设计</li>
+<li>SharedUserId 共享数据</li>
+<li>组件间通讯（Service、EventBus）</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Gradle/" rel="tag"># Gradle</a>
+          
+            <a href="/tags/组件化/" rel="tag"># 组件化</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/17/vue-2-quick-start/" rel="next" title="Vue.js 2.0 快速上手 - 基础篇">
+                <i class="fa fa-chevron-left"></i> Vue.js 2.0 快速上手 - 基础篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/14/pwa-react-p1/" rel="prev" title="使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍">
+                使用 React.js 的渐进式 Web 应用程序：第 1 部分 - 介绍 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#组件化是什么"><span class="nav-number">2.</span> <span class="nav-text">组件化是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么我们需要插件化"><span class="nav-number">2.1.</span> <span class="nav-text">为什么我们需要插件化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插件化的恶"><span class="nav-number">2.2.</span> <span class="nav-text">插件化的恶</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#组件化-VS-插件化"><span class="nav-number">2.3.</span> <span class="nav-text">组件化 VS 插件化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Take-Action"><span class="nav-number">3.</span> <span class="nav-text">Take Action</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle"><span class="nav-number">3.1.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Manifest"><span class="nav-number">3.2.</span> <span class="nav-text">Manifest</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Wrapper"><span class="nav-number">3.3.</span> <span class="nav-text">Wrapper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Application"><span class="nav-number">3.4.</span> <span class="nav-text">Application</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑"><span class="nav-number">3.5.</span> <span class="nav-text">坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-Binding"><span class="nav-number">3.5.1.</span> <span class="nav-text">Data Binding</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dagger2"><span class="nav-number">3.5.2.</span> <span class="nav-text">Dagger2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最佳实践"><span class="nav-number">3.5.3.</span> <span class="nav-text">最佳实践</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模块隔离"><span class="nav-number">3.6.</span> <span class="nav-text">模块隔离</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RPC"><span class="nav-number">3.7.</span> <span class="nav-text">RPC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Proxy"><span class="nav-number">3.7.1.</span> <span class="nav-text">Proxy</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Router"><span class="nav-number">3.8.</span> <span class="nav-text">Router</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RPC-1"><span class="nav-number">3.8.1.</span> <span class="nav-text">RPC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注册"><span class="nav-number">3.8.2.</span> <span class="nav-text">注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scheme"><span class="nav-number">3.8.3.</span> <span class="nav-text">scheme</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结"><span class="nav-number">4.</span> <span class="nav-text">结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Dagger - 匕首，顾名思义，比ButterKnife这把黄油刀锋利得多。Square为什么这么有自信地给它取了这个名字，Google又为什么会拿去做了Dagger2呢（不都有Guice和基于其做的RoboGuice了么）？希望本文能讲清楚为什么要用Dagger2，又如何用好Dagger2。 本文会从Dagger2的起源开始，途径其初衷、使用场景、依赖图，最后介绍一下我在项目中的具体应用和心得">
+<meta name="keywords" content="New Android Project From 0,Dagger">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目4 - Dagger2篇">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/03/27/android-new-project-from-0-p4/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="Dagger - 匕首，顾名思义，比ButterKnife这把黄油刀锋利得多。Square为什么这么有自信地给它取了这个名字，Google又为什么会拿去做了Dagger2呢（不都有Guice和基于其做的RoboGuice了么）？希望本文能讲清楚为什么要用Dagger2，又如何用好Dagger2。 本文会从Dagger2的起源开始，途径其初衷、使用场景、依赖图，最后介绍一下我在项目中的具体应用和心得">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-dagger-di.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-dagger-di-picture.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-dagger-spring.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-dagger-simple-graph.png">
+<meta property="og:updated_time" content="2016-04-01T02:55:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目4 - Dagger2篇">
+<meta name="twitter:description" content="Dagger - 匕首，顾名思义，比ButterKnife这把黄油刀锋利得多。Square为什么这么有自信地给它取了这个名字，Google又为什么会拿去做了Dagger2呢（不都有Guice和基于其做的RoboGuice了么）？希望本文能讲清楚为什么要用Dagger2，又如何用好Dagger2。 本文会从Dagger2的起源开始，途径其初衷、使用场景、依赖图，最后介绍一下我在项目中的具体应用和心得">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-dagger-di.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/03/27/android-new-project-from-0-p4/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目4 - Dagger2篇 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/03/27/android-new-project-from-0-p4/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目4 - Dagger2篇
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-03-27 11:14:49" itemprop="dateCreated datePublished" datetime="2016-03-27T11:14:49+08:00">2016-03-27</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-04-01 10:55:01" itemprop="dateModified" datetime="2016-04-01T10:55:01+08:00">2016-04-01</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Dagger - 匕首，顾名思义，比ButterKnife这把黄油刀锋利得多。Square为什么这么有自信地给它取了这个名字，Google又为什么会拿去做了Dagger2呢（不都有Guice和基于其做的RoboGuice了么）？希望本文能讲清楚为什么要用Dagger2，又如何用好Dagger2。</p>
+<p>本文会从Dagger2的起源开始，途径其初衷、使用场景、依赖图，最后介绍一下我在项目中的具体应用和心得体会。</p>
+<h1 id="Origin"><a href="#Origin" class="headerlink" title="Origin"></a>Origin</h1><p><a href="https://github.com/google/dagger" target="_blank" rel="noopener">Dagger2</a>，起源于Square的<a href="http://github.com/square/dagger/" target="_blank" rel="noopener">Dagger</a>，是一个完全在编译期间进行的依赖注入框架，完全去除了反射。</p>
+<p>关于Dagger2的最初想法，来自于2013年12月的<a href="https://github.com/square/dagger/issues/366" target="_blank" rel="noopener">Proposal: Dagger 2.0</a>，Jake大神在issue里面也有回复哦，而idea的来源者<a href="https://github.com/gk5885" target="_blank" rel="noopener">Gregory Kick</a>的GitHub个人主页也没多少follower，自己也没几个项目，主要都在贡献其他的repository，可见海外重复造轮子的风气比我们这儿好多了。</p>
+<p>扯远了，Dagger2的诞生就是源于开发者们对Dagger1半静态化半运行时的不满（尤其是在服务端的大型应用上），想要改造成完整的静态依赖图生成，完全的代码生成式依赖注入解决方案。在权衡了什么对Android更适合，以及对大型应用来说什么更有意义（往往有可怕数量的注入）两者后，Dagger2诞生了。</p>
+<h1 id="初衷"><a href="#初衷" class="headerlink" title="初衷"></a>初衷</h1><p>Dagger2的初衷就是装逼，啊，不对，是通过依赖注入让你少些很多公式化代码，更容易测试，降低耦合，创建可复用可互换的模块。你可以在Debug包，测试运行包以及release包优雅注入三种不同的实现。</p>
+<h2 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h2><p>说到依赖注入，或许很多以前做过JavaEE的朋友会想到Spring（SSH在我本科期间折磨得我欲生欲死，最后Spring MVC拯救了我）。</p>
+<p>我们看个简单的比较图，左边是没有依赖注入的实现方式，右边是手动的依赖注入：<br><img src="/images/android-new-project-from-0-dagger-di.png" alt="Without DI and with Maunl DI"></p>
+<p>我们想要一个咖啡机来做一杯咖啡，没有依赖注入的话，我们就需要在咖啡机里自己去new泵(pump)和加热器(heater)，而手动依赖注入的实现则将依赖作为参数，然后传入，而不是自己去显示创建。在没有依赖注入的时候，我们丧失了灵活性，因为一切依赖是在内部创建的，所以我们根本没有办法去替换依赖实例，比如想把电加热器换成火炉或者核加热器，看一看下图，是不是更清晰了：<br><img src="/images/android-new-project-from-0-dagger-di-picture.png" alt="Without DI and with Maunl DI"></p>
+<h2 id="为什么我们需要DI库"><a href="#为什么我们需要DI库" class="headerlink" title="为什么我们需要DI库"></a>为什么我们需要DI库</h2><p>但问题在于，在大型应用中，把这些依赖全都分离，然后自己去创建的话，会是一个很大的工作量——毫无营养的公式化代码，一堆Factory类。不仅仅是工作量的问题，这些依赖可能还有顺序的问题，A依赖B，B依赖C，B依赖D，如此一来C、D就必须在A、B的后面，手动去做这些工作简直是一个噩梦 =。=（哈哈，是不是想到了appliation初始化那些依赖）。Google的工程师碰到的问题就是在Android上有3000行这样的代码，而在服务器上的大型程序则是100000行。</p>
+<p>你会想自己维护这样的代码吗？</p>
+<h2 id="Why-Dagger2"><a href="#Why-Dagger2" class="headerlink" title="Why Dagger2"></a>Why Dagger2</h2><p>先来看看如果用Spring实现上面提到的咖啡机依赖，我们需要做什么：<br><img src="/images/android-new-project-from-0-dagger-spring.png" alt="DI with Spring"><br>不错，就是xml，当然，我们也不需要去关心顺序了，Spring会帮我们解决前后顺序的依赖问题。</p>
+<p>但仔细想想，你会想去自己写这样的xml代码吗？layout.xml已经写得我很烦了。而且Spring是在运行时验证配置和依赖图的，你不会想在外网运行的app里让用户发现你的依赖注入出了问题的（比如bean名字打错了）。再加上xml和Java代码分离，很难追踪应用流。</p>
+<p>Guice虽然较Spring进了一步，干掉了xml，通过Java声明依赖注入比起Spring好找多了，但其跟踪和报错（运行时的图验证）实在令人抓狂，而且在不同环境注入不同实例的配置也挺恶心的（if else各种判断），感兴趣的可以去看看，项目就在GitHub上，Android版本的叫RoboGuice。</p>
+<p>而Dagger2和Dagger1的差别在上节已经提到了，更专注于开发者的体验，从半静态变为完全静态，从Map式的API变成申明式API（@Module），生成的代码更优雅，更高的性能（跟手写一样），更简单的debug跟踪，所有的报错也都是在编译时发生的。</p>
+<p>Dagger2使用了JSR 330的依赖注入API，其实就是Provider了：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Provider</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Usage:</span></span><br><span class="line">Provider&lt;T&gt; coffeeMakerProvider = ...;</span><br><span class="line">CoffeeMaker coffeeMaker = coffeeMakerProvider.get();</span><br></pre></td></tr></table></figure></p>
+<p>Dagger2基于Component注解：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span>(modules = DripCoffeModule.class)</span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">CoffeeMakerComponet</span> </span>&#123;</span><br><span class="line">  <span class="function">CoffeeMaker <span class="title">getCoffeeMaker</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 会生成这样的代码，Dagger_CoffeeMakerComponent里面就是一堆Provider，</span></span><br><span class="line"><span class="comment">// 或者是单例，或者是通过DripCoffeeModule申明new的方式，开发者不必关心依赖顺序</span></span><br><span class="line">CoffeeMakerComponent component = Dagger_CoffeeMakerComponent.create();</span><br><span class="line">CoffeeMaker coffeeMaker = component.getCoffeeMaker();</span><br></pre></td></tr></table></figure></p>
+<p>除了上面提到的各种好处，不得不提的是也有对应问题：丧失了动态性，在之后的实践中我会举个例子描述一下，但相对于那些好处来说，我觉得是可接受的。Everything has a Price to Pay。啊，对了，还有另一点，没法自动升级，从Dagger1到Dagger2，当然如果你的app是没有历史负担的（本系列的前提），那这不算问题。</p>
+<p>如果对性能感兴趣的话，可以去看看<a href="http://blog.nimbledroid.com/2016/03/07/performance-of-dependency-injection-libraries.html" target="_blank" rel="noopener">Comparing the Performance of Dependency Injection Libraries</a>，RoboGuice:Dagger1:Dagger2差不多是50:2:1的一个性能差距。</p>
+<p>如果你用了Dagger2，而你的服务端还在用Spring，你可以自豪地说，我们比你们领先5年。而Google的服务端确实已经用了Dagger2。</p>
+<h1 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h1><p>上面也曾经提到了，因为手动去维护那些依赖关系、范围很麻烦，就连单例我都懒得写，何况是各种Factory类，老在那synchroized烦不烦。而如果不去写那些Factory，直接new，则会导致后期维护困难，比如增加了一个参数，为了保证兼容性，就只能留着原来的构造函数（习惯好一点的标一下deprecated），再新增一个构造函数。</p>
+<p>Dagger2解决了这些问题，帮助我们管理实例，并进行解耦。new只需要写在一个地方，getInstance也再也不用写了。而需要使用实例的地方，只需要简简单单地来一个@inject，而不需要关心是如何注入的。Dagger2会在编译时通过apt生成代码进行注入。</p>
+<p>想想你所有可能在多个地方使用的类实例依赖，比如lbs服务，比如你的cache，比如用户设置，比起getInstance，比起new，比起自己用注释去注明必须维持这种先后关系（说到此处，想到上个东家的android app初始化时候，必须保持正确顺序不然立马crash，singleton还必须只能init一次的糟糕代码），为什么不用dagger来做管理？Without any performance overhead。</p>
+<p>Dagger2基于编译时的静态依赖图构建还能避免运行时再出现一些坑，比如循环依赖，编译的时候就会报错，而不会在运行时死循环。</p>
+<p>生动点来说的话。有一场派对：</p>
+<p>Android开发A说，有妹子我才来。<br>美女前端B说，有帅哥设计师，我才来。<br>iOS开发C说，有Android开发，我才来。<br>帅哥设计师说，只有礼拜天我才有空。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AndroidDeveloper</span> <span class="keyword">extends</span> <span class="title">PartyMember</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AndroidDeveloper</span><span class="params">(PartyMember female)</span> <span class="keyword">throws</span> NotMeizhiSayBB</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FrontEndDeveloper</span> <span class="keyword">extends</span> <span class="title">PartyMember</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FrontEndDeveloper</span><span class="params">(Designer designer)</span> <span class="keyword">throws</span> NotHandsomeBoySayBB</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IOSDeveloper</span> <span class="keyword">extends</span> <span class="title">PartyMember</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">IOSDeveloper</span><span class="params">(AndroidDeveloper dev)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Designer</span> <span class="keyword">extends</span> <span class="title">PartyMember</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Designer</span><span class="params">(Date date)</span> throw CannotComeException</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PartyMember</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mSex = <span class="number">0</span>; <span class="comment">// 1 for male, 2 for female.</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setSex</span><span class="params">(<span class="keyword">int</span> sex)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 手动DI，要自己想怎么设计顺序，还不能轻易改动</span></span><br><span class="line">Designer designer = <span class="keyword">new</span> Designer(<span class="string">"礼拜天"</span>)；</span><br><span class="line">FrontEndDeveloper dev1 = <span class="keyword">new</span> FrontEndDeveloper(designer);</span><br><span class="line">dev1.setSex(<span class="number">2</span>);</span><br><span class="line">AndroidDeveloper dev2 = <span class="keyword">new</span> AndroidDeveloper(dev1);</span><br><span class="line">IOSDeveloper dev3 = <span class="keyword">new</span> IOSDeveloper(dev2);</span><br><span class="line"></span><br><span class="line"><span class="comment">// With Dagger2</span></span><br><span class="line"><span class="meta">@Inject</span></span><br><span class="line">Designer designer;</span><br><span class="line"><span class="meta">@Inject</span></span><br><span class="line">FrontEndDeveloper dev1;</span><br><span class="line"><span class="meta">@Inject</span></span><br><span class="line">AndroidDeveloper dev2;</span><br><span class="line"><span class="meta">@Inject</span></span><br><span class="line">IOSDeveloper dev3;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不使用DI太可怕了...自己想象一下会是什么样吧</span></span><br><span class="line">...我懒</span><br></pre></td></tr></table></figure>
+<h2 id="Scope"><a href="#Scope" class="headerlink" title="Scope"></a>Scope</h2><p>Dagger2的Scope，除了Singleton（root），其他都是自定义的，无论你给它命名PerActivity、PerFragment，其实都只是一个命名而已，真正起作用的是inject的位置，以及dependency。</p>
+<p>Scope起的更多是一个限制作用，比如不同层级的Component需要有不同的scope，注入PerActivity scope的component后activity就不能通过@Inject去获得SingleTon的实例，需要从application去暴露接口获得（getAppliationComponent获得component实例然后访问，比如全局的navigator）。</p>
+<p>当然，另一方面则是可读性和方便理解，通过scope的不同很容易能辨明2个实例的作用域的区别。</p>
+<h1 id="依赖图例子"><a href="#依赖图例子" class="headerlink" title="依赖图例子"></a>依赖图例子</h1><p><img src="/images/android-new-project-from-0-dagger-simple-graph.png" alt="Simple Graph"></p>
+<p>如上是一个我现在使用的Dagger2的依赖图的简化版子集。</p>
+<p>ApplicationComponent作为root，拆分出了3个module</p>
+<ul>
+<li>ApplicationModule（application context，lbs服务，全局设置等）</li>
+<li>ApiModule（Retrofit那堆Api在这里）</li>
+<li>RepositoryModule（各种repository）。<br>这里为了妥协内聚和简洁所以保持了这三个module。你不会想看到自己的di package下有一大堆module类，或者某个module里面掺杂着上百个实例注入的。</li>
+</ul>
+<p>UserComponent用在用户主页、登录注册，以及好友列表页。所以你能看到UserModule（用户系统以及那些UseCase）以及需要的赞Module、相册Module。</p>
+<p>TagComponent是标签系统，有自己的标签Module以及赞Module（module重用），用在了标签搜索、热门标签等页面。</p>
+<p>是不是很好理解？位于上层的component是看不到下层的，而下层则可以使用上层的，但不能引用同一层相邻component内的实例。</p>
+<p>如果你的应用是强登录态的，则更可以只把UserComponent放在第二层，Module构造函数传入uid（PerUser scope，没有uid则为游客态，供deeplink之类使用），而所有需要登录态的则都放在第三层。</p>
+<p>一个简单的应用就是这样了，而Component继承，SubComponent（共享的放在上层父类），不同component的module复用（一样可以生成实例绑定，只是没法共享component中暴露的接口罢了）这些则是不同场景下的策略，如果有必要我会再开一篇讲讲这些深入的使用。</p>
+<h1 id="具体应用和心得体会"><a href="#具体应用和心得体会" class="headerlink" title="具体应用和心得体会"></a>具体应用和心得体会</h1><ul>
+<li><p>No Proguard rules need。因为0反射，所以完全不需要去配置proguard规则。</p>
+</li>
+<li><p>因为需要静态地去inject，如果一些参数需要运行时通过用户行为去获得，就只能使用set去设置注入实例的参数（因为我们的injection通常在最早，比如onCreate就需要执行）。这就是上文提到过的，因为完全静态而丧失了一定的动态性。</p>
+</li>
+<li><p>Singleton是线程安全的，请放心，如果实在怀疑，可以去检查生成的源码，笔者已经检查过了…</p>
+</li>
+<li><p>粒度的问题，如果基于页面去划分的话，老实说笔者觉得实在太细太麻烦，建议稍微粗一点，按照大功能去分，完全可以通过拆分module或者SubComponent的形式去解决复用的问题，而不用拆分出一大堆component，module只要足够内聚就可以，而不需要拆分到某个页面使用的那些。</p>
+</li>
+<li><p>fragment的问题，因为其诡异的生命周期，所以建议在实在需要fragment的时候，让activity去创建component，fragment通过接口（比如HasComponent）去获得component（一个activity只能inject一个component哦）。</p>
+</li>
+<li><p>举一个我遇到的例子来说说方便的地方，有一个UseCase叫做SearchTag，原先只需要TagRepository，ThreadExecutor，PostThreadExecutor三个参数。现在需求改变了，需要在发起请求前先进行定位，然后把位置信息也作为请求的参数。我们只需要简单地在构造函数增加一个LbsRepository，然后在buildUseCaseObservable通过RxJava组合一下，这样既避免了底层repository的耦合，又对上层屏蔽了复杂性。</p>
+</li>
+<li><p>再讲讲之前提到的依赖吧，我们有很多同级的实例，以Singleton为例，比如有一个要提供给第三方sdk的Provider依赖了某个Repository，直接在构造函数里加上那个Repository，然后加上@Inject，完全不需要关心前后顺序了，省不省心？还可以随时在单元测试的包注入一个不需要物理环境的模拟repository。想想以前你怎么做，或者在调用这个的初始化前init依赖的实例，或者在初始化里去使用依赖类的getInstance()，是不是太土鳖？</p>
+</li>
+<li><p>强烈推荐你在自己的项目里使用上，初期可能怀着装逼的心情觉得有点麻烦，熟练后你会发现简直太方便了，根本离不开（其实是我的亲身经历 哈哈）。</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本篇讲了讲Dagger2，主要还是在安利为什么要用Dagger2，以及一些正确的使用姿势，因为时间原因来不及写个demo来说说具体实现，欢迎大家提出意见和建议。<br>有空的话我最近会在GitHub上写一下demo，你如果有兴趣可以follow一下等等更新: <a href="https://github.com/markzhai" target="_blank" rel="noopener">markzhai</a>（希望在4月能完成，哈哈…）。</p>
+<h1 id="下集预告"><a href="#下集预告" class="headerlink" title="下集预告"></a>下集预告</h1><p>怎么用Retrofit、Realm和RxJava搭建data层。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
+<li>DAGGER 2 - A New Type of dependency injection: <a href="https://youtu.be/oK_XtfXPkqw" target="_blank" rel="noopener">https://youtu.be/oK_XtfXPkqw</a></li>
+<li>Dagger 2 Official Site: <a href="http://google.github.io/dagger/" target="_blank" rel="noopener">http://google.github.io/dagger/</a></li>
+<li>Dagger 2 Design Doc: <a href="http://goo.gl/mW474Z" target="_blank" rel="noopener">http://goo.gl/mW474Z</a></li>
+</ul>
+<h1 id="扩展阅读"><a href="#扩展阅读" class="headerlink" title="扩展阅读"></a>扩展阅读</h1><ul>
+<li><a href="http://stackoverflow.com/questions/28411352/what-determines-the-lifecycle-of-a-component-object-graph-in-dagger-2" target="_blank" rel="noopener">What determines the lifecycle of a component (object graph) in Dagger 2?</a></li>
+<li><a href="http://frogermcs.github.io/dependency-injection-with-dagger-2-custom-scopes/" target="_blank" rel="noopener">Dependency injection with Dagger 2 - Custom scopes</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Dagger/" rel="tag"># Dagger</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/03/16/android-new-project-from-0-p3/" rel="next" title="从零开始的Android新项目3 - MVPVM in Action, 谁告诉你MVP和MVVM是互斥的">
+                <i class="fa fa-chevron-left"></i> 从零开始的Android新项目3 - MVPVM in Action, 谁告诉你MVP和MVVM是互斥的
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/20/trans-java-8-in-android-n-preview/" rel="prev" title="在 Android N 预览版中使用 Java 8 的新特性">
+                在 Android N 预览版中使用 Java 8 的新特性 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Origin"><span class="nav-number">1.</span> <span class="nav-text">Origin</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#初衷"><span class="nav-number">2.</span> <span class="nav-text">初衷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖注入"><span class="nav-number">2.1.</span> <span class="nav-text">依赖注入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么我们需要DI库"><span class="nav-number">2.2.</span> <span class="nav-text">为什么我们需要DI库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Why-Dagger2"><span class="nav-number">2.3.</span> <span class="nav-text">Why Dagger2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用场景"><span class="nav-number">3.</span> <span class="nav-text">使用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scope"><span class="nav-number">3.1.</span> <span class="nav-text">Scope</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#依赖图例子"><span class="nav-number">4.</span> <span class="nav-text">依赖图例子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#具体应用和心得体会"><span class="nav-number">5.</span> <span class="nav-text">具体应用和心得体会</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下集预告"><span class="nav-number">7.</span> <span class="nav-text">下集预告</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">8.</span> <span class="nav-text">参考文献</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展阅读"><span class="nav-number">9.</span> <span class="nav-text">扩展阅读</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

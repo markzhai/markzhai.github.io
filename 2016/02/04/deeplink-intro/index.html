@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="今天在看Google关于Android Studio 2.0的视频的时候，提到了一个feature：支持Deep Link提示。笔者在去年上半年时候略微接触了一下，之后8月又看到全家桶出了一个山寨版叫AppLink。但是似乎在国内不太看到有这方面的介绍，在微博搜了一下，也没有正式介绍Deep Link的文章，所以产生了写本文的念头。 Deep Link是什么Deep Link，又叫deep lin">
+<meta name="keywords" content="Android,Deep Link">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deep Link是什么">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/04/deeplink-intro/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="今天在看Google关于Android Studio 2.0的视频的时候，提到了一个feature：支持Deep Link提示。笔者在去年上半年时候略微接触了一下，之后8月又看到全家桶出了一个山寨版叫AppLink。但是似乎在国内不太看到有这方面的介绍，在微博搜了一下，也没有正式介绍Deep Link的文章，所以产生了写本文的念头。 Deep Link是什么Deep Link，又叫deep lin">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/deeplink-2.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/deeplink-3.png">
+<meta property="og:updated_time" content="2016-02-08T06:29:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Deep Link是什么">
+<meta name="twitter:description" content="今天在看Google关于Android Studio 2.0的视频的时候，提到了一个feature：支持Deep Link提示。笔者在去年上半年时候略微接触了一下，之后8月又看到全家桶出了一个山寨版叫AppLink。但是似乎在国内不太看到有这方面的介绍，在微博搜了一下，也没有正式介绍Deep Link的文章，所以产生了写本文的念头。 Deep Link是什么Deep Link，又叫deep lin">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/deeplink-2.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/04/deeplink-intro/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Deep Link是什么 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/04/deeplink-intro/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Deep Link是什么
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-04 17:34:57" itemprop="dateCreated datePublished" datetime="2016-02-04T17:34:57+08:00">2016-02-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-08 14:29:09" itemprop="dateModified" datetime="2016-02-08T14:29:09+08:00">2016-02-08</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Introduction/" itemprop="url" rel="index"><span itemprop="name">Android Introduction</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>今天在看Google关于Android Studio 2.0的视频的时候，提到了一个feature：支持Deep Link提示。笔者在去年上半年时候略微接触了一下，之后8月又看到全家桶出了一个山寨版叫AppLink。但是似乎在国内不太看到有这方面的介绍，在微博搜了一下，也没有正式介绍Deep Link的文章，所以产生了写本文的念头。</p>
+<h1 id="Deep-Link是什么"><a href="#Deep-Link是什么" class="headerlink" title="Deep Link是什么"></a>Deep Link是什么</h1><p>Deep Link，又叫deep linking，中文翻译作深层链接。全家桶搜索的话你会发现第一个结果是AppLink。呵呵。</p>
+<p>说回正题。</p>
+<p>简单地从用户体验来讲，Deep Link，就是可以让你在手机的浏览器/Google Search上点击搜索的结果，便能直接跳转到已安装的应用中的某一个页面的技术。如果你想体验的话，可以在Android 4.1以上设备安装IMDB，然后在Google上搜索一部IMDB的影片，你就会发现点击后直接跳转到了App里的该电影介绍页面。</p>
+<p>当然在这简简单单的操作背后，却隐藏着很多工作。</p>
+<p>先让我们看看现在移动端的搜索体验问题：</p>
+<h2 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h2><p>就因为我司没有做Web版的页面，所以搜索引擎就没法找到我们提供的内容。</p>
+<p>搜索结果是不是可以做得更好呢。对于爬虫，在我们的印象中都是去爬网站的数据。但是现在作为一个巨大内容载体的移动平台却被忽略了，”似乎”只能自己提供一个H5版本去让搜索引擎爬数据索引？就像把自己的网站加入robots协议一样，app是不是也能直接这么做呢？</p>
+<h2 id="排名"><a href="#排名" class="headerlink" title="排名"></a>排名</h2><p>我的App这么火爆，为什么搜索出来的结果都是别人的引用？！</p>
+<p>本科在学校时候做过<a href="https://zh.wikipedia.org/zh-sg/PageRank" target="_blank" rel="noopener">PageRank</a>的实践，简单来说就是一个带权的树形有向图，用通俗的话来讲，大V关注了你，可以让你的价值提升。而在App的世界里，我们也经常会体验到在应用之间跳转的体验（尽管有些应用时灵时不灵的），这种跳转难道不也能拿来作为PageRank的有向边吗？</p>
+<p>做个例子来说（绝不是广告）：手Q、QQ空间、QQ音乐都在应用里的某页面引用了腾讯新闻的某一条新闻的页面，而手Q、QQ空间、QQ音乐这三个应用的该页面本身在算法里排名就很靠前，那么我们就认为腾讯新闻的该页面是有价值的，在相同结果的页面中应该排在更前面。</p>
+<p>搜索引擎应该对移动端的app也支持排名和链接关系解析。</p>
+<h2 id="移动化"><a href="#移动化" class="headerlink" title="移动化"></a>移动化</h2><p>每次在百度搜好吃的，搜到点评的结果后，怎么就不能直接跳到app里呢。</p>
+<p>我们知道，现在从全家桶、Google搜索关于我们自己app的内容，往往只能搜到一些相关介绍和下载的链接，然后我们就中断了。而在Web世界，搜索后我们可以直接打开网页查看内容，相比起来体验实在是差了太多。难道我们就不能直接点击跳到手机上已经安装的app上吗？或者干脆直接跳到某个页面？</p>
+<p>其实这种体验也是一种个性化搜索：个性化这个词比较宽泛，早期来说，搜索引擎会根据IP所在地区的不同返回有差别的结果。后来在引入账号系统后，会让用户可以设置语言和地域，恩…还有safe search，你懂的，会让我们看不到一些日文的内容。<br><img src="http://blog.zhaiyifan.cn/images/deeplink-2.png" alt="deeplink-2"><br><img src="http://blog.zhaiyifan.cn/images/deeplink-3.png" alt="deeplink-3"></p>
+<p>而对移动端来说，个性化则是移动化，不同于返回网页，搜索引擎会返回支持Deep Link的应用内部页面的链接，比如我们找一部电影，可以直接跳到IMDB应用里这部电影的详情页面，体验是不是比看网页好多了呢（明明我安装了应用，为什么要让我看H5呢）。</p>
+<h2 id="After-Deep-Linked"><a href="#After-Deep-Linked" class="headerlink" title="After Deep Linked"></a>After Deep Linked</h2><p>而Deep Link则会解决以上的问题，搜索引擎可以直接用爬虫检索App的内容，对App也列入PageRank排名，安装了App的设备点击后，则可以直接跳到应用内的对应页面！！Cool！</p>
+<p>既然这么酷炫，那我们要怎么才能让自家的应用支持Deep Link呢？</p>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>乍一看，Deep Link不就是scheme么？不错，或者我们该说，目前app的scheme，就是Deep Link的一种雏形（仅仅是跳转，且没有标准化的体验，见下文”首次点击自由”体验）。且有的app处理scheme并不是各个activity去注册自己的path，而会去通过一个中心activity去集成处理比如鉴权、解出各种参数，并美其名曰Navigator。</p>
+<p>废话不多说了，看看正确的姿势吧。下文以Android接入为例，iOS可以查看<a href="https://developers.google.com/app-indexing/ios/app" target="_blank" rel="noopener">App Indexing on iOS9</a></p>
+<h2 id="支持Deeplink"><a href="#支持Deeplink" class="headerlink" title="支持Deeplink"></a>支持Deeplink</h2><p>参考内容：<br><a href="http://search-codelabs.appspot.com/codelabs/android-deep-linking#1" target="_blank" rel="noopener">启用指向你app的Deep Linking</a>。<br><a href="https://developers.google.com/app-indexing/app-only" target="_blank" rel="noopener">为纯app内容创建索引</a></p>
+<p>以Google给的demo为例：<a href="https://github.com/google/search-samples.git" target="_blank" rel="noopener">search-samples</a></p>
+<p>我们需要添加Intent Filter到manifest：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span> <span class="attr">android:name</span>=<span class="string">"com.recipe_app.client.RecipeActivity"</span></span></span><br><span class="line"><span class="tag">          <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span> <span class="attr">android:label</span>=<span class="string">"@string/app_name"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.VIEW"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.DEFAULT"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.BROWSABLE"</span> /&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 接受以"http://recipe-app.com/recipe"开头的URI --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">data</span> <span class="attr">android:scheme</span>=<span class="string">"http"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:host</span>=<span class="string">"recipe-app.com"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:pathPrefix</span>=<span class="string">"/recipe"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>然后为该intent filter添加处理代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_recipe);</span><br><span class="line">    onNewIntent(getIntent());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 检验该intent是否是deep link的intent。如果是则从intent数据从接触recipe的URI并调用</span></span><br><span class="line"><span class="comment"> * showRecipe()来展示菜谱。</span></span><br><span class="line"><span class="comment"> **/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onNewIntent</span><span class="params">(Intent intent)</span> </span>&#123;</span><br><span class="line">    String action = intent.getAction();</span><br><span class="line">    String data = intent.getDataString();</span><br><span class="line">    <span class="keyword">if</span> (Intent.ACTION_VIEW.equals(action) &amp;&amp; data != <span class="keyword">null</span>) &#123;</span><br><span class="line">        String recipeId = data.substring(data.lastIndexOf(<span class="string">"/"</span>) + <span class="number">1</span>);</span><br><span class="line">        Uri contentUri = RecipeContentProvider.CONTENT_URI.buildUpon()</span><br><span class="line">                .appendPath(recipeId).build();</span><br><span class="line">        showRecipe(contentUri);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<pre><code>重要：通过deep link打开的app必须提供给用户&quot;首次点击自由(First Click Free)&quot;的体验。
+这也就是说在第一次访问你的app的时候，用户必须能直接进入相关页面，而不是被插播式广告比如
+提示、登陆、闪屏等打断。你可以提醒用户在该次点击之后再进行动作。
+
+即便该应用未曾被启动过或者用户未曾登陆，也必须提供这种体验。
+</code></pre><p>常见问题：<a href="http://stackoverflow.com/a/25997627" target="_blank" rel="noopener">如何避免通过deep link打开多个应用实例</a></p>
+<h2 id="测试该intent-filter"><a href="#测试该intent-filter" class="headerlink" title="测试该intent filter"></a>测试该intent filter</h2><p>上述demo运行后，在adb输入以下命令来trigger一个deep link:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adb shell am start -a android.intent.action.VIEW \</span><br><span class="line">-d <span class="string">"http://recipe-app.com/recipe/pierogi-poutine"</span> com.recipe_app</span><br></pre></td></tr></table></figure></p>
+<p>可以再替换以上url来打开其他菜谱<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://recipe-app.com/recipe/grilled-potato-salad</span><br><span class="line">http://recipe-app.com/recipe/haloumi-salad</span><br><span class="line">http://recipe-app.com/recipe/wedge-salad</span><br></pre></td></tr></table></figure></p>
+<p>常见问题：</p>
+<ul>
+<li><a href="http://stackoverflow.com/a/24850504" target="_blank" rel="noopener">为什么提示”Error: Activity not started, unable to resolve Intent”?</a></li>
+<li><a href="https://support.google.com/googleplay/android-developer/answer/6041489" target="_blank" rel="noopener">怎么让我的deep link在搜索结果中出现</a></li>
+</ul>
+<h2 id="获得来源"><a href="#获得来源" class="headerlink" title="获得来源"></a>获得来源</h2><p>从Google的应用中点击了指向你的应用的链接，你的应用的那个页面将会收到特定的intent extra：</p>
+<pre><code>应用引用站点 — android-app://{package_id}/{scheme}/{host_path}
+Web 引用站点 — https://{host_path}
+</code></pre><p>比如从Google应用点击到你的应用，则会有<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android-app://com.google.android.googlequicksearchbox/https/www.google.com</span><br></pre></td></tr></table></figure></p>
+<p>App能在页面启动时获得引用站点的信息，具体如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.android.gms.appindexing.AndroidAppUri;</span><br><span class="line"><span class="keyword">import</span> android.net.ParseException;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line">    <span class="comment">/** 返回启动该Activity的引用者. */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Uri <span class="title">getReferrer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP_MR1) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.getReferrer();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> getReferrerCompatible();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 在低于SDK 22版本时使用该方法获得引用者 */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> Uri <span class="title">getReferrerCompatible</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Intent intent = <span class="keyword">this</span>.getIntent();</span><br><span class="line">        Uri referrerUri = intent.getParcelableExtra(Intent.EXTRA_REFERRER);</span><br><span class="line">        <span class="keyword">if</span> (referrerUri != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> referrerUri;</span><br><span class="line">        &#125;</span><br><span class="line">        String referrer = intent.getStringExtra(<span class="string">"android.intent.extra.REFERRER_NAME"</span>);</span><br><span class="line">        <span class="keyword">if</span> (referrer != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 尝试parse引用者URL</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> Uri.parse(referrer);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ParseException e) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">        Intent intent = <span class="keyword">this</span>.getIntent();</span><br><span class="line">        Uri referrerUri = <span class="keyword">this</span>.getReferrer();</span><br><span class="line">        <span class="keyword">if</span> (referrerUri != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (referrerUri.getScheme().equals(<span class="string">"http"</span>) || referrerUri.getScheme().equals(<span class="string">"https"</span>)) &#123;</span><br><span class="line">                <span class="comment">// App从浏览器打开</span></span><br><span class="line">                String host = referrerUri.getHost();</span><br><span class="line">                <span class="comment">// host会包含host路径 (比如www.google.com)</span></span><br><span class="line"></span><br><span class="line">                <span class="comment">// 在这里增加分析的代码以记录从Web搜索点击进来的流量</span></span><br><span class="line"></span><br><span class="line">                ...</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (referrerUri.getScheme().equals(<span class="string">"android-app"</span>)) &#123;</span><br><span class="line">                <span class="comment">// App从另一个app被打开</span></span><br><span class="line">                AndroidAppUri appUri = AndroidAppUri.newAndroidAppUri(referrerUri);</span><br><span class="line">                String referrerPackage = appUri.getPackageName();</span><br><span class="line">                <span class="keyword">if</span> (<span class="string">"com.google.android.googlequicksearchbox"</span>.equals(referrerPackage)) &#123;</span><br><span class="line">                    <span class="comment">// App从Google app被打开</span></span><br><span class="line">                    String host = appUri.getDeepLinkUri().getHost();</span><br><span class="line">                    <span class="comment">// host会包含host路径 (比如www.google.com)</span></span><br><span class="line"></span><br><span class="line">                    <span class="comment">// 在这里增加分析的代码以记录从Google app点击进来的流量</span></span><br><span class="line"></span><br><span class="line">                    ...</span><br><span class="line"></span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"com.google.appcrawler"</span>.equals(referrerPackage)) &#123;</span><br><span class="line">                    <span class="comment">// Google的爬虫来着，别把这个算作app使用了</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="商业价值"><a href="#商业价值" class="headerlink" title="商业价值"></a>商业价值</h1><p>对搜索引擎提供上来说：广告，你懂的。百毒会不会把一些钓鱼app的页面放到最前面呢？呵呵。</p>
+<p>对App来说则一方面可以解决目前移动应用的孤岛局面，另一方面可以通过搜索分析报告来了解通过搜索引擎导流的点击次数、查询次数，以及最受欢迎的页面。</p>
+<p>各全家桶app企业也能就此机会更加紧密地抱团在一起，由大公司投资的各创业公司则能就此机会表忠心或者抱大腿。</p>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>上文大多是从Google的Deeplink展开的，如果你的应用主打本土市场，且考虑到目前Google仍然未回归，可以参考全家桶的Applink，大都是雷同的，只需要换一下前缀罢了（我猜是这样的 哈哈)。</p>
+<p>目前App本身和搜索还是没有结合起来，国内只有豌豆荚和全家桶开始了这种体验的尝试，App的体验仍然是一个个信息孤岛，远不如在Web上搜到哪儿去哪儿，希望Deep Link的逐渐推广和应用，可以帮助app们达到和网页一样的体验。</p>
+<p>以后App也能和网页一样，不需要自己提供搜索功能，让搜索引擎去做一切索引，直接在手机浏览器里打开app页面。甚至可以像现在使用site指定搜索目标一样，去指定要搜索的app。</p>
+<p>试想我能直接社工搜索到女神的信息，然后直接跳到微博app里的feed详情页。另外，现在这种听一首歌要装3个app还要一个个去搜想听的到底在哪家的情况是不是也能解决呢？</p>
+<hr>
+<p>原文：<a href="http://blog.zhaiyifan.cn/2016/02/04/deeplink-intro/">http://blog.zhaiyifan.cn/2016/02/04/deeplink-intro/</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Deep-Link/" rel="tag"># Deep Link</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/03/AndroidDevelopmentPatternsS2EP1/" rel="next" title="Android开发模式 S2 EP1 - Snackbar, 合适的打断">
+                <i class="fa fa-chevron-left"></i> Android开发模式 S2 EP1 - Snackbar, 合适的打断
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/06/learn-vue-js-1/" rel="prev" title="Android开发学前端之Vue.js(1) Hello World">
+                Android开发学前端之Vue.js(1) Hello World <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deep-Link是什么"><span class="nav-number">1.</span> <span class="nav-text">Deep Link是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#搜索"><span class="nav-number">1.1.</span> <span class="nav-text">搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排名"><span class="nav-number">1.2.</span> <span class="nav-text">排名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#移动化"><span class="nav-number">1.3.</span> <span class="nav-text">移动化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#After-Deep-Linked"><span class="nav-number">1.4.</span> <span class="nav-text">After Deep Linked</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用"><span class="nav-number">2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#支持Deeplink"><span class="nav-number">2.1.</span> <span class="nav-text">支持Deeplink</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试该intent-filter"><span class="nav-number">2.2.</span> <span class="nav-text">测试该intent filter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获得来源"><span class="nav-number">2.3.</span> <span class="nav-text">获得来源</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#商业价值"><span class="nav-number">3.</span> <span class="nav-text">商业价值</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最后"><span class="nav-number">4.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

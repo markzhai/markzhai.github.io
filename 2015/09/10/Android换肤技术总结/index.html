@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Android换肤技术总结背景纵观现在各种Android app，其换肤需求可以归为  白天/黑夜主题切换（或者别的名字，通常2套），如同花顺/自选股/天天动听等，UI表现为一个switcher。 多种主题切换，通常为会员特权，如QQ/QQ空间。  对于第一种来说，目测应该是直接通过本地theme来做的，即所有图片/颜色的资源都在apk里面打包了。 而对于第二种，则相对复杂一些，由于作为一种线上服">
+<meta name="keywords" content="Android,换肤,Theme">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android换肤技术总结">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2015/09/10/Android换肤技术总结/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="Android换肤技术总结背景纵观现在各种Android app，其换肤需求可以归为  白天/黑夜主题切换（或者别的名字，通常2套），如同花顺/自选股/天天动听等，UI表现为一个switcher。 多种主题切换，通常为会员特权，如QQ/QQ空间。  对于第一种来说，目测应该是直接通过本地theme来做的，即所有图片/颜色的资源都在apk里面打包了。 而对于第二种，则相对复杂一些，由于作为一种线上服">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-02-03T15:38:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android换肤技术总结">
+<meta name="twitter:description" content="Android换肤技术总结背景纵观现在各种Android app，其换肤需求可以归为  白天/黑夜主题切换（或者别的名字，通常2套），如同花顺/自选股/天天动听等，UI表现为一个switcher。 多种主题切换，通常为会员特权，如QQ/QQ空间。  对于第一种来说，目测应该是直接通过本地theme来做的，即所有图片/颜色的资源都在apk里面打包了。 而对于第二种，则相对复杂一些，由于作为一种线上服">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2015/09/10/Android换肤技术总结/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Android换肤技术总结 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2015/09/10/Android换肤技术总结/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android换肤技术总结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2015-09-10 23:51:48" itemprop="dateCreated datePublished" datetime="2015-09-10T23:51:48+08:00">2015-09-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-03 23:38:38" itemprop="dateModified" datetime="2016-02-03T23:38:38+08:00">2016-02-03</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Android换肤技术总结"><a href="#Android换肤技术总结" class="headerlink" title="Android换肤技术总结"></a>Android换肤技术总结</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>纵观现在各种Android app，其换肤需求可以归为</p>
+<ul>
+<li>白天/黑夜主题切换（或者别的名字，通常2套），如同花顺/自选股/天天动听等，UI表现为一个switcher。</li>
+<li>多种主题切换，通常为会员特权，如QQ/QQ空间。</li>
+</ul>
+<p>对于第一种来说，目测应该是直接通过本地theme来做的，即所有图片/颜色的资源都在apk里面打包了。</p>
+<p>而对于第二种，则相对复杂一些，由于作为一种线上服务，可能上架新皮肤，且那么多皮肤包放在apk里面实在太占体积了，所以皮肤资源会在选择后再进行下载，也就不能直接使用android的那套theme。</p>
+<h2 id="技术方案"><a href="#技术方案" class="headerlink" title="技术方案"></a>技术方案</h2><p>内部资源加载方案和动态下载资源下载两种。</p>
+<p>动态下载可以称为一种黑科技了，因为往往需要hack系统的一些方法，所以在部分机型和新的API上有时候可能有坑，但相对好处则很多</p>
+<ul>
+<li>图片/色值等资源由于是后台下发的，可以随时更新</li>
+<li>APK体积减小</li>
+<li>对应用开发者来说，换肤几乎是透明的，不需要关心有几套皮肤</li>
+<li><strong>可以作为增值服务卖钱！！</strong></li>
+</ul>
+<h2 id="内部资源加载方案"><a href="#内部资源加载方案" class="headerlink" title="内部资源加载方案"></a>内部资源加载方案</h2><p>内部资源加载都是通过android本身那套theme来做的，相对业务开发来说工作量更大（需要定义attr和theme），不同方案类似地都是在<code>BaseActivity</code>里面做<code>setTheme</code>，差别主要在解决以下2个问题的策略：</p>
+<ul>
+<li>setTheme后如何实时刷新，而不用重新创建页面（尤其是listview里面的item）。</li>
+<li>哪些view需要刷新，刷新什么（背景？字体颜色？ImageView的src？）。</li>
+</ul>
+<h3 id="自定义view"><a href="#自定义view" class="headerlink" title="自定义view"></a>自定义view</h3><p><a href="https://github.com/dersoncheng/MultipleTheme" target="_blank" rel="noopener">MultipleTheme</a><br>做自定义view是为了在setTheme后会去立即刷新，更新页面UI对应资源（如TextView替换背景图和文字颜色），在上述项目中，则是通过对rootView进行遍历，对所有实现了<code>ColorUiInterface</code>的view/viewgroup进行setTheme操作来实现即使刷新的。</p>
+<p>显然这样太重了，需要把应用内的各种view/viewgroup进行替换。</p>
+<h3 id="手动绑定view和要改变的资源类型"><a href="#手动绑定view和要改变的资源类型" class="headerlink" title="手动绑定view和要改变的资源类型"></a>手动绑定view和要改变的资源类型</h3><p><a href="https://github.com/bboyfeiyu/Colorful" target="_blank" rel="noopener">Colorful</a></p>
+<p>这个…我们看看用法吧….<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ViewGroupSetter listViewSetter = <span class="keyword">new</span> ViewGroupSetter(mNewsListView);</span><br><span class="line"><span class="comment">// 绑定ListView的Item View中的news_title视图，在换肤时修改它的text_color属性</span></span><br><span class="line">listViewSetter.childViewTextColor(R.id.news_title, R.attr.text_color);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构建Colorful对象来绑定View与属性的对象关系</span></span><br><span class="line">mColorful = <span class="keyword">new</span> Colorful.Builder(<span class="keyword">this</span>)</span><br><span class="line">        .backgroundDrawable(R.id.root_view, R.attr.root_view_bg)</span><br><span class="line">        <span class="comment">// 设置view的背景图片</span></span><br><span class="line">        .backgroundColor(R.id.change_btn, R.attr.btn_bg)</span><br><span class="line">        <span class="comment">// 设置背景色</span></span><br><span class="line">        .textColor(R.id.textview, R.attr.text_color)</span><br><span class="line">        .setter(listViewSetter) <span class="comment">// 手动设置setter</span></span><br><span class="line">        .create(); <span class="comment">// 设置文本颜色</span></span><br></pre></td></tr></table></figure></p>
+<p>我就是想换个皮肤，还得在activity里自己去设置要改变哪个view的什么属性，对应哪个attribute？是不是成本太高了？而且activity的逻辑也很容易被弄得乱七八糟。</p>
+<h2 id="动态资源加载方案"><a href="#动态资源加载方案" class="headerlink" title="动态资源加载方案"></a>动态资源加载方案</h2><h3 id="resource替换"><a href="#resource替换" class="headerlink" title="resource替换"></a>resource替换</h3><p>覆盖application的getResource方法，实现自己的resource，优先加载本地皮肤包文件夹下的资源包，对于性能问题，可以通过attribute或者资源名称规范(如需要换肤则用skin_开头)来优化，从而不对不换肤的资源进行额外检查开销。</p>
+<p>不过由于Android5.1源码里，drawable初始化的时候调用的是loadDrawable，而不是resource.getDrawable，而loadDrawable是私有的方法，无法覆盖，所以虽然很方便，却无法继续使用（不用关心任何皮肤相关的事情，android:color指定颜色就行了，神奇滴会自动换肤）。</p>
+<h3 id="自定义LayoutInflator-Factory"><a href="#自定义LayoutInflator-Factory" class="headerlink" title="自定义LayoutInflator.Factory"></a>自定义LayoutInflator.Factory</h3><p>开源项目可参照<a href="https://github.com/fengjundev/Android-Skin-Loader" target="_blank" rel="noopener">Android-Skin-Loader</a>。</p>
+<p>即setFactory使用自定义的LayoutInflator.Factory，可以重点关注该项目中的<code>SkinInflaterFactory</code>和<code>SkinManager</code>（实现了自己的getColor、getDrawable、getBitmap、getColorStateList等等方法）。</p>
+<p>需要自定义一个tag比如app:customStyle，重写所有的style，转成set方法，这样带来的牺牲就是增加了换肤的成本，要写很多style，自己去set，并不完全透明了。</p>
+<h3 id="Hack-Resources-internally"><a href="#Hack-Resources-internally" class="headerlink" title="Hack Resources internally"></a>Hack Resources internally</h3><p>黑科技方法，直接对Resources进行hack，<code>Resources.java:</code><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Information about preloaded resources.  Note that they are not</span></span><br><span class="line"><span class="comment">// protected by a lock, because while preloading in zygote we are all</span></span><br><span class="line"><span class="comment">// single-threaded, and after that these are immutable.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> LongSparseArray&lt;Drawable.ConstantState&gt;[] sPreloadedDrawables;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> LongSparseArray&lt;Drawable.ConstantState&gt; sPreloadedColorDrawables</span><br><span class="line">        = <span class="keyword">new</span> LongSparseArray&lt;Drawable.ConstantState&gt;();</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> LongSparseArray&lt;ColorStateList&gt; sPreloadedColorStateLists</span><br><span class="line">        = <span class="keyword">new</span> LongSparseArray&lt;ColorStateList&gt;();</span><br></pre></td></tr></table></figure></p>
+<p>直接对Resources里面的这三个LongSparseArray进行替换，由于apk运行时的资源都是从这三个数组里面加载的，所以只要采用interceptor模式：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DrawablePreloadInterceptor</span> <span class="keyword">extends</span> <span class="title">LongSparseArray</span>&lt;<span class="title">Drawable</span>.<span class="title">ConstantState</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>自己实现一个LongSparseArray，并通过反射set回去，就能实现换肤，具体getDrawable等方法里是怎么取preload数组的，可以自己看<code>Resources</code>的源码。</p>
+<p><strong>等等，就这么简单？</strong>，NONO，少年你太天真了，怎么去加载xml，9patch的padding怎么更新，怎么打包/加载自定义的皮肤包，drawable的状态怎么刷新，等等。这些都是你需要考虑的，在存在插件的app中，还需要考虑是否会互相覆盖resource id的问题，进而需要修改apt，把resource id按位放在2个range。</p>
+<p>手Q和独立版QQ空间使用的是这种方案，效果挺好。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>尽管动态加载方案比较黑科技，可能因为系统API的更改而出问题，但相对来所<br><strong>好处有</strong></p>
+<ul>
+<li>灵活性高，后台可以随时更新皮肤包</li>
+<li>相对透明，开发者几乎不用关心有几套皮肤，不用去定义各种theme和attr，甚至连皮肤包的打包都可以交给设计或者专门的同学</li>
+<li>apk体积节省<br><strong>存在的问题</strong><br>没有完善的开源项目，如果我们采用动态加载的第二种方案，需要的项目功能包括：</li>
+<li>自定义皮肤包结构</li>
+<li>换肤引擎，加载皮肤包资源并load，实时刷新。</li>
+<li>皮肤包打包工具</li>
+<li>对各种rom的兼容</li>
+</ul>
+<p><strong>如果有这么一个项目的话，就一劳永逸了，有兴趣的同学可以联系一下，大家一起搞一搞。</strong></p>
+<p>内部加载方案大同小异，主要解决的都是即时刷新的问题，然而从目前的一些开源项目来看，仍然没有特别简便的方案。让我选的话，我宁愿让界面重新创建，比如重启activity，或者remove所有view再添加回来（或者你可能想遍历rootview，然后一个个检查是否需要换肤然后set…）。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/换肤/" rel="tag"># 换肤</a>
+          
+            <a href="/tags/Theme/" rel="tag"># Theme</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/10/facebook-rebound-source/" rel="next" title="Facebook Rebound 弹性动画库 源码分析">
+                <i class="fa fa-chevron-left"></i> Facebook Rebound 弹性动画库 源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/09/13/LyricHere/" rel="prev" title="LyricHere">
+                LyricHere <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Android换肤技术总结"><span class="nav-number">1.</span> <span class="nav-text">Android换肤技术总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术方案"><span class="nav-number">1.2.</span> <span class="nav-text">技术方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内部资源加载方案"><span class="nav-number">1.3.</span> <span class="nav-text">内部资源加载方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义view"><span class="nav-number">1.3.1.</span> <span class="nav-text">自定义view</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#手动绑定view和要改变的资源类型"><span class="nav-number">1.3.2.</span> <span class="nav-text">手动绑定view和要改变的资源类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态资源加载方案"><span class="nav-number">1.4.</span> <span class="nav-text">动态资源加载方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#resource替换"><span class="nav-number">1.4.1.</span> <span class="nav-text">resource替换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义LayoutInflator-Factory"><span class="nav-number">1.4.2.</span> <span class="nav-text">自定义LayoutInflator.Factory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hack-Resources-internally"><span class="nav-number">1.4.3.</span> <span class="nav-text">Hack Resources internally</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

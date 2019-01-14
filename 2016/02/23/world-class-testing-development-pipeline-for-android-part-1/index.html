@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="原文链接 : World-Class Testing Development Pipeline for Android - Part 1. 原文作者 : Karumi 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JustWe, Hugo Xie  世界级的 Android 测试开发流程（一）在开发完移动应用并和手动QA团队合作了数年后，我们决定开始写测试。作为工程师，我们知">
+<meta name="keywords" content="Android,Test">
+<meta property="og:type" content="article">
+<meta property="og:title" content="世界级的Android测试开发流程（一）">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/02/23/world-class-testing-development-pipeline-for-android-part-1/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="原文链接 : World-Class Testing Development Pipeline for Android - Part 1. 原文作者 : Karumi 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JustWe, Hugo Xie  世界级的 Android 测试开发流程（一）在开发完移动应用并和手动QA团队合作了数年后，我们决定开始写测试。作为工程师，我们知">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-02-24T10:32:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="世界级的Android测试开发流程（一）">
+<meta name="twitter:description" content="原文链接 : World-Class Testing Development Pipeline for Android - Part 1. 原文作者 : Karumi 译文出自 : 掘金翻译计划 译者 : markzhai 校对者: JustWe, Hugo Xie  世界级的 Android 测试开发流程（一）在开发完移动应用并和手动QA团队合作了数年后，我们决定开始写测试。作为工程师，我们知">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/02/23/world-class-testing-development-pipeline-for-android-part-1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>世界级的Android测试开发流程（一） | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/02/23/world-class-testing-development-pipeline-for-android-part-1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">世界级的Android测试开发流程（一）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-02-23 11:25:24" itemprop="dateCreated datePublished" datetime="2016-02-23T11:25:24+08:00">2016-02-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-02-24 18:32:52" itemprop="dateModified" datetime="2016-02-24T18:32:52+08:00">2016-02-24</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Test/" itemprop="url" rel="index"><span itemprop="name">Android Test</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ul>
+<li>原文链接 : <a href="http://blog.karumi.com/world-class-testing-development-pipeline-for-android/" target="_blank" rel="noopener">World-Class Testing Development Pipeline for Android - Part 1.</a></li>
+<li>原文作者 : <a href="hello@karumi.com">Karumi</a></li>
+<li>译文出自 : <a href="https://github.com/xitu/gold-miner" target="_blank" rel="noopener">掘金翻译计划</a></li>
+<li>译者 : <a href="https://github.com/markzhai" target="_blank" rel="noopener">markzhai</a></li>
+<li>校对者: <a href="https://github.com/lfkdsk" target="_blank" rel="noopener">JustWe</a>, <a href="https://github.com/xcc3641" target="_blank" rel="noopener">Hugo Xie</a></li>
+</ul>
+<h1 id="世界级的-Android-测试开发流程（一）"><a href="#世界级的-Android-测试开发流程（一）" class="headerlink" title="世界级的 Android 测试开发流程（一）"></a>世界级的 Android 测试开发流程（一）</h1><p>在开发完移动应用并和手动QA团队合作了数年后，我们决定开始写测试。作为工程师，我们知道，<strong>自动化测试是成功的移动开发之关键。</strong> 在这篇博客里，我将会分享我们的故事——Karumi启动于几年前的测试故事。这是系列博客的第一篇，我们将会囊括世界级的 Android测试流程的所有方面。</p>
+<p>几年前，我们开始为移动应用写测试。我们对测试了解有限，所以我们致力于接受测试并使用最常用的框架来做单元测试，一个简单的test runner和mocking库。过了一段时间我们遇到了问题：</p>
+<ul>
+<li>我们不知道测试什么和如何去测试它。</li>
+<li>我们的代码还没准备好被测试。</li>
+<li>我们沉迷于Mike Cohn的测试金字塔，却没有考虑到我们在写的软件类型。</li>
+<li>即使我们的测试通过了，也不意味着代码没有问题。</li>
+</ul>
+<p>是不是很可怕? 我们花了很多时间去克服这些挑战，在某个时刻我们意识到是方法错了。即便测试覆盖率很高，我们的软件仍然在出错。最坏的是，从我们的测试中，无法得到任何反馈。<strong>解决我们的问题的关键是识别出我们一直碰到的问题所在：</strong></p>
+<ul>
+<li>我们的接受测试太难写了，因为我们需要提供配置API来模拟接受测试的初始状态。</li>
+<li>大部分时候，我们的测试会随机失败，而我们不知道为什么。只能用重复编译来通过测试。</li>
+<li>我们有大量的单元测试和高覆盖率，但我们的单元测试从未失败。即便应用出问题了，我们的测试仍然能通过。</li>
+<li>我们用很多时间去验证mock的调用。</li>
+<li>我们不得不使用一些“魔法”测试工具来测试代码，一个私有方法或者模拟静态方法的调用结果。</li>
+</ul>
+<p>这是我们决定停下，并开始思考为什么我们对自己的测试感觉不爽。我们快速需要找到问题的解决方案。我们的项目告诉说我们做错了，我们需要解决方案，<strong>我们需要一个测试开发流程</strong>。话虽如此，为了改善程序质量，测试开发流程不总是第一件要完善的事。</p>
+<p><strong>一个测试开发流程定义了测什么、怎么测</strong>。用什么工具，为什么用？测试的范围是什么？<strong>即便有良好的测试开发流程，可测试的代码对有自信去写测试仍然是必须的</strong>，因为大部分的测试是不可能的，或者至少，很难去写。如果你的代码没有准备好，与代码以及单元或集成范围最贴近的测试并不是那么容易去写的。因此，我们决定带着这些目标，首先识别出应用中的问题，然后去解决它们。那么问题来了，如果我们的代码能够是完美的，我们对它有何期望呢？期望是：</p>
+<ul>
+<li>应用必须是可测试的。</li>
+<li>代码必须是可读的。</li>
+<li>职责必须是清晰而有结构的。</li>
+<li>低耦合高内聚。</li>
+<li>代码必须是诚实的。</li>
+</ul>
+<p>在重构之前代码一团糟。软件职责丢失在代码的行与行之间。实现细节是完全暴露的，activities和fragments负责处理软件的状态，到处都是软件状态。另外，我们的业务逻辑和框架是耦合的。带着这些问题，我们决定把应用架构改成其他更有结构的东西。<strong>我们使用的架构是 <a href="https://blog.8thlight.com/uncle-bob/2012/08/13/the-clean-architecture.html" target="_blank" rel="noopener">“Clean Architecture”</a>。除了架构的核心内容，我们还应用了一些和GUI应用相关模式像是MVP和MMVM，以及数据处理相关的模式像是Repository模式</strong>。架构详情和这篇博客没有关系（我们会在未来的博文中讨论到它），“Clean Architecture”的<strong>核心元素</strong>与<strong>最重要的SOLID原则之一，<a href="http://martinfowler.com/articles/dipInTheWild.html" target="_blank" rel="noopener">依赖倒置原则</a></strong>相关。</p>
+<p><strong>依赖倒置原则提出你的代码必须依赖于抽象而不是具体实现</strong>。这个原则，仅仅是这个原则就是通向成功的钥匙。它是<strong>改变我们的代码并适配测试策略以有效克服我们手上问题的关键</strong>。依赖于抽象既无关于依赖注入框架，也无关于使用Java接口来定义类的API。然而，它与隐藏细节有关。根据不同角色，软件职责改变的点，引入<a href="http://www.martinfowler.com/bliki/TestDouble.html" target="_blank" rel="noopener">测试替身(TestDouble)</a>的点去创建层，大大限制了测试的范围。</p>
+<p><strong>通过依赖倒置原则，我们能够去选择正确数量的代码去测试</strong>。一旦这些点清晰了，我们就停下为所有的mocks去写测试。我们能够使用准确数字的mocks去覆盖一个测试用例，并确保我们在测试软件状态而不仅仅是组件之间的交互。</p>
+<p>一旦应用架构清晰了，我们开始 <strong>定义我们的测试开发流程。我们的目标是回答2个问题：我们想要测试什么？我们如何去测试它？</strong> 在尝试找出如何分割测试，并用简单又可读的方式去写以后，我们注意到层次分离是最完美的出发点。结果，解决方案变得清晰：</p>
+<p>我们想要测试什么?</p>
+<ul>
+<li>独立于任何框架或者库去测试我们的业务逻辑。</li>
+<li>测试我们的API集成。</li>
+<li>持久化框架的集成。</li>
+<li>一些通用UI组件。</li>
+<li>测试黑盒场景下，从用户视角写的的接收准则。</li>
+</ul>
+<p>我们想要怎么去测试?</p>
+<ul>
+<li>这是我们在下一博客文章要说的东西，敬请期待！;)</li>
+</ul>
+<p>参考:</p>
+<ul>
+<li>世界级的Android测试开发流程幻灯片 by Pedro Vicente Gómez Sánchez. <a href="http://www.slideshare.net/PedroVicenteGmezSnch/worldclass-testing-development-pipeline-for-android" target="_blank" rel="noopener">http://www.slideshare.net/PedroVicenteGmezSnch/worldclass-testing-development-pipeline-for-android</a></li>
+<li>Mike Cohn的测试金字塔 by Martin Fowler. <a href="http://martinfowler.com/bliki/TestPyramid.html" target="_blank" rel="noopener">http://martinfowler.com/bliki/TestPyramid.html</a></li>
+<li>Clean架构 by Uncle Bob. <a href="https://blog.8thlight.com/uncle-bob/2012/08/13/the-clean-architecture.html" target="_blank" rel="noopener">https://blog.8thlight.com/uncle-bob/2012/08/13/the-clean-architecture.html</a></li>
+<li>在野外的DIP by Martin Fowler.<a href="http://martinfowler.com/articles/dipInTheWild.html" target="_blank" rel="noopener">http://martinfowler.com/articles/dipInTheWild.html</a></li>
+<li>测试替身 by Martin Fowler. <a href="http://www.martinfowler.com/bliki/TestDouble.html" target="_blank" rel="noopener">http://www.martinfowler.com/bliki/TestDouble.html</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Test/" rel="tag"># Test</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/18/android-resource-overlay/" rel="next" title="编译时替换资源 - Android重叠包与资源合并一见">
+                <i class="fa fa-chevron-left"></i> 编译时替换资源 - Android重叠包与资源合并一见
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/23/world-class-testing-development-pipeline-for-android-part-2/" rel="prev" title="世界级的Android测试开发流程（二）">
+                世界级的Android测试开发流程（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#世界级的-Android-测试开发流程（一）"><span class="nav-number">1.</span> <span class="nav-text">世界级的 Android 测试开发流程（一）</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

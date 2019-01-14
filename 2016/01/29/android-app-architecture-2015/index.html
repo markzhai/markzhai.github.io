@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="视频见：https://www.youtube.com/watch?v=BlkJzgjzL0c&amp;amp;feature=em-subs_digest印度哥们的发音每次都能让我一阵沉醉。 尽快行动 早期的设计抉择对app的影响很大 基本架构会让你思考需要解决的问题变得更容易或困难。  哪种模式？ MVC MVP Reactive Cairngorm Flux fdsafdsa MVVM CLEAN">
+<meta name="keywords" content="翻译,Android Architecture,Android Dev Summit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android应用架构 (Android Dev Summit 2015)">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/01/29/android-app-architecture-2015/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="视频见：https://www.youtube.com/watch?v=BlkJzgjzL0c&amp;amp;feature=em-subs_digest印度哥们的发音每次都能让我一阵沉醉。 尽快行动 早期的设计抉择对app的影响很大 基本架构会让你思考需要解决的问题变得更容易或困难。  哪种模式？ MVC MVP Reactive Cairngorm Flux fdsafdsa MVVM CLEAN">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-demo-1.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-1.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-2.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-3.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-demo-2.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-4.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-5.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-6.png">
+<meta property="og:updated_time" content="2016-03-14T02:34:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android应用架构 (Android Dev Summit 2015)">
+<meta name="twitter:description" content="视频见：https://www.youtube.com/watch?v=BlkJzgjzL0c&amp;amp;feature=em-subs_digest印度哥们的发音每次都能让我一阵沉醉。 尽快行动 早期的设计抉择对app的影响很大 基本架构会让你思考需要解决的问题变得更容易或困难。  哪种模式？ MVC MVP Reactive Cairngorm Flux fdsafdsa MVVM CLEAN">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-demo-1.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/01/29/android-app-architecture-2015/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Android应用架构 (Android Dev Summit 2015) | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/01/29/android-app-architecture-2015/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android应用架构 (Android Dev Summit 2015)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-01-29 21:00:41" itemprop="dateCreated datePublished" datetime="2016-01-29T21:00:41+08:00">2016-01-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-03-14 10:34:15" itemprop="dateModified" datetime="2016-03-14T10:34:15+08:00">2016-03-14</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android/" itemprop="url" rel="index"><span itemprop="name">Android</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>视频见：<a href="https://www.youtube.com/watch?v=BlkJzgjzL0c&amp;feature=em-subs_digest" target="_blank" rel="noopener">https://www.youtube.com/watch?v=BlkJzgjzL0c&amp;feature=em-subs_digest</a><br>印度哥们的发音每次都能让我一阵沉醉。</p>
+<h1 id="尽快行动"><a href="#尽快行动" class="headerlink" title="尽快行动"></a>尽快行动</h1><ul>
+<li>早期的设计抉择对app的影响很大</li>
+<li>基本架构会让你思考需要解决的问题变得更容易或困难。</li>
+</ul>
+<h1 id="哪种模式？"><a href="#哪种模式？" class="headerlink" title="哪种模式？"></a>哪种模式？</h1><ul>
+<li>MVC</li>
+<li>MVP</li>
+<li>Reactive</li>
+<li>Cairngorm</li>
+<li>Flux</li>
+<li>fdsafdsa</li>
+<li>MVVM</li>
+<li>CLEAN</li>
+</ul>
+<h1 id="这不是一个库的调查"><a href="#这不是一个库的调查" class="headerlink" title="这不是一个库的调查"></a>这不是一个库的调查</h1><ul>
+<li>很多很棒的libraries展示了思考app的不同方式</li>
+<li>趋势迅速改变，但一些挑战是永恒的</li>
+<li>久而久之<a href="https://en.wikipedia.org/wiki/Lava_flow_(programming" target="_blank" rel="noopener">“熔岩流”</a>发生了</li>
+</ul>
+<p>Lava Flow 熔岩流：解释一下，大致就是说一些因为种种状况写得不太好的代码，恩，比如产品/PM/某些开发老大等呵呵呵催进度的时候，被加入到实际生产环境，而其实际仍处于开发中的阶段，导致后期需要维护原先未完成状态的设计的兼容性，比如各种API/命名等。而在这种team里面，随着熔岩流的不断发生，人员的进进出出变动，系统内部各种设计的目的丢失，导致之后的工程师不仅不敢清理这些代码，反而只能继续增加它们的复杂性，把系统弄得越来越混乱。</p>
+<p>如果你有一定工作经验，相信对这种状况一定不会陌生。:-D</p>
+<h1 id="为了用户体验（UX）的架构"><a href="#为了用户体验（UX）的架构" class="headerlink" title="为了用户体验（UX）的架构"></a>为了用户体验（UX）的架构</h1><p>用户不会关心你系统的架构，他们只在意用户体验。</p>
+<p>接着我们看到了一个IM app的例子，用户发送了一个消息，然后就看到菊花转啊转，用户并不知道发生了什么。<br><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-demo-1.png" alt="android-app-architecture-2015-demo-1"></p>
+<h2 id="非持久化的提示"><a href="#非持久化的提示" class="headerlink" title="非持久化的提示"></a>非持久化的提示</h2><p>见下图，view发送命令给view controller，然后controller请求网络，并等待网络response再更新view。<br><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-1.png" alt="android-app-architecture-2015-1"></p>
+<p>这样就会让用户觉得体验很差劲，如果我们试着再增加一个Model层（存储），如下图，当用户点击后，view controller并不会直接发送请求，而是先更改Model层状态，Model会先把更新后的状态回调给View Controller，更新View的UI，然后才去发送网络请求，并等待response，然后再次更新UI（其实这里的Model就是Repository层了，对上面屏蔽了数据来源，UGC/FEED流的app中这种体验很重要）。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-2.png" alt="android-app-architecture-2015-2"></p>
+<p>这种设计下，我们就很容易可以造一种假feed（比如真实的是黑色，假的是灰色），等到网络response回来了，再变成真feed（黑色）。</p>
+<p>这就是<em>非持久化的提示</em>。</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><p>第二个例子，当我们从详情页退出回到列表页，然后再次点击列表项进入刚才的详情页，数据竟然不见了。2秒前我还在这里，为什么当我再次回来的时候数据就没了呢。</p>
+<p>因为数据不是持久化的！它只是一个短暂的存储，数据来源是网络。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-3.png" alt="android-app-architecture-2015-3"></p>
+<p>于是我们就得到了上图这样的设计，这样一来我们一进页面就能看到数据，因为数据来自本地，Application Logic会在收到View Controller请求的时候同时请求Persistent Model和Network。</p>
+<h2 id="非持久化提示队列"><a href="#非持久化提示队列" class="headerlink" title="非持久化提示队列"></a>非持久化提示队列</h2><p>再来个神奇的场景，见下图，当用户输入一条信息后，UI展示了假数据，但当他继续输入后，却没有更新新的假数据到界面，这其中发生了什么呢？<br><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-demo-2.png" alt="android-app-architecture-2015-demo-2"></p>
+<p>因为我们的架构是基于命令的！见下面的后台处理示意图：<br><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-4.png" alt="android-app-architecture-2015-4"></p>
+<p>当我们处理请求的时候，我们同时只能做2件事（想象一个一个max为2的线程池），当我们在一个线程抓取bitmap，另一个线程发送数据到服务器的时候，我们无法处理第三个命令（比如从磁盘读取评论）。这是一种很糟糕的情况，调度的优先级有问题，但设计者很难料到这种情况的发生，因为并不知道每一个命令要花多久，你并不能总是估算出来。</p>
+<p>但我们可以分开这些东西。<br><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-5.png" alt="android-app-architecture-2015-5"><br>见上图，我们把队列分为网络和本地队列，这样就不会出现刚才的情形了。就算网络出了问题，用户还是能看到本地的假反馈。</p>
+<h2 id="Activity状态机"><a href="#Activity状态机" class="headerlink" title="Activity状态机"></a>Activity状态机</h2><p><img src="http://blog.zhaiyifan.cn/images/android-app-architecture-2015-6.png" alt="android-app-architecture-2015-6"></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ol>
+<li>为了离线设计（为了更好的UX不能责怪网络）</li>
+</ol>
+<ul>
+<li>UI是基于model的</li>
+<li>App Logic负责同步model和服务器</li>
+<li>这两者不互相依赖（在必要的时候使用events和callbacks通知状态改变）</li>
+</ul>
+<h2 id="Application-Logic-应用逻辑"><a href="#Application-Logic-应用逻辑" class="headerlink" title="Application Logic - 应用逻辑"></a>Application Logic - 应用逻辑</h2><ol>
+<li>解耦</li>
+</ol>
+<ul>
+<li>如果有用的话，使用依赖注入（use it if it helps)</li>
+<li>了解副作用（这不是那么容易的事，尤其是当你在只在自己桌上测试的时候，当你坐在那儿的时候一切都是在最佳状态）</li>
+<li>为了更好的性能，避免反射（笔者看过一些项目在命令中心大肆使用反射，这真的很让我无语）</li>
+</ul>
+<p>很多依赖注入框架有一个很重的运行期组件或者编译期组件。</p>
+<p>比如Dagger2在编译期做这些事，从而达到更好的性能。所以要仔细看看这些库，权衡它们的优劣。</p>
+<h2 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h2><ol>
+<li>API设计</li>
+</ol>
+<ul>
+<li>为了你的用户设计后台（想到了一些后台API为了自己内部的解耦让app一个页面请求十几个接口）</li>
+<li>在服务器尽量处理更多</li>
+<li>传递metadata给客户端</li>
+</ul>
+<p>比如有一张很大很大的图片：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"user"</span>:&#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"MarkZhai"</span>,</span><br><span class="line">    <span class="attr">"photoUrl"</span>: <span class="string">"https://blog.zhaiyifan.cn/..."</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果只是传这些数据给客户端，那就意味着客户端需要自己处理很多逻辑，比如图片宽/高，processor等等：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"user"</span>:&#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"MarkZhai"</span>,</span><br><span class="line">    <span class="attr">"photoUrl"</span>: &#123;</span><br><span class="line">      <span class="attr">"width"</span> : <span class="number">300</span>,</span><br><span class="line">      <span class="attr">"height"</span> : <span class="number">500</span>,</span><br><span class="line">      <span class="attr">"url"</span> : <span class="string">"https://blog.zhaiyifan.cn/..."</span>,</span><br><span class="line">      <span class="attr">"palette"</span> : &#123;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这样就灵活很多。</p>
+<ol start="2">
+<li>电池和数据</li>
+</ol>
+<ul>
+<li>尽量做批量请求</li>
+<li>如果有用的话，使用JobScheduler</li>
+</ul>
+<p>批量请求会更省电。不想让你的app臭名昭著吧。</p>
+<h2 id="Act-locally-sync-globally"><a href="#Act-locally-sync-globally" class="headerlink" title="Act locally, sync globally!"></a>Act locally, sync globally!</h2><p>为了更好的用户体验。全局只做同步，更多的用户回馈性操作在本地进行。</p>
+<h2 id="Activities-和-Fragments"><a href="#Activities-和-Fragments" class="headerlink" title="Activities 和 Fragments"></a>Activities 和 Fragments</h2><p>（又想到了知乎3.0是怎么回事）</p>
+<ul>
+<li>Q: 我应该使用哪一个？</li>
+<li>A: Fragments是activity的封装部件</li>
+</ul>
+<p>So…Fragment的英译是碎片，所以更多的不要为了Fragment而Fragment，当Activity太大，承载太多不同UI的时候，再去尝试拆分为独立的一个个Fragment。笔者在这里想到了<em>单一职责原则</em>。</p>
+<h2 id="Fragments-和-Views"><a href="#Fragments-和-Views" class="headerlink" title="Fragments 和 Views"></a>Fragments 和 Views</h2><p>Q: 我应该使用哪一个？</p>
+<ul>
+<li>Views只是螺母和螺钉，即最基本的组成部分</li>
+<li>而Activities和Fragments是有生命周期的结构</li>
+<li>使用两者，保持职责清晰</li>
+</ul>
+<h2 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h2><ul>
+<li>避免在代码热路径上分配对象（如：可以在外面申明的对象去放到循环里重复申明）</li>
+<li>对象池 和 复用</li>
+</ul>
+<p>一切都是为了减少GC。</p>
+<p>来看一个例子</p>
+<p><code>Rect getBounds()</code> vs. <code>void getBounds(Rect in)</code></p>
+<p>显然第一个设计更干净更符合语言习惯，但它会额外创建一个<code>Rect</code>；而第二个方法则会从外面带Rect进来，从而不会做额外的内存分配。</p>
+<p>难道我们都得用第二个么？不。我们只需要在一些很热的路径上去考虑这些问题，比如那些会运行很多很多次的布局，比如每秒需要进行60次的绘制。而像是你的那些事件处理，像是点击等，你真的不需要去为此而那样在内部扭曲系统。</p>
+<h2 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h2><ul>
+<li>如果丑陋的代码可以帮助你的用户，没问题<br>用户不会去看你的代码，只会看你的UI，如果你的UI很难看，那才是真正影响他们体验的。<br>而且编译后的代码不管怎么都会很难看（笑</li>
+<li>大部分的代码都不是性能关键</li>
+</ul>
+<h1 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h1><p><a href="https://github.com/yigit/dev-summit-architecture-demo" target="_blank" rel="noopener">Talk is cheap, show me the code</a>.</p>
+<h1 id="Q-and-A"><a href="#Q-and-A" class="headerlink" title="Q and A"></a>Q and A</h1><ol>
+<li><p>36min: 自定义view的使用<br>笔者在这想到了facebook发过的那篇feed view优化的文章，QQ空间Android版也有类似的实践。<br>许多人在应该使用Custom View的时候使用了Fragment，应该更多从<em>内聚UI块</em>来看待这个问题。比如有一些事件需要这块UI的某一个部分来响应，那它就更像viewgroup。而如果其中的一部分需要响应应用的其他元素，像是生命周期，做了一些事像是注册事件，那它可能更适合作为一个fragment。但人们在考虑特定子段的时候总会更偏重于fragment。</p>
+</li>
+<li><p>37:33min：怎么在app死掉的时候处理任务到磁盘的串行化和停止<br>在Demo里直接使用了演讲者自己写的Job Queue，开发者可以对它做简单的串行化，比如使用<code>Tape</code>。</p>
+</li>
+<li><p>在这个应用里，你会使用sync adapter还是异步REST请求来和服务器沟通？<br>在这个demo里，我们分开了本地和网络任务。对本地任务，我们总是使用同步请求。而对网络任务，我们使用Job Queue。</p>
+</li>
+<li><p>39min的时候有一个问题，提到了服务器数据问题，这里也有一个很重要的原则：不信任服务器，保持本地model的一致性。<br>在Model保存前，总是去检查是否正确（Null Pattern也是一个很好的实践哦）。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/翻译/" rel="tag"># 翻译</a>
+          
+            <a href="/tags/Android-Architecture/" rel="tag"># Android Architecture</a>
+          
+            <a href="/tags/Android-Dev-Summit/" rel="tag"># Android Dev Summit</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/01/16/BlockCanaryTransparentPerformanceMonitor/" rel="next" title="BlockCanary — 轻松找出Android App界面卡顿元凶">
+                <i class="fa fa-chevron-left"></i> BlockCanary — 轻松找出Android App界面卡顿元凶
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/01/realer-than-you-think/" rel="prev" title="比你想象得更真实">
+                比你想象得更真实 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#尽快行动"><span class="nav-number">1.</span> <span class="nav-text">尽快行动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#哪种模式？"><span class="nav-number">2.</span> <span class="nav-text">哪种模式？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#这不是一个库的调查"><span class="nav-number">3.</span> <span class="nav-text">这不是一个库的调查</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为了用户体验（UX）的架构"><span class="nav-number">4.</span> <span class="nav-text">为了用户体验（UX）的架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#非持久化的提示"><span class="nav-number">4.1.</span> <span class="nav-text">非持久化的提示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存"><span class="nav-number">4.2.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非持久化提示队列"><span class="nav-number">4.3.</span> <span class="nav-text">非持久化提示队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity状态机"><span class="nav-number">4.4.</span> <span class="nav-text">Activity状态机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">4.5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Application-Logic-应用逻辑"><span class="nav-number">4.6.</span> <span class="nav-text">Application Logic - 应用逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络"><span class="nav-number">4.7.</span> <span class="nav-text">网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Act-locally-sync-globally"><span class="nav-number">4.8.</span> <span class="nav-text">Act locally, sync globally!</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activities-和-Fragments"><span class="nav-number">4.9.</span> <span class="nav-text">Activities 和 Fragments</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fragments-和-Views"><span class="nav-number">4.10.</span> <span class="nav-text">Fragments 和 Views</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存"><span class="nav-number">4.11.</span> <span class="nav-text">内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能"><span class="nav-number">4.12.</span> <span class="nav-text">性能</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Demo"><span class="nav-number">5.</span> <span class="nav-text">Demo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-and-A"><span class="nav-number">6.</span> <span class="nav-text">Q and A</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="如期而至的Repository篇，内部实现则由Realm、Retrofit，以及内存级LruCache组成。Repository，顾名思义，即仓库，向上层屏蔽了数据来源和内部实现细节，不需要了解货物来源，只需要拿走就行了。 由于篇幅问题，将分为上下两篇，本篇主要介绍Retrofit的应用和Repository层组装，下篇会讲解本地缓存（包括Realm和内存缓存）以及基于异常的设计。 Why Rep">
+<meta name="keywords" content="New Android Project From 0,Retrofit,Repository">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/04/30/android-new-project-from-0-p5/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="如期而至的Repository篇，内部实现则由Realm、Retrofit，以及内存级LruCache组成。Repository，顾名思义，即仓库，向上层屏蔽了数据来源和内部实现细节，不需要了解货物来源，只需要拿走就行了。 由于篇幅问题，将分为上下两篇，本篇主要介绍Retrofit的应用和Repository层组装，下篇会讲解本地缓存（包括Realm和内存缓存）以及基于异常的设计。 Why Rep">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-repository-1.png">
+<meta property="og:updated_time" content="2016-07-06T09:42:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装">
+<meta name="twitter:description" content="如期而至的Repository篇，内部实现则由Realm、Retrofit，以及内存级LruCache组成。Repository，顾名思义，即仓库，向上层屏蔽了数据来源和内部实现细节，不需要了解货物来源，只需要拿走就行了。 由于篇幅问题，将分为上下两篇，本篇主要介绍Retrofit的应用和Repository层组装，下篇会讲解本地缓存（包括Realm和内存缓存）以及基于异常的设计。 Why Rep">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/android-new-project-from-0-repository-1.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/04/30/android-new-project-from-0-p5/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/04/30/android-new-project-from-0-p5/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-04-30 11:14:49" itemprop="dateCreated datePublished" datetime="2016-04-30T11:14:49+08:00">2016-04-30</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-07-06 17:42:51" itemprop="dateModified" datetime="2016-07-06T17:42:51+08:00">2016-07-06</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>如期而至的Repository篇，内部实现则由Realm、Retrofit，以及内存级LruCache组成。<br>Repository，顾名思义，即仓库，向上层屏蔽了数据来源和内部实现细节，不需要了解货物来源，只需要拿走就行了。</p>
+<p>由于篇幅问题，将分为上下两篇，本篇主要介绍Retrofit的应用和Repository层组装，下篇会讲解本地缓存（包括Realm和内存缓存）以及基于异常的设计。</p>
+<h1 id="Why-Repository"><a href="#Why-Repository" class="headerlink" title="Why Repository"></a>Why Repository</h1><p>首先，为什么我们需要Repository层呢？一言以蔽之，屏蔽细节。</p>
+<p>上层（activity/fragment/presenter）不需要知道数据的细节（或者说 - 数据源），来自于网络、数据库，亦或是内存等等。如此，一来上层可以不用关心细节，二来底层可以根据需求修改，不会影响上层，两者的分离用可以帮助协同开发。</p>
+<p>举些例子：</p>
+<ul>
+<li>当现在是无网状态，我希望列表能直接显示上一次的数据，而不会是空页面。</li>
+<li>除非好友的用户数据过期（比如超过一天），否则希望直接使用本地缓存中的，但如果缓存没有，或者过期，则需要拉取并更新。</li>
+<li>点赞后，即便请求还没发送或者没有收到response，仍然希望显示点赞后的状态。<br>等等。</li>
+</ul>
+<p>如果这些需求，我们都要实现在View或者Presenter中，就会导致充斥大量数据逻辑，目的不单一，难以维护。而Repository层就是来封装这些逻辑的。</p>
+<h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>如图，业务层只能看到repository接口。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/android-new-project-from-0-repository-1.png" alt="Repository Overview"></p>
+<h1 id="Retrofit"><a href="#Retrofit" class="headerlink" title="Retrofit"></a>Retrofit</h1><p><a href="https://github.com/square/retrofit" target="_blank" rel="noopener">Retrofit</a>是Android界网红公司<a href="https://squareup.com/" target="_blank" rel="noopener">Square</a>所开发维护的一个HTTP网络库，目前最新版本是2.0.2（截止2016年4月30日）。其内部使用了自家的<a href="https://github.com/square/okhttp" target="_blank" rel="noopener">OkHttp</a>。</p>
+<p>关于Retrofit的实现机制啊简介的，网上已经很多了，这里我就不啰嗦了，官方文档见<a href="http://square.github.io/retrofit/" target="_blank" rel="noopener">项目主页</a>。这里主要讲讲实际项目中的应用实践。</p>
+<h2 id="import"><a href="#import" class="headerlink" title="import"></a>import</h2><p>root build.gradle:<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> retrofitVersion = <span class="string">"2.0.2"</span></span><br><span class="line"><span class="keyword">def</span> okHttpVersion = <span class="string">'3.2.0'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">project</span>.ext &#123;</span><br><span class="line">    libRetrofit = <span class="string">"com.squareup.retrofit2:retrofit:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libRetrofitConverterGson = <span class="string">"com.squareup.retrofit2:converter-gson:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libRetrofitAdapterRxJava = <span class="string">"com.squareup.retrofit2:adapter-rxjava:$&#123;retrofitVersion&#125;"</span></span><br><span class="line">    libOkHttpLoggingInterceptor = <span class="string">"com.squareup.okhttp3:logging-interceptor:$&#123;okHttpVersion&#125;"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>repository module的build.gradle:<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    <span class="keyword">compile</span> rootProject.ext.libRetrofit</span><br><span class="line">    <span class="keyword">compile</span> rootProject.ext.libRetrofitConverterGson</span><br><span class="line">    <span class="keyword">compile</span> rootProject.ext.libRetrofitAdapterRxJava</span><br><span class="line">    <span class="keyword">compile</span> rootProject.ext.libOkHttpLoggingInterceptor</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="OkHttpClient"><a href="#OkHttpClient" class="headerlink" title="OkHttpClient"></a>OkHttpClient</h2><p>自底向上地，我们需要一个OkHttpClient来设置给Retrofit，这里作为实例，放出一段包含大部分你可能会用到的功能的Client创建代码，可以根据需要进行调整。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> OkHttpClient <span class="title">getClient</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// log用拦截器</span></span><br><span class="line">    HttpLoggingInterceptor logging = <span class="keyword">new</span> HttpLoggingInterceptor();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开发模式记录整个body，否则只记录基本信息如返回200，http协议版本等</span></span><br><span class="line">    <span class="keyword">if</span> (IS_DEV) &#123;</span><br><span class="line">        logging.setLevel(HttpLoggingInterceptor.Level.BODY);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果使用到HTTPS，我们需要创建SSLSocketFactory，并设置到client</span></span><br><span class="line">    SSLSocketFactory sslSocketFactory = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 这里直接创建一个不做证书串验证的TrustManager</span></span><br><span class="line">        <span class="keyword">final</span> TrustManager[] trustAllCerts = <span class="keyword">new</span> TrustManager[]&#123;</span><br><span class="line">                <span class="keyword">new</span> X509TrustManager() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkClientTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span></span></span><br><span class="line"><span class="function">                            <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkServerTrusted</span><span class="params">(X509Certificate[] chain, String authType)</span></span></span><br><span class="line"><span class="function">                            <span class="keyword">throws</span> CertificateException </span>&#123;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="keyword">public</span> X509Certificate[] getAcceptedIssuers() &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="keyword">new</span> X509Certificate[]&#123;&#125;;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Install the all-trusting trust manager</span></span><br><span class="line">        <span class="keyword">final</span> SSLContext sslContext = SSLContext.getInstance(<span class="string">"SSL"</span>);</span><br><span class="line">        sslContext.init(<span class="keyword">null</span>, trustAllCerts, <span class="keyword">new</span> java.security.SecureRandom());</span><br><span class="line">        <span class="comment">// Create an ssl socket factory with our all-trusting manager</span></span><br><span class="line">        sslSocketFactory = sslContext.getSocketFactory();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        Logger.e(TAG, e.getMessage());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> OkHttpClient.Builder()</span><br><span class="line">            <span class="comment">// HeadInterceptor实现了Interceptor，用来往Request Header添加一些业务相关数据，如APP版本，token信息</span></span><br><span class="line">            .addInterceptor(<span class="keyword">new</span> HeadInterceptor())</span><br><span class="line">            .addInterceptor(logging)</span><br><span class="line">            <span class="comment">// 连接超时时间设置</span></span><br><span class="line">            .connectTimeout(<span class="number">10</span>, TimeUnit.SECONDS)</span><br><span class="line">            <span class="comment">// 读取超时时间设置</span></span><br><span class="line">            .readTimeout(<span class="number">10</span>, TimeUnit.SECONDS)</span><br><span class="line">            .sslSocketFactory(sslSocketFactory)</span><br><span class="line">            <span class="comment">// 信任所有主机名</span></span><br><span class="line">            .hostnameVerifier((hostname, session) -&gt; <span class="keyword">true</span>)</span><br><span class="line">            <span class="comment">// 这里我们使用host name作为cookie保存的key</span></span><br><span class="line">            .cookieJar(<span class="keyword">new</span> CookieJar() &#123;</span><br><span class="line">                <span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;HttpUrl, List&lt;Cookie&gt;&gt; cookieStore = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveFromResponse</span><span class="params">(HttpUrl url, List&lt;Cookie&gt; cookies)</span> </span>&#123;</span><br><span class="line">                    cookieStore.put(HttpUrl.parse(url.host()), cookies);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> List&lt;Cookie&gt; <span class="title">loadForRequest</span><span class="params">(HttpUrl url)</span> </span>&#123;</span><br><span class="line">                    List&lt;Cookie&gt; cookies = cookieStore.get(HttpUrl.parse(url.host()));</span><br><span class="line">                    <span class="keyword">return</span> cookies != <span class="keyword">null</span> ? cookies : <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上包含了大部分你可能需要的特性，可以自由进行组合。</p>
+<h2 id="RxJava异步请求"><a href="#RxJava异步请求" class="headerlink" title="RxJava异步请求"></a>RxJava异步请求</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MrService <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (MrService.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (mInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                mInstance = <span class="keyword">new</span> MrService();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mInstance;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">MrService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">MrService</span><span class="params">(<span class="keyword">boolean</span> useRxJava)</span> </span>&#123;</span><br><span class="line">    Retrofit.Builder builder = <span class="keyword">new</span> Retrofit.Builder()</span><br><span class="line">            .baseUrl(IS_DEV ? API_DEV_URL : API_PRODUCT_URL)</span><br><span class="line">            .addConverterFactory(GsonConverterFactory.create())</span><br><span class="line">            .client(getClient());</span><br><span class="line">    <span class="keyword">if</span> (useRxJava) &#123;</span><br><span class="line">        builder.addCallAdapterFactory(RxJavaCallAdapterFactory.create());</span><br><span class="line">    &#125;</span><br><span class="line">    mRetrofit = builder.build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应API请求类如<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SystemApi</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST</span>(<span class="string">"user/feedback"</span>)</span><br><span class="line">    <span class="function">Observable&lt;MrResponse&gt; <span class="title">feedback</span><span class="params">(@Field(<span class="string">"content"</span>)</span> String content,</span></span><br><span class="line"><span class="function">                                    @<span class="title">Field</span><span class="params">(<span class="string">"model_name"</span>)</span> String modelName,</span></span><br><span class="line"><span class="function">                                    @<span class="title">Field</span><span class="params">(<span class="string">"system_version"</span>)</span> String systemVersion,</span></span><br><span class="line"><span class="function">                                    @<span class="title">Field</span><span class="params">(<span class="string">"img_keys"</span>)</span> List&lt;String&gt; imageKeyList)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="同步请求"><a href="#同步请求" class="headerlink" title="同步请求"></a>同步请求</h2><p>有时候我们需要做同步请求，比如提供结果给一些第三方库，它们可能需要直接返回对应数据（像我最近碰到的融云….），而我们只需要拉数据同步返回，对其所在线程和调用事件均一脸懵逼。</p>
+<p>这时候就需要创建一个同步的retrofit客户端，其实就是不要去使用RxJava的adapter啦。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MrService <span class="title">getSynchronousInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (mSyncInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (MrService.class) &#123;</span><br><span class="line">            <span class="keyword">if</span> (mSyncInstance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                mSyncInstance = <span class="keyword">new</span> MrService(<span class="keyword">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mSyncInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应地，我们需要定义请求类，这里我们需要使用Call&lt;&gt;去包一下最终解析对象的类。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RongCloudApi</span> </span>&#123;</span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST</span>(<span class="string">"im/getGroupInfo"</span>)</span><br><span class="line">    <span class="function">Call&lt;MrResponse&gt; <span class="title">getGroupInfoSynchronous</span><span class="params">(@Field(<span class="string">"group_id"</span>)</span> String groupId)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@FormUrlEncoded</span></span><br><span class="line">    <span class="meta">@POST</span>(<span class="string">"user/nameCardLite"</span>)</span><br><span class="line">    <span class="function">Call&lt;MrResponse&gt; <span class="title">getNameCardLiteSynchronous</span><span class="params">(@Field(<span class="string">"uid"</span>)</span> String userId)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="数据格式解析"><a href="#数据格式解析" class="headerlink" title="数据格式解析"></a>数据格式解析</h2><p>数据的解析当然是必不可少的一环了，常用格式对应的序列化库以retrofit官网为例:</p>
+<ul>
+<li>Gson: com.squareup.retrofit2:converter-gson</li>
+<li>Jackson: com.squareup.retrofit2:converter-jackson</li>
+<li>Moshi: com.squareup.retrofit2:converter-moshi</li>
+<li>Protobuf: com.squareup.retrofit2:converter-protobuf</li>
+<li>Wire: com.squareup.retrofit2:converter-wire</li>
+<li>Simple XML: com.squareup.retrofit2:converter-simplexml</li>
+<li>Scalars (primitives, boxed, and String): com.squareup.retrofit2:converter-scalars</li>
+</ul>
+<p>部分高大上公司可能自己使用内部的二进制格式，自己实现ConverterFactory去解析就行了。</p>
+<p>这里以最常用的json为例，使用GsonConverterFactory，良好的数据结构通常都会带有状态码和对应信息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SerializedName</span>(<span class="string">"status_no"</span>)</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> statusCode;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SerializedName</span>(<span class="string">"status_msg"</span>)</span><br><span class="line"><span class="keyword">private</span> String statusMessage;</span><br></pre></td></tr></table></figure>
+<p>根据statusCode可以快速判断是否出现错误，通常0或者某个正数为正确，负数则根据和服务器的协定做不同处理。<br>这里对Gson的bean，推荐使用插件GsonFormat，生成起来很方便。</p>
+<p>至于具体的数据，则有两种方案，一是使用data作为key把具体数据套起来，内部则使用K/V进行存储，保证不存在不规范的直接丢一个array在data里面的情形。</p>
+<h3 id="二次的组合解析"><a href="#二次的组合解析" class="headerlink" title="二次的组合解析"></a>二次的组合解析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CommonResponse</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"status_no"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> statusCode;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"status_msg"</span>)</span><br><span class="line">    <span class="keyword">private</span> String statusMessage;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"time"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> time;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"data"</span>)</span><br><span class="line">    <span class="keyword">public</span> Object data;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// setter and getter</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>二次组合的解析通过将创建一个通用的Response Bean来做泛解析，如果statusCode表明接口请求成功，则继续解析data:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">Observable&lt;T&gt; <span class="title">extractData</span><span class="params">(Observable&lt;MrResponse&gt; observable, Class&lt;T&gt; clazz)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> observable.flatMap(response -&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (response == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> Observable.error(<span class="keyword">new</span> NetworkConnectionException());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (response.getStatusCode() == ResponseException.STATUS_CODE_SUCCESS) &#123;</span><br><span class="line">            <span class="keyword">return</span> Observable.just(mGson.fromJson(mGson.toJson(response.data), clazz));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Logger.e(TAG, response.data);</span><br><span class="line">            <span class="keyword">return</span> Observable.error(<span class="keyword">new</span> ResponseException(response));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用则如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Observable&lt;AlbumApiResult&gt; <span class="title">listPhoto</span><span class="params">(String uid)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> RepositoryUtils.extractData(mAlbumApi.listPhoto(uid), AlbumApiResult.class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>所有接口都可以通过<code>RepositoryUtils.extractData()</code>进行泛型调用。</p>
+<p>如此一来，如果response为空，我们仅在statusCode正确时才会去解析具体的数据，否则抛出对应的异常（基于异常的数据层设计在下面会具体讲）。</p>
+<h3 id="单次的继承处理"><a href="#单次的继承处理" class="headerlink" title="单次的继承处理"></a>单次的继承处理</h3><p>上一种处理方式尽管看起来很优雅，但是存在一个问题，就是会重复解析，当statusCode正确时，会对data的object再次进行json处理。如果确实是error，比如statusCode为-1、-2这种，确实节省了开销，因为gson会去反射构造对应类的adapter，解析所有字段，创建对应的BoundField。</p>
+<p>但考虑到大部分情况下还是正确的response居多，所以也可以使用继承的结构，我们创建<code>BaseResponse</code>存放通用字段，其他所有Gson Bean则继承该<code>BaseResponse</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseResponse</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"status_no"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> statusCode;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"status_msg"</span>)</span><br><span class="line">    <span class="keyword">private</span> String statusMessage;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"time"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> time;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// setter and getter</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConcreteResponse</span> <span class="keyword">extends</span> <span class="title">BaseResponse</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@SerializedName</span>(<span class="string">"other_fields"</span>)</span><br><span class="line">    <span class="keyword">private</span> String otherFields;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的判断和error抛出可以参照上小节的，这里就不赘述了。</p>
+<h1 id="Repository层组装实现"><a href="#Repository层组装实现" class="headerlink" title="Repository层组装实现"></a>Repository层组装实现</h1><p>组装即根据组合各个数据源，如此又分为直接在实现方法中组合结果，亦或是通过DataStoreFactory进行封装。根据复杂度和个人喜好而定，毕竟使用后者需要新增好多类，相对来说有一点重。</p>
+<h2 id="基于接口的设计实现"><a href="#基于接口的设计实现" class="headerlink" title="基于接口的设计实现"></a>基于接口的设计实现</h2><p>拿一个最简单的repository，七牛Repository来作例子：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">QiniuRepository</span> </span>&#123;</span><br><span class="line">    <span class="function">Observable&lt;QiniuToken&gt; <span class="title">getQiniuUploadToken</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QiniuDataRepository</span> <span class="keyword">implements</span> <span class="title">QiniuRepository</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Inject</span></span><br><span class="line">    <span class="keyword">protected</span> QiniuApi mQiniuApi;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Inject</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">QiniuDataRepository</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Observable&lt;QiniuToken&gt; <span class="title">getQiniuUploadToken</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> RepositoryUtils.extractData(mQiniuApi.getQiniuUploadToken(), QiniuToken.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="DataStoreFactory"><a href="#DataStoreFactory" class="headerlink" title="DataStoreFactory"></a>DataStoreFactory</h2><p>使用DataStoreFactory封装数据来源：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Singleton</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDataStoreFactory</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Context mContext;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserCache mUserCache;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Inject</span></span><br><span class="line">    <span class="keyword">protected</span> UserApi mUserApi;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Inject</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserDataStoreFactory</span><span class="params">(Context context, UserCache userCache)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (context == <span class="keyword">null</span> || userCache == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Constructor parameters cannot be null!!!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        mContext = context.getApplicationContext();</span><br><span class="line">        mUserCache = userCache;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Create &#123;<span class="doctag">@link</span> UserDataStore&#125; from a user id.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDataStore <span class="title">create</span><span class="params">(String userId)</span> </span>&#123;</span><br><span class="line">        UserDataStore userDataStore;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!mUserCache.isExpired() &amp;&amp; mUserCache.isCached(userId)) &#123;</span><br><span class="line">            userDataStore = <span class="keyword">new</span> DiskUserDataStore(mUserCache);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            userDataStore = createCloudDataStore();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userDataStore;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Create &#123;<span class="doctag">@link</span> UserDataStore&#125; to retrieve data from the Cloud.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDataStore <span class="title">createCloudDataStore</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CloudUserDataStore(mUserApi, mUserCache);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>老实说这样的话，一来要写很多方法和接口，二来通过Factory判断创建哪种DataStore还是挺麻烦的，比如用户主页数据我们可以判断，但登陆登出这些，就需要直接指定<code>createCloudDataStore()</code>了，所以个人认为意义不大。</p>
+<h2 id="在实现方法中组合"><a href="#在实现方法中组合" class="headerlink" title="在实现方法中组合"></a>在实现方法中组合</h2><p>如下是使用DBFlow和网络Api进行组合的一个list获取接口。</p>
+<p>我们使用RxJava的concat组合2个Observable，前者从cache(数据库)获取数据，后者从网络Api获取数据，通常数据库当然会更快。我们还保留了一个参数isForceRefresh来保证在某些情况下可以强制从网络获取数据。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> Observable&lt;List&lt;OperationPositionWrapper&gt;&gt; getHome(<span class="keyword">final</span> <span class="keyword">boolean</span> isForceRefresh) &#123;</span><br><span class="line">    <span class="keyword">final</span> Observable&lt;List&lt;OperationPositionWrapper&gt;&gt; fromCache = Observable.create(</span><br><span class="line">            <span class="keyword">new</span> Observable.OnSubscribe&lt;List&lt;OperationPosition&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">(Subscriber&lt;? <span class="keyword">super</span> List&lt;OperationPosition&gt;&gt; subscriber)</span> </span>&#123;</span><br><span class="line">                    List&lt;OperationPosition&gt; dbCache = <span class="keyword">new</span> Select().from(OperationPosition.class).queryList();</span><br><span class="line">                    <span class="keyword">if</span> (dbCache != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        subscriber.onNext(dbCache);</span><br><span class="line">                    &#125;</span><br><span class="line">                    subscriber.onCompleted();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .map(<span class="keyword">new</span> Func1&lt;List&lt;OperationPosition&gt;, List&lt;OperationPositionWrapper&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> List&lt;OperationPositionWrapper&gt; <span class="title">call</span><span class="params">(List&lt;OperationPosition&gt; operationPositions)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> OperationPositionMapper.wrap(operationPositions);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .filter(<span class="keyword">new</span> Func1&lt;List&lt;OperationPositionWrapper&gt;, Boolean&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> Boolean <span class="title">call</span><span class="params">(List&lt;OperationPositionWrapper&gt; operationPositionWrappers)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> ListUtils.isNotEmpty(operationPositionWrappers);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Observable&lt;List&lt;OperationPositionWrapper&gt;&gt; fromNetwork = RepositoryUtils.observableWithApi(<span class="keyword">new</span> GetOperationPositionsForYouleHomeApi())</span><br><span class="line">            .map(<span class="keyword">new</span> Func1&lt;List&lt;OperationPositionPO&gt;, List&lt;OperationPositionWrapper&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> List&lt;OperationPositionWrapper&gt; <span class="title">call</span><span class="params">(List&lt;OperationPositionPO&gt; operationPositionList)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> OperationPositionMapper.transform(operationPositionList);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .doOnNext(<span class="keyword">new</span> Action1&lt;List&lt;OperationPositionWrapper&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">(List&lt;OperationPositionWrapper&gt; operationPositionWrappers)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span> (ListUtils.isNotEmpty(operationPositionWrappers)) &#123;</span><br><span class="line">                        <span class="keyword">new</span> Delete().from(OperationPosition.class).queryClose();</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">for</span> (OperationPositionWrapper wrapper : operationPositionWrappers) &#123;</span><br><span class="line">                        wrapper.getOperationPosition().save();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isForceRefresh) &#123;</span><br><span class="line">        <span class="keyword">return</span> fromNetwork;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Observable.concat(fromCache, fromNetwork);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本篇为Repository层的上篇，主要介绍了组合及Retrofit的应用。下篇将会讲述数据库，内存Cache，以及统一的异常处理设计。</p>
+<p><strong>另外，打个小广告，本司的新产品Crew已经在各大Android应用市场上线，专注于职场垂直社交。一搜和兴趣相投的人聊天。iOS版本正在审核中。</strong></p>
+<p><em>2个字找到志趣相投的职场伙伴，秒搜陌生人同类，智能自动破冰。多关键字叠加，高效率锁定职场同僚。精准匹配兴趣对象，超轻聊天，更能一键组建群聊，加入一群人的狂欢。</em></p>
+<p>demo没空写了，反正我也没混淆，直接反编译来黑我吧。哈哈。有bug或者功能上的意见建议欢迎直接反馈给我。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Retrofit/" rel="tag"># Retrofit</a>
+          
+            <a href="/tags/Repository/" rel="tag"># Repository</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/28/about-learning/" rel="next" title="计算机从业者的技术成长学习之路">
+                <i class="fa fa-chevron-left"></i> 计算机从业者的技术成长学习之路
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/15/android-new-project-from-0-p6/" rel="prev" title="从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理">
+                从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Why-Repository"><span class="nav-number">1.</span> <span class="nav-text">Why Repository</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Overview"><span class="nav-number">2.</span> <span class="nav-text">Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Retrofit"><span class="nav-number">3.</span> <span class="nav-text">Retrofit</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#import"><span class="nav-number">3.1.</span> <span class="nav-text">import</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OkHttpClient"><span class="nav-number">3.2.</span> <span class="nav-text">OkHttpClient</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RxJava异步请求"><span class="nav-number">3.3.</span> <span class="nav-text">RxJava异步请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步请求"><span class="nav-number">3.4.</span> <span class="nav-text">同步请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据格式解析"><span class="nav-number">3.5.</span> <span class="nav-text">数据格式解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#二次的组合解析"><span class="nav-number">3.5.1.</span> <span class="nav-text">二次的组合解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单次的继承处理"><span class="nav-number">3.5.2.</span> <span class="nav-text">单次的继承处理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Repository层组装实现"><span class="nav-number">4.</span> <span class="nav-text">Repository层组装实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基于接口的设计实现"><span class="nav-number">4.1.</span> <span class="nav-text">基于接口的设计实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DataStoreFactory"><span class="nav-number">4.2.</span> <span class="nav-text">DataStoreFactory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在实现方法中组合"><span class="nav-number">4.3.</span> <span class="nav-text">在实现方法中组合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

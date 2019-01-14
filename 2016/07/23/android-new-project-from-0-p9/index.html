@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="这回来讲讲后台接口的设计。 可能有同学会觉得后台的接口和我们大前端开发有什么关系？试想一下，在碰到一些不合理的接口设计的时候，你们开发是否觉得很别扭——需要为了坑爹的接口写很多脏代码引坑？甚至，这么开发出来的页面，体验也会很差？我们不是说硬无理要求后端接口按照前端业务去封装，而是说为了项目更好地发展，为了用户能有更棒的体验，应该有讨论商量的空间。一些差劲的设计，应该被拒绝。 本文使用前端来指代 A">
+<meta name="keywords" content="New Android Project From 0,接口设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目9 - 前端用后台接口设计">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/07/23/android-new-project-from-0-p9/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="这回来讲讲后台接口的设计。 可能有同学会觉得后台的接口和我们大前端开发有什么关系？试想一下，在碰到一些不合理的接口设计的时候，你们开发是否觉得很别扭——需要为了坑爹的接口写很多脏代码引坑？甚至，这么开发出来的页面，体验也会很差？我们不是说硬无理要求后端接口按照前端业务去封装，而是说为了项目更好地发展，为了用户能有更棒的体验，应该有讨论商量的空间。一些差劲的设计，应该被拒绝。 本文使用前端来指代 A">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://7xvy2g.com1.z0.glb.clouddn.com/qrcode_for_gh_2e738d2eb3b5_430.jpg">
+<meta property="og:updated_time" content="2016-07-27T07:58:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目9 - 前端用后台接口设计">
+<meta name="twitter:description" content="这回来讲讲后台接口的设计。 可能有同学会觉得后台的接口和我们大前端开发有什么关系？试想一下，在碰到一些不合理的接口设计的时候，你们开发是否觉得很别扭——需要为了坑爹的接口写很多脏代码引坑？甚至，这么开发出来的页面，体验也会很差？我们不是说硬无理要求后端接口按照前端业务去封装，而是说为了项目更好地发展，为了用户能有更棒的体验，应该有讨论商量的空间。一些差劲的设计，应该被拒绝。 本文使用前端来指代 A">
+<meta name="twitter:image" content="http://7xvy2g.com1.z0.glb.clouddn.com/qrcode_for_gh_2e738d2eb3b5_430.jpg">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/07/23/android-new-project-from-0-p9/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目9 - 前端用后台接口设计 | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/07/23/android-new-project-from-0-p9/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目9 - 前端用后台接口设计
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-07-23 16:39:19" itemprop="dateCreated datePublished" datetime="2016-07-23T16:39:19+08:00">2016-07-23</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-07-27 15:58:45" itemprop="dateModified" datetime="2016-07-27T15:58:45+08:00">2016-07-27</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这回来讲讲后台接口的设计。</p>
+<p>可能有同学会觉得后台的接口和我们大前端开发有什么关系？试想一下，在碰到一些不合理的接口设计的时候，你们开发是否觉得很别扭——需要为了坑爹的接口写很多脏代码引坑？甚至，这么开发出来的页面，体验也会很差？我们不是说硬无理要求后端接口按照前端业务去封装，而是说为了项目更好地发展，为了用户能有更棒的体验，应该有讨论商量的空间。一些差劲的设计，应该被拒绝。</p>
+<p>本文使用前端来指代 Android、iOS 以及 Web。</p>
+<p>本文不是教大家撕逼的（赶紧撇清关系）。</p>
+<h1 id="全局"><a href="#全局" class="headerlink" title="全局"></a>全局</h1><p>全局指所有接口统一的规范。</p>
+<h2 id="请求头"><a href="#请求头" class="headerlink" title="请求头"></a>请求头</h2><p>应该使用http header来放置通用性的参数，比如：</p>
+<ul>
+<li>APPID（Android/iOS/H5）</li>
+<li>APPVER（版本号）</li>
+<li>APP-BUILD-NUM（内部小版本号）</li>
+<li>TOKEN</li>
+<li>NETWORK（网络环境）</li>
+<li>LANGUAGE（语言）</li>
+<li>等等</li>
+</ul>
+<p>前端使用 <code>POST</code> 键值对方式提交给后端，可以使用 <code>RawJSON</code> 格式。<br><code>Content-Type</code> 设为 <code>application/x-www-form-urlencoded</code> 或者 <code>application/json</code>。</p>
+<h2 id="全局响应格式"><a href="#全局响应格式" class="headerlink" title="全局响应格式"></a>全局响应格式</h2><p>响应格式应该统一，方便前端做统一的处理，尤其是数据字段，应该统一放在一个map里面。</p>
+<table>
+<thead>
+<tr>
+<th>名字</th>
+<th>类型</th>
+<th>详细描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>status_no</td>
+<td>INT</td>
+<td>状态码</td>
+</tr>
+<tr>
+<td>status_msg</td>
+<td>STRING</td>
+<td>状态信息</td>
+</tr>
+<tr>
+<td>data</td>
+<td>MAP</td>
+<td>响应内容</td>
+</tr>
+<tr>
+<td>time</td>
+<td>INT</td>
+<td>响应时间戳</td>
+</tr>
+</tbody>
+</table>
+<h2 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h2><p>全局应该定义统一的状态码（status_code），而不应该每个接口单独去定义。</p>
+<p>具体规则可以自行定义，比如0为正确，负数为错误。</p>
+<p>常见的错误状态码有</p>
+<ul>
+<li>普通异常</li>
+<li>token不合法，需要重新登录</li>
+<li>重复登录</li>
+<li>需要完善个人信息</li>
+<li>第三方账号登陆，需要绑定官方账号</li>
+<li>请求头不合法（版本号，APPID等）</li>
+<li>数据解密错误</li>
+</ul>
+<p>可以根据错误类型划分使用的区域段，如登陆系列使用 -1000 到 -1999 区域。</p>
+<p>如此定义后，前端可以进行全局的统一处理，如重复登陆则踢出用户。</p>
+<h2 id="错误信息"><a href="#错误信息" class="headerlink" title="错误信息"></a>错误信息</h2><p>除了特殊的错误信息——如重复登录、token不合法这些状态码对应的，以及无网、没数据这些，对于通用的异常，应该由后台返回错误信息。</p>
+<h2 id="统一data字段"><a href="#统一data字段" class="headerlink" title="统一data字段"></a>统一data字段</h2><p>data 字段应该统一放在一个 map 内，里面存放具体的响应信息。</p>
+<h2 id="Scheme"><a href="#Scheme" class="headerlink" title="Scheme"></a>Scheme</h2><p>全局定义统一的 scheme（Deeplink），方便前端进行跳转。</p>
+<p>前端只需要定义自己唯一的 Deeplink 并进行注册即可（scheme 和 host）。</p>
+<p>具体使用 REST 风格（如 markzhai://article/XXX），还是普通的 urlencode (如 markzhai://article/?id=XXX&amp;redirect_url=XXX）可以根据自身需求定义。</p>
+<p>使用 REST 风格的一个顾虑是可能 scheme 本身并不是基于资源的，而是基于类型、行为等，所以 urlencode 可能更通用，但相应地基于 Deeplink 的资源索引会希望你是无状态的 REST 风格。</p>
+<h1 id="回传-or-状态码"><a href="#回传-or-状态码" class="headerlink" title="回传 or 状态码"></a>回传 or 状态码</h1><p>应该使用回传还是状态码呢？比如点赞消息，是应该回传一个 status_code，0则表示点赞成功，还是应该回传现在的赞状态呢？</p>
+<p>其实这两者对于后台的性能来说，是几乎没有影响的，因为取得的只是修改的字段的最后结果。但是对前端来说，差别就有了——需要维护状态。</p>
+<p>举一个例子：<br>A 和 B 是两个用户，B 关注了 A，A 没有关注 B。<br>A 看 B 的主页的时候，显示关系是 <em>未关注</em>，此时 A 点击了关注，如果没有回传信息，那么我们只能把关系刷新为 <em>已关注</em>，而没有足够的信息去刷新为 <em>互相关注</em>。否则就需要前端去做恶心的逻辑（后端一开始用户关系就需要传 B 关注了 A），根据原来的关系去做切换，还要在失败的时候刷回原来的状态。</p>
+<p>一些有丰富经验的后端会在这种接口使用回传，因为他们知道区别。</p>
+<h1 id="模块vs页面"><a href="#模块vs页面" class="headerlink" title="模块vs页面"></a>模块vs页面</h1><p>在后台的接口设计上，又分为了按页面以及按模块。</p>
+<p>按页面的接口<em>尽可能</em>让前端一个页面只请求一次，一次返回所需要的全部信息；按模块的接口在后端定义自己的业务模块如用户、Feed、标签、搜索等，并尽量避免模块间的耦合。</p>
+<p>从后端角度来说，按模块当然是更好的（只需要划分地够细就好），到时候需求有什么变更，让前端自己去改变接口的组合就好，自己高枕无忧。但从前端的角度来说，接口的组合涉及到异步之间的关系，尽管RxJava这样的响应式编程框架让异步简单了很多，但仍然希望可以避免，更严重的是，多次接口请求会让前端的体验变差，并行接口的影响稍小，而一些有前置后置关系的接口则麻烦比较大，一个接着一个请求，会让用户等很久。即便是并行接口，有时候页面的渲染仍然需要所有接口数据返回后才可以进行。</p>
+<p>但如果让后端按照页面去套，这样在后端其实一样有性能的损耗，需要一个页面接口去单独调用各个模块的接口，然后进行组合。</p>
+<p>究竟如何选择呢？笔者认为在服务器性能足够的前提下，后端应该尽量减少页面请求次数，尤其是有依赖关系的串行请求。另一方面，在一些影响不那么大的页面，则可以由前端自行进行接口组合（比如上面是用户主页的用户展示，下面是该用户的 feed 列表）。</p>
+<p>另外，如果你们有一个好的设计师，那么他应该会贯彻一个地方只应该以一样东西为主体，而不应该去把乱七八糟的东西拼凑在一起。</p>
+<h1 id="分页信息"><a href="#分页信息" class="headerlink" title="分页信息"></a>分页信息</h1><p>现代的前端交互上，已经很少会有页码显示了，所以很多后端的列表页接口中，就没有带上了分页的信息，而改让客户端去维护请求的页码。</p>
+<p>那么，分页信息在接口中，真的就没有存在的必要了吗？其实未必。</p>
+<h2 id="为什么需要分页信息"><a href="#为什么需要分页信息" class="headerlink" title="为什么需要分页信息"></a>为什么需要分页信息</h2><p>页面大小（pageSize）可能改变（无论是前端自己的配置亦或是后台修改），如果仅由客户端维护页码，那么下次请求下一页就会出错，除非客户端带上自己上次的页面大小。</p>
+<p>如果客户端不知道当前页码和总页数，就无法在请求完判断底部应该显示<em>上拉加载更多</em>还是<em>没数据</em>了，导致必须再请求一次，根据是否返回 list 以及数据是否为空去进行判断。</p>
+<p>另外，由后端返回页码也避免了客户端修改页码出错的可能。</p>
+<p>但对后端来说，这些信息的获取却意味着更大的计算和I/O资源损耗。</p>
+<h2 id="折中办法"><a href="#折中办法" class="headerlink" title="折中办法"></a>折中办法</h2><p>折中地，可以让后端返回一个 <code>has_more</code> 字段，这样可以避免最后一次不必要的请求（尤其是数据都不够显示满一页的情况下），体验会好很多。尽管这样仍然无法避免页面大小改变的问题。</p>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>一些后台喜欢让让前端写限制逻辑，比如搜索的关键字限制，各种过滤逻辑。</p>
+<p>咱们先不提让前端写死这些逻辑的灵活性问题（客户端和网页不同，不能那么方便地发版本，即便是网页，改代码发版本就不用测试了吗？出了问题你背？）。前端的输入真的可以信任吗？且不谈代码可能写的不够严谨导致输入跳过了检查，用户还能root、越狱，甚至可以反编译客户端或者直接模拟请求。</p>
+<p>所以良好的配置检查应该有两种</p>
+<ul>
+<li>后端下发配置字段，前端根据字段去做对应检查。好处是减少后台压力，坏处是无法保证安全性。</li>
+<li>后端收到请求自行检查过滤，如果出错则返回错误信息给前端显示。</li>
+</ul>
+<p>毋庸置疑，后者更好。</p>
+<p>另外，再说说灵活性。今天可能限制3个字，明天产品需求可能就是4个字，现在产品/运营说不会改，到时候难道就真的一定不会改吗？</p>
+<h1 id="空字段"><a href="#空字段" class="headerlink" title="空字段"></a>空字段</h1><p>一些空字段，如果没有，服务端应该返回一个空的默认字段 比如 String 用””，int 用 0，Object 用 {}，Array 用 []，这样减小前端校验某些校验漏了出现错误的情况。</p>
+<pre><code>---- 由三帅泥阿布补充
+</code></pre><p>我个人认为这样本身对流量损耗不大，且确实避免了很多可能的异常，是个很好的意见。当然了，正如后端不应该相信前端的输入一样，前端也不能相信后端数据的完备性，仍然还是需要悲剧地去校验。</p>
+<h1 id="教训"><a href="#教训" class="headerlink" title="教训"></a>教训</h1><ul>
+<li><p>不要相信什么以后重构，接口现在这么说，以后他会告诉你，没法兼容老版本所以只能这样了（甚至搞出两套规则让你同时兼容）。</p>
+</li>
+<li><p>不是说后端就是老大。大家的目标都是为了项目能做好，而现在通常前端的压力比后端更大（前端写得头昏脑花，后端网上东逛西逛），所以在不会很大影响性能的前提下，应该满足前端的合理需求。体验为先。（硬气一点，老大应该挺你，甚至亲自去撕逼，大不了找CTO）</p>
+</li>
+<li><p>接口的频繁修改要向上反馈，测试数据不满足要求也要及时提出。咱们不做背锅侠。</p>
+</li>
+<li><p>灵活，灵活。做各种需求的时候，想一想，这儿会不会改变？就算现在不会变，以后就不会变吗？比如抽屉里的入口，是不是要做成可配置的？多问问，实现上尽量灵活。</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本篇讲了很多通用的后端接口设计问题。帮助大家在面对一些不合理的接口设计时，能进行友善的讨论（撕逼），让项目能做得更好。欢迎各位在评论里或者通过邮件（<a href="mailto:zhaiyifan56@gmail.com" target="_blank" rel="noopener">zhaiyifan56@gmail.com</a>）补充其他点，我会标注出来源。</p>
+<hr>
+<p>欢迎加入QQ群：568863373。</p>
+<p>欢迎关注我们的公众号：<code>魔都三帅</code>，欢迎大家来投稿~只需要是未在微信平台上发布过的技术相关类文章都可以哦（不局限于任何语言和平台）。</p>
+<p><img src="http://7xvy2g.com1.z0.glb.clouddn.com/qrcode_for_gh_2e738d2eb3b5_430.jpg" alt="公众号"></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/接口设计/" rel="tag"># 接口设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/21/data-binding-component/" rel="next" title="Data Binding Component详解 - 换肤什么的只是它的一个小应用！">
+                <i class="fa fa-chevron-left"></i> Data Binding Component详解 - 换肤什么的只是它的一个小应用！
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/04/android-new-project-from-0-p10/" rel="prev" title="从零开始的Android新项目10 - React Native & Redux">
+                从零开始的Android新项目10 - React Native & Redux <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#全局"><span class="nav-number">1.</span> <span class="nav-text">全局</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#请求头"><span class="nav-number">1.1.</span> <span class="nav-text">请求头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全局响应格式"><span class="nav-number">1.2.</span> <span class="nav-text">全局响应格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#状态码"><span class="nav-number">1.3.</span> <span class="nav-text">状态码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#错误信息"><span class="nav-number">1.4.</span> <span class="nav-text">错误信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#统一data字段"><span class="nav-number">1.5.</span> <span class="nav-text">统一data字段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Scheme"><span class="nav-number">1.6.</span> <span class="nav-text">Scheme</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#回传-or-状态码"><span class="nav-number">2.</span> <span class="nav-text">回传 or 状态码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模块vs页面"><span class="nav-number">3.</span> <span class="nav-text">模块vs页面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分页信息"><span class="nav-number">4.</span> <span class="nav-text">分页信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么需要分页信息"><span class="nav-number">4.1.</span> <span class="nav-text">为什么需要分页信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#折中办法"><span class="nav-number">4.2.</span> <span class="nav-text">折中办法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置"><span class="nav-number">5.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#空字段"><span class="nav-number">6.</span> <span class="nav-text">空字段</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#教训"><span class="nav-number">7.</span> <span class="nav-text">教训</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

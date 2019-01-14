@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="ieCGPLaYJPLAp6By_5652iPczS2GIfAPy9XGEkD6-e0">
+
+
+
+
+
+
+
+  <meta name="baidu-site-verification" content="780t5iFaTK">
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=6.7.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.7.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.7.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.7.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.7.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="本篇来讲讲 React Native 和 Redux，和其他一上来就啪啪啪丢上来一堆翻译的东西不同，本文会从简单的例子入手，让大家能快速地明白 React Native 是什么，Redux 和常见的 MVC、MVP 等有什么区别，怎么去组织一个 Redux 架构的 React Native 项目。 为避免大家还没入门就放弃，预计下一篇才会从我们项目中的实践出发，讲讲更复杂的应用场景。 什么是Rea">
+<meta name="keywords" content="React Native,New Android Project From 0,Redux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始的Android新项目10 - React Native &amp; Redux">
+<meta property="og:url" content="http://blog.zhaiyifan.cn/2016/08/04/android-new-project-from-0-p10/index.html">
+<meta property="og:site_name" content="markzhai&#39;s home">
+<meta property="og:description" content="本篇来讲讲 React Native 和 Redux，和其他一上来就啪啪啪丢上来一堆翻译的东西不同，本文会从简单的例子入手，让大家能快速地明白 React Native 是什么，Redux 和常见的 MVC、MVP 等有什么区别，怎么去组织一个 Redux 架构的 React Native 项目。 为避免大家还没入门就放弃，预计下一篇才会从我们项目中的实践出发，讲讲更复杂的应用场景。 什么是Rea">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-reactnative.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-reactjs.png">
+<meta property="og:image" content="https://camo.githubusercontent.com/f28b5bc7822f1b7bb28a96d8d09e7d79169248fc/687474703a2f2f692e696d6775722e636f6d2f4a65567164514d2e706e67">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-files.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-structure.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-flow.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-counterapp.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-app.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counter-action-bind.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counters-demo.gif">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counters-structure.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counters-app-render.png">
+<meta property="og:image" content="http://blog.zhaiyifan.cn/images/react-native-1-counters-add-counter.png">
+<meta property="og:updated_time" content="2016-08-19T03:00:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始的Android新项目10 - React Native &amp; Redux">
+<meta name="twitter:description" content="本篇来讲讲 React Native 和 Redux，和其他一上来就啪啪啪丢上来一堆翻译的东西不同，本文会从简单的例子入手，让大家能快速地明白 React Native 是什么，Redux 和常见的 MVC、MVP 等有什么区别，怎么去组织一个 Redux 架构的 React Native 项目。 为避免大家还没入门就放弃，预计下一篇才会从我们项目中的实践出发，讲讲更复杂的应用场景。 什么是Rea">
+<meta name="twitter:image" content="http://blog.zhaiyifan.cn/images/react-native-1-reactnative.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="markzhai's home" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://blog.zhaiyifan.cn/2016/08/04/android-new-project-from-0-p10/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>从零开始的Android新项目10 - React Native & Redux | markzhai's home</title>
+  
+
+
+
+
+  <script async src="//www.googletagmanager.com/gtag/js?id=UA-67533211-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'UA-67533211-1');
+  </script>
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?74dc0d49be7a61e341f6c897ee4d733a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">markzhai's home</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>About</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://blog.zhaiyifan.cn/2016/08/04/android-new-project-from-0-p10/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mark Zhai">
+      <meta itemprop="description" content="白驹过隙 忽然而已">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="markzhai's home">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零开始的Android新项目10 - React Native & Redux
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-08-04 22:03:13" itemprop="dateCreated datePublished" datetime="2016-08-04T22:03:13+08:00">2016-08-04</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2016-08-19 11:00:56" itemprop="dateModified" datetime="2016-08-19T11:00:56+08:00">2016-08-19</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Android-Project-From-0/" itemprop="url" rel="index"><span itemprop="name">Android Project From 0</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             Views:  
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇来讲讲 React Native 和 Redux，和其他一上来就啪啪啪丢上来一堆翻译的东西不同，本文会从简单的例子入手，让大家能快速地明白 React Native 是什么，Redux 和常见的 MVC、MVP 等有什么区别，怎么去组织一个 Redux 架构的 React Native 项目。</p>
+<p>为避免大家还没入门就放弃，预计下一篇才会从我们项目中的实践出发，讲讲更复杂的应用场景。</p>
+<h1 id="什么是React-Native"><a href="#什么是React-Native" class="headerlink" title="什么是React Native"></a>什么是React Native</h1><p><img src="http://blog.zhaiyifan.cn/images/react-native-1-reactnative.png" alt="React Native"></p>
+<p>React Native 使你能够基于 JavaScript 和 React 在原生平台上构建应用，提倡的是 “learn once, write anywhere”，复用代码，提高开发效率。</p>
+<p>项目由 Facebook 开源驱动，在过去的近一年中更新很活跃。文档建议直接看官网的 <a href="https://facebook.github.io/react-native/" target="_blank" rel="noopener">React Native</a>，中文站有点坑。</p>
+<p>支持系统：Android 4.1 (API 16) 以及 &gt;= iOS 7.0。</p>
+<p>关于 React，可以参见之前为掘金翻译计划翻译的 <a href="http://blog.zhaiyifan.cn/2016/04/22/trans-react-newbies-tutorial/">React.js 新手村教程</a>，简单来说 React 将应用分为一个个动态可复用的组件 —— View的渲染（JSX）、数据如何绑定到显示、状态的变更（State）、属性（Props）都包含在组件内部。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-reactjs.png" alt="React.js"></p>
+<p>整个应用由一个个组件搭积木而成（组件式开发），而每个组件则由状态驱动而变更。</p>
+<p>React Native 正像它的名字，将 React 带到了原生世界，和 H5 不同的是，我们不再使用 CSS 和 HTML，而只有 js 为伴。我们也不再有那些 <code>div</code>, <code>input</code> 这些标签，而是由 <code>View</code>, <code>TextInput</code> 等等取代，更符合原生开发者们的习惯。布局上，幸而有强大的 <code>Flexbox</code> 支持，如果开发者们之前有使用或者看到过 Google 在 GitHub 发布的 Android 版 <code>FlexboxLayout</code>，相信对它会很熟悉。原生开发中的页面栈，也由 <code>Navigator</code> 进行了实现（在 Android 上还有 <code>BackAndroid</code> 的返回键支持）。</p>
+<p>与 WebView 不同，React Native 运行的界面，最终会被解释映射为原生的 View，可以直接使用布局边界或者 Hierarchy Viewer 看出层级（js 文件会打包为一个bundle，位于assets下面，RN引擎会加载并进行解释映射）。</p>
+<p>好处</p>
+<ul>
+<li>体验 web 开发的便捷，不再需要编译，重新加载一下 js 就行了</li>
+<li>可以直接使用 Chrome 或者 Nuclide 调试</li>
+<li>Android / iOS 两端可以共享很大一部分代码（RN 还在进行 Windows, MacOS, Node-webkit 等平台的支持）</li>
+<li>热更新，JS bundle 下发一下新的就行了（当然也有一定局限性，如果是 hybrid，则 native 的 RN module 部分不能更新）</li>
+</ul>
+<p>坏处</p>
+<ul>
+<li>前端开发不会原生做不了 React Native（除非你能真只用自带的那些东西），而且理解那些 RN 提供的组件也会很头晕（需要同时了解 Android 和 iOS）。</li>
+<li>原生开发需要一定成本的学习实践才能掌握 React Native。毕竟 ES6 不像过去的 JS 那么傻瓜式了。</li>
+<li>React Native 目前仍然处于快速迭代开发的阶段，你永远也不知道下个版本自己升级需要修改多少原来的代码。</li>
+<li>React Native 的资料较少，尤其是国内的，更尤其是 hybrid 开发的（GitHub 上的开源项目大多是纯 RN 的）。</li>
+</ul>
+<h1 id="什么是Redux"><a href="#什么是Redux" class="headerlink" title="什么是Redux"></a>什么是Redux</h1><p><img src="https://camo.githubusercontent.com/f28b5bc7822f1b7bb28a96d8d09e7d79169248fc/687474703a2f2f692e696d6775722e636f6d2f4a65567164514d2e706e67" alt="Redux.js"></p>
+<p><a href="http://redux.js.org/" target="_blank" rel="noopener">Redux</a> 本身和 React 并没有特别紧密的联系，而是 Facebook 提出的 Flux 架构的一种优秀实现，可以搭配其他任何框架一起使用。在 React 上使用，需要搭配 react-redux（如此一来 Redux 可以不局限于 React，而让社区发展出更多的 redux-* 中间件）。</p>
+<p>Redux 在 React 的基础上（state 和 props），增加了 <a href="http://cn.redux.js.org//docs/basics/Store.html" target="_blank" rel="noopener">store</a>、<a href="http://cn.redux.js.org//docs/basics/Actions.html" target="_blank" rel="noopener">action</a>、<a href="http://cn.redux.js.org//docs/basics/Reducers.html" target="_blank" rel="noopener">reducer</a> 的概念，规范了全局一个 state，从而只需要根据这个 state 就能回朔出整个应用的状态。组件通过 dispatch 将 action 传到 store，reducer 根据原来的 state 以及 action，返回新的 state，组件根据新的 state 渲染界面。</p>
+<p>Redux 是一个可预测的状态容器，即只需要有状态树，就能还原出“事发现场”。</p>
+<h1 id="从例子看项目"><a href="#从例子看项目" class="headerlink" title="从例子看项目"></a>从例子看项目</h1><p>为了避免说一大堆概念，大家一头雾水，似懂非懂，这里拿一个例子来讲讲 React Native 和 Redux 结合后的效果，尽量避免代码的出现，而以图和文字代替。</p>
+<p>Counter！没错，就是 Counter，不是 TODO，TODO已经被黑的不成样了。</p>
+<p>项目源码位于：<a href="https://github.com/alinz/example-react-native-redux" target="_blank" rel="noopener">example-react-native-redux</a>。包含了 <code>Counter</code> 和 <code>Counters</code> 两个子项目。前者是单个的计数器，后者则在前者的基础上增加了可以加减计数器个数的功能，相对更复杂一些，不过引入了一些不错的实践可以参考。</p>
+<h2 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h2><p>先看看最后的效果，方便对应后面的解说。<br>第一个 Counter 项目很简单，就是一个文本框加上两个按钮，一个加1，一个减1。<br>第二个 Counters 项目在前者的基础上（使用了 Counter 组件），可以增加任意个计数器，还添加了带延迟的加1功能，来模拟耗时操作。</p>
+<h2 id="Counter"><a href="#Counter" class="headerlink" title="Counter"></a>Counter</h2><p>先看看Counter，我们从物理架构和动作流两个角度来进行观察。</p>
+<p>目录下，有以下文件：</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-files.png" alt="Counter List Files"></p>
+<p>index.android.js 和 index.ios.js 分别是 android 和 iOS 的 rn 入口，通常内容是相同的。<br>android 为 Android 的工程目录，下面有我们熟悉的 build.gralde。<br>ios 为 iOS 的工程目录，包含了 xcode 的项目。<br>app 就是 rn 的目录，包含了 Android 和 iOS 项目共享的 js 源码。<br>node_modules 是 node 通过解析 package.json 下载的依赖。</p>
+<h3 id="物理结构"><a href="#物理结构" class="headerlink" title="物理结构"></a>物理结构</h3><p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-structure.png" alt="Counter物理结构"></p>
+<p>CounterApp.js 则是整个应用的实际入口。</p>
+<h3 id="动作流"><a href="#动作流" class="headerlink" title="动作流"></a>动作流</h3><p>且不谈那些具体的 bind 和 createStore 操作，我们来看看当发生交互的时候，整个动作的分发，拿点击加号为例：</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-flow.png" alt="Counter活动图"></p>
+<p>onPress 事件触发了后续的一系列活动，而 Counter Component 的 action function 则由外部通过 props 传入（在这里，是 CounterApp 的 render 函数，如下）。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-counterapp.png" alt="counterApp.js"></p>
+<p>再看看 store 的创建，在 App.js 入口：</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-app.png" alt="app.js"></p>
+<p>而 Component 也不是直接调用 action 的 function，而是通过 bindActionCreators 注入到组件props中（这里是通过 react-redux 进行的，不是 redux 自身的东西，可以理解为 react 和 redux 之间的胶水）：</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counter-action-bind.png" alt="action bind"></p>
+<p>通常我们会在智能组件的末尾使用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> connect(mapStateToProps, mapDispatchToProps)(CardDetail);</span><br></pre></td></tr></table></figure>
+<p>这样来把 state 以及 action 注入。</p>
+<h2 id="Counters"><a href="#Counters" class="headerlink" title="Counters"></a>Counters</h2><p>接着我们来看看更为复杂的 Counters 项目，顶层目录结构类似，不再赘述。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counters-demo.gif" alt="demo"></p>
+<p>看完上面的 demo 动图后，相信大家对下面的解说会更容易理解。</p>
+<h3 id="物理结构-1"><a href="#物理结构-1" class="headerlink" title="物理结构"></a>物理结构</h3><p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counters-structure.png" alt="Counters物理结构"></p>
+<p>我们来详细讲一下 modules 下的 app 目录中的文件组织。</p>
+<p>actions.js 和刚才一样，定义了一个个的 action，略有不同的是由于这次有异步的操作，所以涉及到了 dispatch 函数，关于 dispatch 可以查看<a href="http://cn.redux.js.org/docs/api/Store.html#dispatch" target="_blank" rel="noopener">官方文档</a>。</p>
+<p>constants.js 定义了所有 action 的 type，以及 App 的名字。</p>
+<p>reducers.js 一样根据 action（payload 和 type）以及原来的 state 返回新的 state，另外，这里还进行了 initial state 即初始状态的定义（我们也可以把它放到单独的文件中）。</p>
+<p>App.js 定义了页面的布局（渲染和 action），导出了 connect 生成的 container。我们简单看一下 render 部分是怎么做的。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counters-app-render.png" alt="Counters render"></p>
+<p>怎么样，JSX 是不是挺容易理解的？</p>
+<h3 id="动作流-1"><a href="#动作流-1" class="headerlink" title="动作流"></a>动作流</h3><p>Counter 本身的动作流上面我们已经举例过了，本工程中增减计数类似，唯一的区别是 action 不只有 type，还带了 payload（id）来标示不同的计数器。</p>
+<p>所以这里我们拿增加计数器的点击事件来做例子。</p>
+<p><img src="http://blog.zhaiyifan.cn/images/react-native-1-counters-add-counter.png" alt="Add Counter"></p>
+<p>看上去是不是跟上面的差不多？剩下的那个 incrementWithDelay 其实也差不多，只不过返回的是一个function，在 setTimeOut 回调中才进行 dispatch（thunk middleware 会帮我们进行处理）。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>上面我们通过物理结构和活动图大致了解了 React Native 上的 Redux 架构 app 是如何工作的。具体的细节，建议大家还是去查看 GitHub 上的源代码，通过上面的讲解后，应该不难理解。</p>
+<h1 id="技术栈"><a href="#技术栈" class="headerlink" title="技术栈"></a>技术栈</h1><p>我们目前实践的React Nataive技术栈：</p>
+<ul>
+<li>immutable.js</li>
+<li>react</li>
+<li>redux</li>
+<li>react-redux</li>
+<li>redux-thunk</li>
+<li>redux-logger</li>
+<li>redux-mock-store</li>
+<li>react-native-router-flux</li>
+<li>react-native-simple-store</li>
+<li>regenerator</li>
+<li>undefined</li>
+<li>jest</li>
+</ul>
+<h1 id="更多阅读"><a href="#更多阅读" class="headerlink" title="更多阅读"></a>更多阅读</h1><ul>
+<li>React<ul>
+<li><a href="https://daveceddia.com/react-es5-createclass-vs-es6-classes/" target="_blank" rel="noopener">React: ES5 (createClass) or ES6 (class)?</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>Redux<ul>
+<li><a href="http://redux.js.org/" target="_blank" rel="noopener">Redux.js</a></li>
+<li><a href="https://egghead.io/courses/getting-started-with-redux" target="_blank" rel="noopener">Get Started with Redux</a></li>
+<li><a href="http://div.io/topic/1309" target="_blank" rel="noopener">深入到源码：解读 redux 的设计思路与用法</a></li>
+<li><a href="https://github.com/gaearon/redux-thunk" target="_blank" rel="noopener">redux-thunk (Redux的thunk中间件)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>React Native<ul>
+<li><a href="https://facebook.github.io/react-native/docs/" target="_blank" rel="noopener">Facebook React Native Docs</a></li>
+<li><a href="https://reactnatve.wordpress.com/2016/05/20/mapping-uicomponent-ios-android-react-native/" target="_blank" rel="noopener">Mapping UIComponent (iOS, Android, React Native)</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>JavaScript<ul>
+<li><a href="http://redux.js.org/docs/advanced/Middleware.html" target="_blank" rel="noopener">中间件Middleware</a></li>
+<li><a href="https://babeljs.io/docs/learn-es2015/" target="_blank" rel="noopener">ES6</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>项目<ul>
+<li><a href="https://github.com/fbsamples/f8app" target="_blank" rel="noopener">https://github.com/fbsamples/f8app</a></li>
+<li><a href="http://f8-app.liaohuqiu.net/" target="_blank" rel="noopener">http://f8-app.liaohuqiu.net/</a></li>
+<li><a href="https://github.com/bartonhammond/snowflake" target="_blank" rel="noopener">https://github.com/bartonhammond/snowflake</a></li>
+<li><a href="https://github.com/jondot/awesome-react-native" target="_blank" rel="noopener">https://github.com/jondot/awesome-react-native</a></li>
+<li><a href="https://rnplay.org/apps/picks" target="_blank" rel="noopener">https://rnplay.org/apps/picks</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>工具<ul>
+<li><a href="https://nuclide.io/" target="_blank" rel="noopener">https://nuclide.io/</a></li>
+<li><a href="https://github.com/infinitered/ignite" target="_blank" rel="noopener">https://github.com/infinitered/ignite</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>八卦<ul>
+<li><a href="https://www.zhihu.com/question/37636296" target="_blank" rel="noopener">如何看待阿里无线前端发布的Weex?</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/21677103" target="_blank" rel="noopener">weex&amp;ReactNative对比</a>，大头鬼对两者的对比，下面还有阿里P8的评论，评论很精彩，记得一页页看过去哦，哈哈。</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Mark Zhai WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.png" alt="Mark Zhai Alipay">
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag"># React Native</a>
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
+          
+            <a href="/tags/Redux/" rel="tag"># Redux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/23/android-new-project-from-0-p9/" rel="next" title="从零开始的Android新项目9 - 前端用后台接口设计">
+                <i class="fa fa-chevron-left"></i> 从零开始的Android新项目9 - 前端用后台接口设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/08/20/react-native-0-31-preload-optimization/" rel="prev" title="React Native 0.31 Bundle 预加载优化">
+                React Native 0.31 Bundle 预加载优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpg" alt="Mark Zhai">
+            
+              <p class="site-author-name" itemprop="name">Mark Zhai</p>
+              <p class="site-description motion-element" itemprop="description">白驹过隙 忽然而已</p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">68</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">67</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/markzhai" title="GitHub &rarr; https://github.com/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://weibo.com/zhayaofen" title="Weibo &rarr; http://weibo.com/zhayaofen" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.zhihu.com/people/markzhai" title="Zhihu &rarr; https://www.zhihu.com/people/markzhai" rel="noopener" target="_blank"><i class="fa fa-fw fa-globe"></i>Zhihu</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://abner-nimengbo.cn" title="http://abner-nimengbo.cn" rel="noopener" target="_blank">Abner泥阿布</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://yifeiyuan.me" title="http://yifeiyuan.me" rel="noopener" target="_blank">程序亦非猿</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是React-Native"><span class="nav-number">1.</span> <span class="nav-text">什么是React Native</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是Redux"><span class="nav-number">2.</span> <span class="nav-text">什么是Redux</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#从例子看项目"><span class="nav-number">3.</span> <span class="nav-text">从例子看项目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#运行效果"><span class="nav-number">3.1.</span> <span class="nav-text">运行效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Counter"><span class="nav-number">3.2.</span> <span class="nav-text">Counter</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#物理结构"><span class="nav-number">3.2.1.</span> <span class="nav-text">物理结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动作流"><span class="nav-number">3.2.2.</span> <span class="nav-text">动作流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Counters"><span class="nav-number">3.3.</span> <span class="nav-text">Counters</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#物理结构-1"><span class="nav-number">3.3.1.</span> <span class="nav-text">物理结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动作流-1"><span class="nav-number">3.3.2.</span> <span class="nav-text">动作流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#技术栈"><span class="nav-number">4.</span> <span class="nav-text">技术栈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更多阅读"><span class="nav-number">5.</span> <span class="nav-text">更多阅读</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mark Zhai</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.7.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="Total Visitors">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="Total Views">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.7.0"></script>
+
+  <script src="/js/src/motion.js?v=6.7.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=6.7.0"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.7.0"></script>
+<script src="/js/src/post-details.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.7.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
