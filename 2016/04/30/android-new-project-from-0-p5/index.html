@@ -101,7 +101,7 @@
 
 
   <meta name="description" content="如期而至的Repository篇，内部实现则由Realm、Retrofit，以及内存级LruCache组成。Repository，顾名思义，即仓库，向上层屏蔽了数据来源和内部实现细节，不需要了解货物来源，只需要拿走就行了。 由于篇幅问题，将分为上下两篇，本篇主要介绍Retrofit的应用和Repository层组装，下篇会讲解本地缓存（包括Realm和内存缓存）以及基于异常的设计。 Why Rep">
-<meta name="keywords" content="New Android Project From 0,Retrofit,Repository">
+<meta name="keywords" content="New Android Project From 0,Repository,Retrofit">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装">
 <meta property="og:url" content="http://blog.zhaiyifan.cn/2016/04/30/android-new-project-from-0-p5/index.html">
@@ -454,6 +454,18 @@
           
             
             
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <a href="/2016/04/30/android-new-project-from-0-p5/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count gitment-comments-count" data-xid="/2016/04/30/android-new-project-from-0-p5/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
           
 
           
@@ -602,9 +614,9 @@
           
             <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
           
-            <a href="/tags/Retrofit/" rel="tag"># Retrofit</a>
-          
             <a href="/tags/Repository/" rel="tag"># Repository</a>
+          
+            <a href="/tags/Retrofit/" rel="tag"># Retrofit</a>
           
         </div>
       
@@ -650,6 +662,13 @@
 
           </div>
           
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
 
   
 
@@ -1171,6 +1190,47 @@
 
   
 
+
+  
+    <!-- LOCAL: You can save these files to your site and update links -->
+
+  
+  <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitmint.browser.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
+<!-- END LOCAL -->
+
+<style>
+#gitment-container a {
+  border-bottom: none;
+}
+
+</style>
+
+<script>
+  function renderGitment() {
+    var gitment = new Gitmint({
+      id: window.location.pathname,
+      owner: 'markzhai',
+      repo: 'blog-comment',
+      
+        lang: '' || navigator.language || navigator.systemLanguage || navigator.userLanguage,
+      
+      oauth: {
+      
+      
+        client_secret: '329359d1471042d238a004450411944dab4884b1',
+      
+        client_id: 'f8a5d51c8426410ce60a'
+      }
+    });
+    gitment.render('gitment-container');
+  }
+
+  
+    renderGitment();
+  
+</script>
 
   
 
