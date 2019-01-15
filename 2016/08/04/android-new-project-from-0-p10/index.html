@@ -101,7 +101,7 @@
 
 
   <meta name="description" content="本篇来讲讲 React Native 和 Redux，和其他一上来就啪啪啪丢上来一堆翻译的东西不同，本文会从简单的例子入手，让大家能快速地明白 React Native 是什么，Redux 和常见的 MVC、MVP 等有什么区别，怎么去组织一个 Redux 架构的 React Native 项目。 为避免大家还没入门就放弃，预计下一篇才会从我们项目中的实践出发，讲讲更复杂的应用场景。 什么是Rea">
-<meta name="keywords" content="New Android Project From 0,React Native,Redux">
+<meta name="keywords" content="React Native,New Android Project From 0,Redux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零开始的Android新项目10 - React Native &amp; Redux">
 <meta property="og:url" content="http://blog.zhaiyifan.cn/2016/08/04/android-new-project-from-0-p10/index.html">
@@ -474,7 +474,7 @@
                 </span>
             
                 <a href="/2016/08/04/android-new-project-from-0-p10/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count gitment-comments-count" data-xid="/2016/08/04/android-new-project-from-0-p10/" itemprop="commentCount"></span>
+                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count valine-comment-count" data-xid="/2016/08/04/android-new-project-from-0-p10/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -695,9 +695,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
-          
             <a href="/tags/React-Native/" rel="tag"># React Native</a>
+          
+            <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
           
             <a href="/tags/Redux/" rel="tag"># Redux</a>
           
@@ -748,9 +748,6 @@
 
   
     <div class="comments" id="comments">
-      
-        <div id="gitment-container"></div>
-      
     </div>
 
   
@@ -1272,48 +1269,36 @@
 
 
   
-
-
   
-    <!-- LOCAL: You can save these files to your site and update links -->
 
-  
-  <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitmint.browser.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
-<!-- END LOCAL -->
 
-<style>
-#gitment-container a {
-  border-bottom: none;
-}
 
-</style>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
 
 <script>
-  function renderGitment() {
-    var gitment = new Gitmint({
-      id: window.location.pathname,
-      owner: 'markzhai',
-      repo: 'blog-comment',
-      
-        lang: '' || navigator.language || navigator.systemLanguage || navigator.userLanguage,
-      
-      oauth: {
-      
-      
-        client_secret: '329359d1471042d238a004450411944dab4884b1',
-      
-        client_id: 'f8a5d51c8426410ce60a'
-      }
-    });
-    gitment.render('gitment-container');
-  }
-
-  
-    renderGitment();
-  
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: true,
+    notify: false,
+    appId: 'plSAAuSy3zr0VxhyRtEh4nRI-gzGzoHsz',
+    appKey: 'qMfkW4L9001Tau6NyswFcIh4',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
 </script>
+
+
+
 
   
 

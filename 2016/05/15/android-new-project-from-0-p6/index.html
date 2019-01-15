@@ -101,7 +101,7 @@
 
 
   <meta name="description" content="承接上篇 从零开始的Android新项目5 - Repository层(上) Retrofit、Repository组装，本文继续介绍Realm、缓存，以及统一的异常处理设计。 RealmRealm在移动端数据库中也算是比较有名的一款了，以其跨平台和惊人的速度而闻名。啊，对了，还有文档多。 这里要黑的就是文档问题，Realm虽然乍一看文档很多，但是老实说，写的挺乱的。不过总体来说，实践和应用中感觉">
-<meta name="keywords" content="New Android Project From 0,Realm,Repository,异常处理">
+<meta name="keywords" content="New Android Project From 0,Repository,Realm,异常处理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零开始的Android新项目6 - Repository层(下) Realm、缓存、异常处理">
 <meta property="og:url" content="http://blog.zhaiyifan.cn/2016/05/15/android-new-project-from-0-p6/index.html">
@@ -460,7 +460,7 @@
                 </span>
             
                 <a href="/2016/05/15/android-new-project-from-0-p6/#comments" itemprop="discussionUrl">
-                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count gitment-comments-count" data-xid="/2016/05/15/android-new-project-from-0-p6/" itemprop="commentCount"></span>
+                  <span class="post-meta-item-text">Comments: </span> <span class="post-comments-count valine-comment-count" data-xid="/2016/05/15/android-new-project-from-0-p6/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -585,9 +585,9 @@
           
             <a href="/tags/New-Android-Project-From-0/" rel="tag"># New Android Project From 0</a>
           
-            <a href="/tags/Realm/" rel="tag"># Realm</a>
-          
             <a href="/tags/Repository/" rel="tag"># Repository</a>
+          
+            <a href="/tags/Realm/" rel="tag"># Realm</a>
           
             <a href="/tags/异常处理/" rel="tag"># 异常处理</a>
           
@@ -638,9 +638,6 @@
 
   
     <div class="comments" id="comments">
-      
-        <div id="gitment-container"></div>
-      
     </div>
 
   
@@ -1162,48 +1159,36 @@
 
 
   
-
-
   
-    <!-- LOCAL: You can save these files to your site and update links -->
 
-  
-  <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitmint.browser.js"></script>
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
-<!-- END LOCAL -->
 
-<style>
-#gitment-container a {
-  border-bottom: none;
-}
 
-</style>
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
 
 <script>
-  function renderGitment() {
-    var gitment = new Gitmint({
-      id: window.location.pathname,
-      owner: 'markzhai',
-      repo: 'blog-comment',
-      
-        lang: '' || navigator.language || navigator.systemLanguage || navigator.userLanguage,
-      
-      oauth: {
-      
-      
-        client_secret: '329359d1471042d238a004450411944dab4884b1',
-      
-        client_id: 'f8a5d51c8426410ce60a'
-      }
-    });
-    gitment.render('gitment-container');
-  }
-
-  
-    renderGitment();
-  
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: true,
+    notify: false,
+    appId: 'plSAAuSy3zr0VxhyRtEh4nRI-gzGzoHsz',
+    appKey: 'qMfkW4L9001Tau6NyswFcIh4',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false
+  });
 </script>
+
+
+
 
   
 
