@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>婚礼邀请函</title>
+  <title>婚礼答谢宴邀请函 — 翟一帆 & 周梦雨</title>
   <link rel="preconnect" href="https://fonts.loli.net" crossorigin>
   <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -41,7 +41,7 @@
       justify-content: center;
       text-align: center;
       padding: 40px 20px;
-      background: url('bg3.jpg') center center / cover no-repeat;
+      background: url('bg1.jpg') center center / cover no-repeat;
       position: relative;
       overflow: hidden;
     }
@@ -465,88 +465,6 @@
       50% { transform: scale(1.2); }
     }
 
-    /* ===== Photo Gallery ===== */
-    .gallery-section {
-      padding: 80px 20px;
-      background: var(--white);
-    }
-
-    .gallery-carousel {
-      max-width: 520px;
-      margin: 0 auto;
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.10);
-    }
-
-    .gallery-track {
-      display: flex;
-      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .gallery-slide {
-      min-width: 100%;
-    }
-
-    .gallery-slide img {
-      width: 100%;
-      display: block;
-      aspect-ratio: 3 / 4;
-      object-fit: cover;
-    }
-
-    .gallery-dots {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .gallery-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--gold-pale);
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      transition: all 0.3s ease;
-    }
-
-    .gallery-dot.active {
-      background: var(--gold);
-      transform: scale(1.3);
-    }
-
-    .gallery-nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.85);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: var(--text);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      transition: all 0.3s;
-      z-index: 2;
-    }
-
-    .gallery-nav:hover {
-      background: rgba(255,255,255,1);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .gallery-prev { left: 12px; }
-    .gallery-next { right: 12px; }
-
     /* ===== Scroll animations ===== */
     /* JS 会在 <html> 上加 .js-ready，没有它时 reveal 默认可见（兜底） */
     .reveal {
@@ -584,13 +502,14 @@
   <section class="hero">
     <div class="xi-character">囍</div>
     <h1 class="couple-names">
-      新郎<span class="amp">&</span>新娘
+      翟一帆<span class="amp">&</span>周梦雨
     </h1>
-    <p class="subtitle">我们结婚啦</p>
+    <p class="subtitle">婚礼答谢宴</p>
     <div class="divider"></div>
     <p class="invitation-text">
-      谨定于 二〇二六年五月十日（星期日）<br>
-      举行结婚典礼<br>
+      谨定于 二〇二六年七月十八日（星期六）<br>
+      举行婚礼答谢宴<br>
+      感谢亲朋好友一路相伴<br>
       敬备薄酌 恭候光临
     </p>
     <div class="scroll-hint">向下滑动</div>
@@ -598,70 +517,47 @@
 
   <!-- Wedding Info -->
   <section class="section">
-    <h2 class="section-title reveal">婚礼详情</h2>
-    <p class="section-subtitle reveal">Wedding Details</p>
+    <h2 class="section-title reveal">宴会详情</h2>
+    <p class="section-subtitle reveal">Banquet Details</p>
 
     <div class="info-cards">
       <div class="info-card reveal">
         <div class="info-icon">📅</div>
         <div class="info-label">日期</div>
-        <div class="info-value">2026年5月10日</div>
-        <div class="info-detail">星期日 农历四月初四</div>
+        <div class="info-value">2026年7月18日</div>
+        <div class="info-detail">星期六</div>
       </div>
       <div class="info-card reveal">
         <div class="info-icon">⏰</div>
         <div class="info-label">时间</div>
-        <div class="info-value">上午 11:18</div>
-        <div class="info-detail">仪式正式开始</div>
+        <div class="info-value">晚上 18:00</div>
+        <div class="info-detail">答谢宴正式开始</div>
       </div>
       <div class="info-card full-width reveal">
         <div class="info-icon">📍</div>
         <div class="info-label">地点</div>
-        <div class="info-value">XX大酒店 · 宴会厅</div>
-        <div class="info-detail">XX省XX市XX区XX路168号</div>
+        <div class="info-value">上海滩餐厅</div>
+        <div class="info-detail">上海市黄浦区中山东二路600号<br>BFC外滩金融中心N3幢5层</div>
       </div>
     </div>
 
     <div class="timeline reveal">
       <div class="timeline-item">
-        <div class="timeline-time">10:30</div>
+        <div class="timeline-time">17:30</div>
         <div class="timeline-event">宾客签到入场</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-time">11:18</div>
-        <div class="timeline-event">婚礼仪式开始</div>
+        <div class="timeline-time">18:00</div>
+        <div class="timeline-event">答谢宴正式开始</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-time">12:00</div>
-        <div class="timeline-event">婚宴正式开席</div>
+        <div class="timeline-time">19:00</div>
+        <div class="timeline-event">举杯致谢 & 自由交流</div>
       </div>
       <div class="timeline-item">
-        <div class="timeline-time">13:30</div>
-        <div class="timeline-event">敬酒 & 自由交流</div>
+        <div class="timeline-time">20:30</div>
+        <div class="timeline-event">宴会结束 感谢光临</div>
       </div>
-    </div>
-  </section>
-
-  <!-- Photo Gallery -->
-  <section class="gallery-section">
-    <h2 class="section-title reveal">我们的故事</h2>
-    <p class="section-subtitle reveal">Our Moments</p>
-
-    <div class="gallery-carousel reveal">
-      <button class="gallery-nav gallery-prev" onclick="changeSlide(-1)">&#8249;</button>
-      <button class="gallery-nav gallery-next" onclick="changeSlide(1)">&#8250;</button>
-      <div class="gallery-track" id="galleryTrack">
-        <div class="gallery-slide"><img src="bg1.jpg" alt="婚纱照"></div>
-        <div class="gallery-slide"><img src="bg2.jpg" alt="婚纱照"></div>
-        <div class="gallery-slide"><img src="bg3.jpg" alt="婚纱照"></div>
-        <div class="gallery-slide"><img src="bg4.jpg" alt="婚纱照"></div>
-      </div>
-    </div>
-    <div class="gallery-dots reveal" id="galleryDots">
-      <button class="gallery-dot active" onclick="goToSlide(0)"></button>
-      <button class="gallery-dot" onclick="goToSlide(1)"></button>
-      <button class="gallery-dot" onclick="goToSlide(2)"></button>
-      <button class="gallery-dot" onclick="goToSlide(3)"></button>
     </div>
   </section>
 
@@ -723,10 +619,20 @@
   <!-- Toast notification -->
   <div class="toast" id="toast"></div>
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Supabase SDK (async, won't block page) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" async></script>
 
   <script>
+    // ===== Toast =====
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // ===== Supabase (延迟初始化，不阻塞页面) =====
     // ================================================
     // Supabase 配置 — 请替换为你自己的项目凭据
     //
@@ -743,7 +649,6 @@
     //      created_at timestamptz default now()
     //    );
     //
-    //    -- 允许匿名用户插入数据（前端提交用）
     //    alter table wedding_rsvp enable row level security;
     //    create policy "Allow anonymous insert"
     //      on wedding_rsvp for insert
@@ -751,18 +656,14 @@
     //      with check (true);
     //
     // ================================================
-    const SUPABASE_URL = 'https://qpyamslgqaxeprwygseo.supabase.co';  // Supabase 项目 URL
-    const SUPABASE_KEY = 'sb_publishable_GAbET39pBRvEdFPhc_lwJA_DV1EdLFs'; // 公开的 anon key，可安全放前端
+    const SUPABASE_URL = 'https://qpyamslgqaxeprwygseo.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_GAbET39pBRvEdFPhc_lwJA_DV1EdLFs';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ===== Toast =====
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = `toast ${type}`;
-      requestAnimationFrame(() => toast.classList.add('show'));
-      setTimeout(() => toast.classList.remove('show'), 3000);
+    function getSupabase() {
+      if (window.supabase) {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+      return null;
     }
 
     // ===== Form submission =====
@@ -777,7 +678,6 @@
       const guestCount = document.getElementById('guestCount').value;
       const remark = document.getElementById('remark').value.trim();
 
-      // Validate phone
       if (!/^1\d{10}$/.test(phone)) {
         showToast('请输入正确的手机号码', 'error');
         return;
@@ -787,7 +687,10 @@
       submitBtn.disabled = true;
 
       try {
-        const { error } = await supabase
+        const db = getSupabase();
+        if (!db) throw new Error('数据服务加载中，请稍后再试');
+
+        const { error } = await db
           .from('wedding_rsvp')
           .insert({
             name: name,
@@ -802,7 +705,7 @@
         form.reset();
       } catch (err) {
         console.error('提交失败:', err);
-        showToast('提交失败，请稍后重试', 'error');
+        showToast(err.message || '提交失败，请稍后重试', 'error');
       } finally {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
@@ -836,43 +739,6 @@
       revealEls.forEach(el => el.classList.add('visible'));
     }
 
-    // ===== Photo Carousel =====
-    let currentSlide = 0;
-    const totalSlides = 4;
-    const track = document.getElementById('galleryTrack');
-    const dots = document.querySelectorAll('.gallery-dot');
-
-    function goToSlide(index) {
-      currentSlide = (index + totalSlides) % totalSlides;
-      track.style.transform = `translateX(-${currentSlide * 100}%)`;
-      dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    }
-
-    function changeSlide(dir) {
-      goToSlide(currentSlide + dir);
-    }
-
-    // Auto-play every 4 seconds
-    let autoPlay = setInterval(() => changeSlide(1), 4000);
-
-    // Pause on hover
-    const carousel = document.querySelector('.gallery-carousel');
-    carousel.addEventListener('mouseenter', () => clearInterval(autoPlay));
-    carousel.addEventListener('mouseleave', () => {
-      autoPlay = setInterval(() => changeSlide(1), 4000);
-    });
-
-    // Touch swipe support
-    let touchStartX = 0;
-    carousel.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-      clearInterval(autoPlay);
-    }, { passive: true });
-    carousel.addEventListener('touchend', (e) => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
-      autoPlay = setInterval(() => changeSlide(1), 4000);
-    }, { passive: true });
   </script>
 
 </body>
